@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
             'username' => 'manager123',
             'email' => 'manager123@example.com',
             'password' => 'pass123',
-            'role' => 'manager',
+            'role' => 'admin',
         ]);
 
         User::query()->updateOrCreate(['email' => 'admin123@example.com'], [
@@ -46,14 +46,16 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $services = [
-            ['name' => 'Wash & Fold', 'icon' => '🧺', 'pricing_type' => 'per_kg', 'price' => 55],
-            ['name' => 'Wash & Iron', 'icon' => '👔', 'pricing_type' => 'per_kg', 'price' => 75],
-            ['name' => 'Dry Clean', 'icon' => '✨', 'pricing_type' => 'per_kg', 'price' => 120],
-            ['name' => 'Express Wash', 'icon' => '⚡', 'pricing_type' => 'per_kg', 'price' => 95],
-            ['name' => 'Bedding & Linen', 'icon' => '🛏️', 'pricing_type' => 'per_kg', 'price' => 85],
-            ['name' => 'Stain Removal', 'icon' => '🧴', 'pricing_type' => 'flat_rate', 'price' => 50],
-            ['name' => 'Shoe Cleaning', 'icon' => '👟', 'pricing_type' => 'flat_rate', 'price' => 150],
-            ['name' => 'Fabric Softener', 'icon' => '🌸', 'pricing_type' => 'flat_rate', 'price' => 25],
+            ['name' => 'Wash', 'icon' => '🧺', 'pricing_type' => 'per_load', 'price' => 60, 'price_per_load' => 60, 'is_active' => true],
+            ['name' => 'Dry (40 minutes)', 'icon' => '♨️', 'pricing_type' => 'per_load', 'price' => 70, 'price_per_load' => 70, 'is_active' => true],
+            ['name' => 'Detergent', 'icon' => '🧴', 'pricing_type' => 'per_load', 'price' => 15, 'price_per_load' => 15, 'is_active' => true],
+            ['name' => 'Fabcon', 'icon' => '🌸', 'pricing_type' => 'per_load', 'price' => 8, 'price_per_load' => 8, 'is_active' => true],
+            ['name' => 'Cellophane', 'icon' => '📦', 'pricing_type' => 'per_load', 'price' => 2, 'price_per_load' => 2, 'is_active' => true],
+            ['name' => 'Bleach', 'icon' => '🧪', 'pricing_type' => 'per_load', 'price' => 7, 'price_per_load' => 7, 'is_active' => true],
+            ['name' => 'Extra Dry (6 minutes)', 'icon' => '⚡', 'pricing_type' => 'per_load', 'price' => 15, 'price_per_load' => 15, 'is_active' => true],
+            ['name' => 'Power Wash', 'icon' => '💦', 'pricing_type' => 'per_load', 'price' => 80, 'price_per_load' => 80, 'is_active' => true],
+            ['name' => 'Spin Dry', 'icon' => '🌀', 'pricing_type' => 'per_load', 'price' => 15, 'price_per_load' => 15, 'is_active' => true],
+            ['name' => 'Fold/Load', 'icon' => '👕', 'pricing_type' => 'per_load', 'price' => 20, 'price_per_load' => 20, 'is_active' => true],
         ];
 
         foreach ($services as $service) {

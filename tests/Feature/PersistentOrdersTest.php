@@ -30,6 +30,20 @@ class PersistentOrdersTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
+    public function test_merged_manager_account_uses_the_admin_interface(): void
+    {
+        $user = User::factory()->create([
+            'username' => 'manager123',
+            'password' => 'pass123',
+            'role' => 'admin',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Admin Dashboard');
+    }
+
     public function test_staff_can_create_a_persistent_order(): void
     {
         $user = User::factory()->create(['role' => 'staff']);
@@ -54,7 +68,7 @@ class PersistentOrdersTest extends TestCase
             'customer_name' => 'Ana Cruz',
             'weight_kg' => 4.5,
             'services' => 'Wash & Fold',
-            'status' => 'pending',
+            'status' => 'received',
         ]);
     }
 
@@ -105,6 +119,189 @@ class PersistentOrdersTest extends TestCase
             'customer_name' => 'Price Check',
             'services' => 'Wash Test, Softener Test',
             'total_price' => 245,
+        ]);
+    }
+
+    public function test_staff_order_calculates_loads_and_normalized_service_subtotals(): void
+    {
+        $staff = User::factory()->create(['role' => 'staff']);
+        $customer = Customer::factory()->create();
+        $services = collect([
+            ['name' => 'Wash', 'price' => 60],
+            ['name' => 'Dry', 'price' => 70],
+            ['name' => 'Detergent', 'price' => 15],
+            ['name' => 'Fabcon', 'price' => 8],
+        ])->map(fn (array $service): Service => Service::create([
+            ...$service,
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price_per_load' => $service['price'],
+        ]));
+
+        $this->actingAs($staff)->post(route('orders.add'), [
+            'customer_id' => $customer->id,
+            'weight_kg' => 16,
+            'service_ids' => $services->pluck('id')->all(),
+            'amount_paid' => 306,
+        ])->assertRedirect();
+
+        $order = Order::query()->latest('id')->firstOrFail();
+        $this->assertSame(2, $order->number_of_loads);
+        $this->assertSame('306.00', $order->total_price);
+        $this->assertSame('paid', $order->payment_status);
+        $this->assertDatabaseCount('order_services', 4);
+        $this->assertDatabaseHas('order_services', [
+            'order_id' => $order->id,
+            'service_id' => $services->first()->id,
+            'loads' => 2,
+            'price_per_load' => '60.00',
+            'subtotal' => '120.00',
+        ]);
+    }
+
+    public function test_order_payment_status_and_overpayment_validation_are_enforced(): void
+    {
+        $staff = User::factory()->create(['role' => 'staff']);
+        $customer = Customer::factory()->create();
+        $service = Service::create([
+            'name' => 'Wash',
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price' => 60,
+            'price_per_load' => 60,
+        ]);
+
+        $this->actingAs($staff)->post(route('orders.add'), [
+            'customer_id' => $customer->id,
+            'weight_kg' => 8,
+            'service_ids' => [$service->id],
+            'amount_paid' => 20,
+        ])->assertRedirect();
+
+        $order = Order::query()->latest('id')->firstOrFail();
+        $this->assertSame('partially_paid', $order->payment_status);
+        $this->assertSame('0.00', $order->change);
+
+        $this->actingAs($staff)->post(route('orders.add'), [
+            'customer_id' => $customer->id,
+            'weight_kg' => 8,
+            'service_ids' => [$service->id],
+            'amount_paid' => 61,
+        ])->assertStatus(422);
+    }
+
+    public function test_new_customer_is_created_and_inactive_services_are_rejected(): void
+    {
+        $staff = User::factory()->create(['role' => 'staff']);
+        $service = Service::create([
+            'name' => 'Wash',
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price' => 60,
+            'price_per_load' => 60,
+            'is_active' => false,
+        ]);
+
+        $this->actingAs($staff)->post(route('orders.add'), [
+            'customer_name' => 'New Laundry Customer',
+            'contact_number' => '09170000000',
+            'address' => 'Main Street',
+            'weight_kg' => 8,
+            'service_ids' => [$service->id],
+        ])->assertStatus(422);
+
+        $this->assertDatabaseMissing('customers', ['name' => 'New Laundry Customer']);
+    }
+
+    public function test_service_price_changes_do_not_modify_existing_order_snapshot(): void
+    {
+        $staff = User::factory()->create(['role' => 'staff']);
+        $admin = User::factory()->create(['role' => 'admin']);
+        $customer = Customer::factory()->create();
+        $service = Service::create([
+            'name' => 'Wash',
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price' => 60,
+            'price_per_load' => 60,
+        ]);
+
+        $this->actingAs($staff)->post(route('orders.add'), [
+            'customer_id' => $customer->id,
+            'weight_kg' => 8,
+            'service_ids' => [$service->id],
+        ])->assertRedirect();
+
+        $this->actingAs($admin)->put(route('services.update', $service), [
+            'name' => $service->name,
+            'icon' => $service->icon,
+            'pricing_type' => 'per_load',
+            'price' => 90,
+            'price_per_load' => 90,
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('order_services', [
+            'service_id' => $service->id,
+            'price_per_load' => '60.00',
+            'subtotal' => '60.00',
+        ]);
+        $this->assertDatabaseHas('services', [
+            'id' => $service->id,
+            'price_per_load' => '90.00',
+        ]);
+    }
+
+    public function test_status_changes_create_history_and_payment_records_update_balance(): void
+    {
+        $staff = User::factory()->create(['role' => 'staff']);
+        $customer = Customer::factory()->create();
+        $service = Service::create([
+            'name' => 'Wash',
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price' => 60,
+            'price_per_load' => 60,
+        ]);
+
+        $this->actingAs($staff)->post(route('orders.add'), [
+            'customer_id' => $customer->id,
+            'weight_kg' => 8,
+            'service_ids' => [$service->id],
+        ])->assertRedirect();
+
+        $order = Order::query()->latest('id')->firstOrFail();
+        $this->assertDatabaseHas('order_status_histories', [
+            'order_id' => $order->id,
+            'status' => 'received',
+            'changed_by' => $staff->id,
+        ]);
+
+        $this->actingAs($staff)->post(route('orders.status.update', $order), [
+            'status' => 'washing',
+            'notes' => 'Machine cycle started.',
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('order_status_histories', [
+            'order_id' => $order->id,
+            'status' => 'washing',
+            'notes' => 'Machine cycle started.',
+        ]);
+
+        $this->actingAs($staff)->post(route('orders.payments.store', $order), [
+            'amount' => 20,
+            'payment_method' => 'cash',
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('payments', [
+            'order_id' => $order->id,
+            'amount' => '20.00',
+            'payment_method' => 'cash',
+            'received_by' => $staff->id,
+        ]);
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'amount_paid' => '20.00',
+            'payment_status' => 'partially_paid',
         ]);
     }
 

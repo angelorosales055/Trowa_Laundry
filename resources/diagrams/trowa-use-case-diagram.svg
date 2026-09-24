@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1120" viewBox="0 0 1500 1120">
+  <style>
+    .title { font: 700 30px Arial, sans-serif; fill: #0f172a; }
+    .actor-label { font: 700 18px Arial, sans-serif; fill: #0f172a; text-anchor: middle; }
+    .module { font: 700 17px Arial, sans-serif; fill: #0f766e; }
+    .usecase { font: 15px Arial, sans-serif; fill: #0f172a; text-anchor: middle; }
+    .system { fill: #f8fafc; stroke: #0f172a; stroke-width: 2; }
+    .module-box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
+    .ellipse { fill: #ecfeff; stroke: #0f766e; stroke-width: 1.5; }
+    .association { stroke: #475569; stroke-width: 1.5; fill: none; }
+    .include { stroke: #64748b; stroke-width: 1.2; stroke-dasharray: 6 5; fill: none; marker-end: url(#arrow); }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="none" stroke="#64748b" stroke-width="1.2"/>
+    </marker>
+  </defs>
+
+  <text x="750" y="42" class="title" text-anchor="middle">Use Case Diagram — Trowa Laundry Management System</text>
+
+  <rect x="265" y="75" width="970" height="980" rx="8" class="system"/>
+  <text x="750" y="103" class="title" text-anchor="middle" font-size="22">TROWA LAUNDRY MANAGEMENT SYSTEM</text>
+
+  <!-- Actors -->
+  <g transform="translate(125 260)">
+    <circle cx="0" cy="0" r="24" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+    <path d="M0 24 L0 105 M-42 52 L42 52 M0 105 L-36 155 M0 105 L36 155" class="association"/>
+    <text x="0" y="190" class="actor-label">Staff</text>
+  </g>
+  <g transform="translate(1375 260)">
+    <circle cx="0" cy="0" r="24" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+    <path d="M0 24 L0 105 M-42 52 L42 52 M0 105 L-36 155 M0 105 L36 155" class="association"/>
+    <text x="0" y="190" class="actor-label">Admin</text>
+  </g>
+
+  <!-- Staff associations -->
+  <path d="M167 312 L285 180" class="association"/>
+  <path d="M167 312 L285 365" class="association"/>
+  <path d="M167 312 L285 550" class="association"/>
+  <path d="M167 312 L285 735" class="association"/>
+  <path d="M167 312 L285 920" class="association"/>
+
+  <!-- Admin associations -->
+  <path d="M1333 312 L1215 180" class="association"/>
+  <path d="M1333 312 L1215 365" class="association"/>
+  <path d="M1333 312 L1215 550" class="association"/>
+  <path d="M1333 312 L1215 735" class="association"/>
+  <path d="M1333 312 L1215 920" class="association"/>
+
+  <!-- Module 1 -->
+  <rect x="300" y="125" width="900" height="170" rx="8" class="module-box"/>
+  <text x="320" y="151" class="module">1. Authentication and User Access</text>
+  <ellipse cx="475" cy="210" rx="105" ry="35" class="ellipse"/>
+  <text x="475" y="216" class="usecase">Log In / Log Out</text>
+  <ellipse cx="735" cy="210" rx="115" ry="35" class="ellipse"/>
+  <text x="735" y="216" class="usecase">Access Dashboard</text>
+  <ellipse cx="1010" cy="210" rx="125" ry="35" class="ellipse"/>
+  <text x="1010" y="216" class="usecase">Validate User Role</text>
+  <path d="M850 210 L884 210" class="include"/>
+  <text x="867" y="198" class="usecase" font-size="11">include</text>
+
+  <!-- Module 2 -->
+  <rect x="300" y="315" width="900" height="190" rx="8" class="module-box"/>
+  <text x="320" y="341" class="module">2. Laundry Order Management</text>
+  <ellipse cx="475" cy="400" rx="125" ry="35" class="ellipse"/>
+  <text x="475" y="406" class="usecase">Create Laundry Order</text>
+  <ellipse cx="735" cy="400" rx="120" ry="35" class="ellipse"/>
+  <text x="735" y="406" class="usecase">Record Weight</text>
+  <ellipse cx="1010" cy="400" rx="125" ry="35" class="ellipse"/>
+  <text x="1010" y="406" class="usecase">Calculate Loads</text>
+  <ellipse cx="475" cy="465" rx="120" ry="28" class="ellipse"/>
+  <text x="475" y="470" class="usecase">Select Services</text>
+  <ellipse cx="735" cy="465" rx="125" ry="28" class="ellipse"/>
+  <text x="735" y="470" class="usecase">Calculate Total</text>
+  <ellipse cx="1010" cy="465" rx="125" ry="28" class="ellipse"/>
+  <text x="1010" y="470" class="usecase">View Order Details</text>
+  <path d="M600 400 L615 400" class="include"/>
+  <path d="M855 400 L885 400" class="include"/>
+  <path d="M475 435 L475 437" class="include"/>
+  <path d="M735 435 L735 437" class="include"/>
+
+  <!-- Module 3 -->
+  <rect x="300" y="525" width="900" height="170" rx="8" class="module-box"/>
+  <text x="320" y="551" class="module">3. Order Status Management</text>
+  <ellipse cx="475" cy="610" rx="125" ry="35" class="ellipse"/>
+  <text x="475" y="616" class="usecase">View Order Status</text>
+  <ellipse cx="735" cy="610" rx="125" ry="35" class="ellipse"/>
+  <text x="735" y="616" class="usecase">Update Order Status</text>
+  <ellipse cx="1010" cy="610" rx="125" ry="35" class="ellipse"/>
+  <text x="1010" y="616" class="usecase">View Status History</text>
+  <path d="M860 610 L885 610" class="include"/>
+
+  <!-- Module 4 -->
+  <rect x="300" y="715" width="900" height="170" rx="8" class="module-box"/>
+  <text x="320" y="741" class="module">4. Payment Management</text>
+  <ellipse cx="475" cy="800" rx="110" ry="35" class="ellipse"/>
+  <text x="475" y="806" class="usecase">Record Payment</text>
+  <ellipse cx="735" cy="800" rx="125" ry="35" class="ellipse"/>
+  <text x="735" y="806" class="usecase">Calculate Balance</text>
+  <ellipse cx="1010" cy="800" rx="125" ry="35" class="ellipse"/>
+  <text x="1010" y="806" class="usecase">View Payment History</text>
+  <path d="M585 800 L610 800" class="include"/>
+  <path d="M860 800 L885 800" class="include"/>
+
+  <!-- Module 5 -->
+  <rect x="300" y="905" width="430" height="120" rx="8" class="module-box"/>
+  <text x="320" y="931" class="module">5. Customer Management</text>
+  <ellipse cx="445" cy="980" rx="110" ry="28" class="ellipse"/>
+  <text x="445" y="985" class="usecase">Manage Customers</text>
+  <ellipse cx="650" cy="980" rx="65" ry="28" class="ellipse"/>
+  <text x="650" y="985" class="usecase">Search</text>
+
+  <!-- Module 6 -->
+  <rect x="770" y="905" width="430" height="120" rx="8" class="module-box"/>
+  <text x="790" y="931" class="module">6. Service and Reporting</text>
+  <ellipse cx="900" cy="980" rx="100" ry="28" class="ellipse"/>
+  <text x="900" y="985" class="usecase">Manage Services</text>
+  <ellipse cx="1090" cy="980" rx="80" ry="28" class="ellipse"/>
+  <text x="1090" y="985" class="usecase">View Reports</text>
+</svg>

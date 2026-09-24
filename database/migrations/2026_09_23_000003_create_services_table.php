@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->string('icon', 10)->default('🧺');
-            $table->enum('pricing_type', ['per_kg', 'flat_rate']);
+            $table->enum('pricing_type', ['per_kg', 'per_load', 'flat_rate']);
             $table->decimal('price', 10, 2);
             $table->timestamps();
         });

@@ -19,10 +19,12 @@
             </div>
             <nav class="flex gap-1 overflow-x-auto p-3 lg:block lg:space-y-1">
                 @php($nav = [
-                    ['dashboard', 'Dashboard', '▦', ['staff','manager','admin']],
-                    ['customers.index', 'Customers', '♟', ['staff','manager','admin']],
-                    ['schedule.index', 'Schedule', '▣', ['staff','manager','admin']],
-                    ['reports', 'Reports', '▥', ['manager','admin']],
+                    ['dashboard', 'Dashboard', '▦', ['staff','admin']],
+                    ['customers.index', 'Customers', '♟', ['staff','admin']],
+                    ['orders.index', 'Laundry Order Management', '▣', ['staff','admin']],
+                    ['schedule.index', 'Order Status', '↻', ['staff','admin']],
+                    ['payments.index', 'Payments', '₱', ['staff','admin']],
+                    ['reports', 'Reports', '▥', ['admin']],
                     ['billing', 'Billing', '▤', ['admin']],
                     ['services.index', 'Settings', '⚙', ['admin']],
                 ])

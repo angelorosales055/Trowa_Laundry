@@ -61,7 +61,7 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 ## Trowa Laundry — prototype instructions
 
-This repository now includes a lightweight prototype of a "Trowa Laundry" staff/manager/admin dashboard used for demos.
+This repository now includes a lightweight prototype of a "Trowa Laundry" staff/admin dashboard used for demos.
 
 Quick setup (run these locally):
 
@@ -77,7 +77,7 @@ Quick setup (run these locally):
 3. Demo credentials (quick-fill buttons on the login page):
 
 - staff123 / pass123  → Staff
-- manager123 / pass123 → Manager
+- manager123 / pass123 → Admin
 - admin123 / pass123 → Admin
 
 Notes:

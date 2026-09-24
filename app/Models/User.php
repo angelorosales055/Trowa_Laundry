@@ -23,6 +23,16 @@ class User extends Authenticatable
         return $this->hasMany(Order::class, 'created_by');
     }
 
+    public function statusChanges(): HasMany
+    {
+        return $this->hasMany(OrderStatusHistory::class, 'changed_by');
+    }
+
+    public function receivedPayments(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'received_by');
+    }
+
     /**
      * Get the attributes that should be cast.
      *

@@ -14,12 +14,16 @@ class Service extends Model
         'icon',
         'pricing_type',
         'price',
+        'price_per_load',
+        'is_active',
     ];
 
     protected function casts(): array
     {
         return [
             'price' => 'decimal:2',
+            'price_per_load' => 'decimal:2',
+            'is_active' => 'boolean',
         ];
     }
 }
