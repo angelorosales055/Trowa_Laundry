@@ -6,6 +6,7 @@ use App\Models\Order;
 use Brick\Math\BigDecimal;
 use Brick\Math\RoundingMode;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class RecordPaymentAction
 {
@@ -18,7 +19,11 @@ class RecordPaymentAction
             $remaining = $total->minus((string) $paid);
             $amount = BigDecimal::of((string) $data['amount'])->toScale(2, RoundingMode::HalfUp);
 
-            abort_unless($amount->isLessThanOrEqualTo($remaining), 422, 'Payment cannot exceed the remaining balance.');
+            if ($amount->isGreaterThan($remaining)) {
+                throw ValidationException::withMessages([
+                    'amount' => 'Payment cannot exceed the remaining balance of ₱'.number_format($remaining->toFloat(), 2).'.',
+                ]);
+            }
 
             $newPaid = BigDecimal::of((string) $paid)->plus($amount);
             $status = $newPaid->isEqualTo($total) ? 'paid' : 'partially_paid';

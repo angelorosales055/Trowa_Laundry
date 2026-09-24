@@ -83,6 +83,7 @@ class CreateLaundryOrderAction
             ]);
 
             $order->orderServices()->createMany($lineItems->all());
+            $order->itemDetails()->createMany($data['item_details'] ?? []);
             $order->statusHistories()->create([
                 'status' => 'received',
                 'changed_by' => $staffId,

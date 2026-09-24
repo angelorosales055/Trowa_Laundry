@@ -62,4 +62,9 @@ class Order extends Model
     {
         return $this->hasMany(Payment::class)->latest('paid_at');
     }
+
+    public function itemDetails(): HasMany
+    {
+        return $this->hasMany(OrderItemDetail::class);
+    }
 }

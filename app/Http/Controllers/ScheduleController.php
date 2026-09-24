@@ -49,6 +49,7 @@ class ScheduleController extends Controller
             'customer',
             'creator',
             'orderServices.service',
+            'itemDetails',
             'statusHistories.changedBy',
             'payments.receivedBy',
         ]);

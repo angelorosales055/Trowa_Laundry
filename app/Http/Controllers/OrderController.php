@@ -48,8 +48,26 @@ class OrderController extends Controller
             'weight' => ['nullable', 'numeric', 'gt:0'],
             'service_ids' => ['required', 'array', 'min:1'],
             'service_ids.*' => ['integer', 'distinct', 'exists:services,id'],
+            'item_details' => ['nullable', 'array'],
+            'item_details.*.item_name' => ['nullable', 'string', 'max:100'],
+            'item_details.*.quantity' => ['nullable', 'integer', 'min:1'],
             'amount_paid' => ['nullable', 'numeric', 'min:0'],
+            'payment_method' => ['nullable', 'in:cash,gcash,other'],
+            'reference_number' => ['nullable', 'string', 'max:255'],
         ]);
+
+        $data['item_details'] = collect($data['item_details'] ?? [])
+            ->filter(fn (array $item): bool => filled($item['item_name'] ?? null) || filled($item['quantity'] ?? null))
+            ->values()
+            ->all();
+
+        foreach ($data['item_details'] as $item) {
+            abort_if(
+                blank($item['item_name'] ?? null) || blank($item['quantity'] ?? null),
+                422,
+                'Each laundry item must have both a name and quantity.'
+            );
+        }
 
         $data['weight_kg'] = $data['weight_kg'] ?? $data['weight'] ?? null;
         abort_if($data['weight_kg'] === null, 422, 'Weight is required.');

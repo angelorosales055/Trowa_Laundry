@@ -159,6 +159,35 @@ class PersistentOrdersTest extends TestCase
         ]);
     }
 
+    public function test_per_load_service_uses_loads_instead_of_raw_weight(): void
+    {
+        $staff = User::factory()->create(['role' => 'staff']);
+        $customer = Customer::factory()->create();
+        $service = Service::create([
+            'name' => 'Wash & Fold',
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price' => 55,
+            'price_per_load' => 55,
+        ]);
+
+        $this->actingAs($staff)->post(route('orders.add'), [
+            'customer_id' => $customer->id,
+            'weight_kg' => 15,
+            'service_ids' => [$service->id],
+        ])->assertRedirect();
+
+        $order = Order::query()->latest('id')->firstOrFail();
+        $this->assertSame(2, $order->number_of_loads);
+        $this->assertSame('110.00', $order->total_price);
+        $this->assertDatabaseHas('order_services', [
+            'order_id' => $order->id,
+            'price_per_load' => '55.00',
+            'loads' => 2,
+            'subtotal' => '110.00',
+        ]);
+    }
+
     public function test_order_payment_status_and_overpayment_validation_are_enforced(): void
     {
         $staff = User::factory()->create(['role' => 'staff']);
@@ -302,6 +331,38 @@ class PersistentOrdersTest extends TestCase
             'id' => $order->id,
             'amount_paid' => '20.00',
             'payment_status' => 'partially_paid',
+        ]);
+    }
+
+    public function test_payment_overpayment_returns_to_order_with_validation_error(): void
+    {
+        $staff = User::factory()->create(['role' => 'staff']);
+        $customer = Customer::factory()->create();
+        $service = Service::create([
+            'name' => 'Wash',
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price' => 60,
+            'price_per_load' => 60,
+        ]);
+
+        $this->actingAs($staff)->post(route('orders.add'), [
+            'customer_id' => $customer->id,
+            'weight_kg' => 8,
+            'service_ids' => [$service->id],
+        ])->assertRedirect();
+
+        $order = Order::query()->latest('id')->firstOrFail();
+        $response = $this->actingAs($staff)->post(route('orders.payments.store', $order), [
+            'amount' => 61,
+            'payment_method' => 'cash',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasErrors(['amount']);
+        $this->assertDatabaseMissing('payments', [
+            'order_id' => $order->id,
+            'amount' => '61.00',
         ]);
     }
 
