@@ -52,7 +52,12 @@ class ScheduleController extends Controller
             'itemDetails',
             'statusHistories.changedBy',
             'payments.receivedBy',
+            'payments.refunds',
+            'payments.refundedBy',
+            'editHistories.changedBy',
         ]);
+
+        abort_unless(auth()->user()->role === 'admin' || $order->created_by === auth()->id(), 403);
 
         return view('schedule.show', compact('order'));
     }

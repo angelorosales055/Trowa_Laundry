@@ -3,8 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\Customer;
+use App\Models\Expense;
+use App\Models\InventoryItem;
 use App\Models\Order;
+use App\Models\Payment;
 use App\Models\Service;
+use App\Models\ServiceInventoryUsage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
@@ -417,13 +421,13 @@ class PersistentOrdersTest extends TestCase
 
         $response = $this->actingAs($staff)->post(route('orders.update'), [
             'id' => $ready->id,
-            'status' => 'delivered',
+            'status' => 'claimed',
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('orders', [
             'id' => $ready->id,
-            'status' => 'delivered',
+            'status' => 'claimed',
         ]);
 
         $this->actingAs($admin)->get(route('billing'))
@@ -431,5 +435,527 @@ class PersistentOrdersTest extends TestCase
             ->assertSee('₱680.00')
             ->assertSeeText('Wash & Fold')
             ->assertSee('Dry Clean');
+    }
+
+    public function test_status_workflow_allows_only_next_service_aware_stage(): void
+    {
+        $staff = User::factory()->create(['role' => 'staff']);
+        $customer = Customer::factory()->create();
+        $wash = Service::create([
+            'name' => 'Wash & Fold',
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price' => 55,
+            'price_per_load' => 55,
+        ]);
+        $this->actingAs($staff)->post(route('orders.add'), [
+            'customer_id' => $customer->id,
+            'weight_kg' => 9,
+            'service_ids' => [$wash->id],
+        ])->assertRedirect();
+
+        $order = Order::query()->latest('id')->firstOrFail();
+        $this->assertSame(['washing', 'cancelled'], $order->nextStatuses());
+        $this->actingAs($staff)->get(route('schedule.index', ['status' => 'received']))
+            ->assertOk()
+            ->assertSee('Move to Washing')
+            ->assertSee('Cancel Order')
+            ->assertDontSee('<select name="status"', false);
+        $this->actingAs($staff)->get(route('orders.show', $order))
+            ->assertOk()
+            ->assertSee('Move to Washing')
+            ->assertSee('Cancel Order')
+            ->assertDontSee('<select name="status"', false);
+        $this->actingAs($staff)->post(route('orders.status.update', $order), [
+            'status' => 'ready_for_pickup',
+        ])->assertSessionHasErrors('status');
+        $this->actingAs($staff)->post(route('orders.status.update', $order), [
+            'status' => 'washing',
+        ])->assertRedirect(route('schedule.index', ['status' => 'washing']));
+
+        $order->refresh();
+        $this->assertSame(['folding', 'cancelled'], $order->nextStatuses());
+        $this->actingAs($staff)->get(route('schedule.index', ['status' => 'washing']))
+            ->assertOk()
+            ->assertSee($order->order_number);
+        $this->actingAs($staff)->post(route('orders.status.update', $order), [
+            'status' => 'received',
+        ])->assertSessionHasErrors('status');
+    }
+
+    public function test_drying_tab_lists_orders_and_workflow_skips_unselected_stages(): void
+    {
+        $staff = User::factory()->create(['role' => 'staff']);
+        $customer = Customer::factory()->create();
+        $dryService = Service::create([
+            'name' => 'Dry (40 minutes)',
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price' => 70,
+            'price_per_load' => 70,
+        ]);
+        $foldService = Service::create([
+            'name' => 'Fold/Load',
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price' => 20,
+            'price_per_load' => 20,
+        ]);
+        $this->actingAs($staff)->post(route('orders.add'), [
+            'customer_id' => $customer->id,
+            'weight_kg' => 5,
+            'service_ids' => [$dryService->id, $foldService->id],
+        ])->assertRedirect();
+
+        $dryingOrder = Order::query()->latest('id')->firstOrFail();
+        $this->actingAs($staff)->post(route('orders.status.update', $dryingOrder), [
+            'status' => 'washing',
+        ])->assertRedirect(route('schedule.index', ['status' => 'washing']));
+        $dryingOrder->refresh();
+        $this->assertSame(['drying', 'cancelled'], $dryingOrder->nextStatuses());
+        $this->actingAs($staff)->post(route('orders.status.update', $dryingOrder), [
+            'status' => 'drying',
+        ])->assertRedirect(route('schedule.index', ['status' => 'drying']));
+        $this->actingAs($staff)->get(route('schedule.index', ['status' => 'drying']))
+            ->assertOk()
+            ->assertSee($dryingOrder->order_number);
+        $dryingOrder->refresh();
+        $this->assertSame(['folding', 'cancelled'], $dryingOrder->nextStatuses());
+
+        $noFoldService = Service::create([
+            'name' => 'Wash Only',
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price' => 55,
+            'price_per_load' => 55,
+        ]);
+        $this->actingAs($staff)->post(route('orders.add'), [
+            'customer_id' => $customer->id,
+            'weight_kg' => 5,
+            'service_ids' => [$noFoldService->id],
+        ])->assertRedirect();
+
+        $washOnlyOrder = Order::query()->latest('id')->firstOrFail();
+        $this->assertSame(['washing', 'cancelled'], $washOnlyOrder->nextStatuses());
+        $this->actingAs($staff)->post(route('orders.status.update', $washOnlyOrder), [
+            'status' => 'washing',
+        ])->assertRedirect();
+        $washOnlyOrder->refresh();
+        $this->assertSame(['ready_for_pickup', 'cancelled'], $washOnlyOrder->nextStatuses());
+        $this->actingAs($staff)->get(route('schedule.index', ['status' => 'washing']))
+            ->assertOk()
+            ->assertSee('Move to Ready for Pickup');
+    }
+
+    public function test_ironing_tab_and_transitions_follow_selected_services(): void
+    {
+        $staff = User::factory()->create(['role' => 'staff']);
+        $customer = Customer::factory()->create();
+        $dryService = Service::create([
+            'name' => 'Dry (40 minutes)',
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price' => 70,
+            'price_per_load' => 70,
+        ]);
+        $ironService = Service::create([
+            'name' => 'Iron',
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price' => 25,
+            'price_per_load' => 25,
+        ]);
+        $foldService = Service::create([
+            'name' => 'Fold/Load',
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price' => 20,
+            'price_per_load' => 20,
+        ]);
+        $this->actingAs($staff)->post(route('orders.add'), [
+            'customer_id' => $customer->id,
+            'weight_kg' => 5,
+            'service_ids' => [$dryService->id, $ironService->id, $foldService->id],
+        ])->assertRedirect();
+
+        $order = Order::query()->latest('id')->firstOrFail();
+        $this->actingAs($staff)->post(route('orders.status.update', $order), ['status' => 'washing'])
+            ->assertRedirect();
+        $order->refresh();
+        $this->assertSame(['drying', 'cancelled'], $order->nextStatuses());
+        $this->actingAs($staff)->post(route('orders.status.update', $order), ['status' => 'drying'])
+            ->assertRedirect();
+        $order->refresh();
+        $this->assertSame(['ironing', 'cancelled'], $order->nextStatuses());
+        $this->actingAs($staff)->post(route('orders.status.update', $order), ['status' => 'ironing'])
+            ->assertRedirect(route('schedule.index', ['status' => 'ironing']));
+        $this->actingAs($staff)->get(route('schedule.index', ['status' => 'ironing']))
+            ->assertOk()
+            ->assertSee($order->order_number)
+            ->assertSee('Iron');
+        $order->refresh();
+        $this->assertSame(['folding', 'cancelled'], $order->nextStatuses());
+    }
+
+    public function test_refunds_are_audited_and_payment_summary_is_reconciled(): void
+    {
+        $staff = User::factory()->create(['role' => 'staff']);
+        $admin = User::factory()->create(['role' => 'admin']);
+        $customer = Customer::factory()->create();
+        $service = Service::create([
+            'name' => 'Wash',
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price' => 60,
+            'price_per_load' => 60,
+        ]);
+        $this->actingAs($staff)->post(route('orders.add'), [
+            'customer_id' => $customer->id,
+            'weight_kg' => 8,
+            'service_ids' => [$service->id],
+        ])->assertRedirect();
+        $order = Order::query()->latest('id')->firstOrFail();
+        $this->actingAs($staff)->post(route('orders.payments.store', $order), [
+            'amount' => 60,
+            'payment_method' => 'gcash',
+        ])->assertRedirect();
+        $payment = Payment::query()->where('order_id', $order->id)->firstOrFail();
+        $this->assertMatchesRegularExpression('/^PAY-\d{8}-[0-9A-F-]{36}$/', $payment->reference_number);
+
+        $this->actingAs($admin)->post(route('orders.payments.refund', [$order, $payment]), [
+            'amount' => 15,
+            'notes' => 'Partial refund.',
+        ])->assertRedirect();
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'amount_paid' => '45.00',
+            'payment_status' => 'partially_paid',
+        ]);
+        $this->assertDatabaseHas('payments', [
+            'order_id' => $order->id,
+            'related_payment_id' => $payment->id,
+            'payment_status' => 'refunded',
+            'amount' => '15.00',
+        ]);
+        $refund = Payment::query()->where('related_payment_id', $payment->id)->firstOrFail();
+        $this->assertMatchesRegularExpression('/^PAY-\d{8}-[0-9A-F-]{36}$/', $refund->reference_number);
+        $this->actingAs($admin)->post(route('orders.payments.refund', [$order, $payment]), [
+            'amount' => 46,
+            'notes' => 'Exceeds remaining refundable balance.',
+        ])->assertSessionHasErrors('amount');
+        $order->update(['status' => 'claimed']);
+        Expense::query()->create([
+            'category' => 'supplies',
+            'description' => 'Packaging',
+            'amount' => 10,
+            'expense_date' => now()->toDateString(),
+            'recorded_by' => $admin->id,
+        ]);
+        $this->actingAs($admin)->get(route('reports'))
+            ->assertOk()
+            ->assertSee('Net profit')
+            ->assertSee('₱35.00');
+    }
+
+    public function test_service_usage_decrements_inventory_with_order_linked_movement(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $staff = User::factory()->create(['role' => 'staff']);
+        $customer = Customer::factory()->create();
+        $service = Service::create([
+            'name' => 'Detergent Service',
+            'icon' => '🧴',
+            'pricing_type' => 'per_load',
+            'price' => 10,
+            'price_per_load' => 10,
+        ]);
+        $item = InventoryItem::query()->create([
+            'name' => 'Detergent',
+            'unit' => 'L',
+            'quantity_on_hand' => 2,
+            'low_stock_threshold' => 1.5,
+        ]);
+        ServiceInventoryUsage::query()->create([
+            'service_id' => $service->id,
+            'inventory_item_id' => $item->id,
+            'quantity_per_load' => 0.4,
+        ]);
+
+        $this->actingAs($staff)->post(route('orders.add'), [
+            'customer_id' => $customer->id,
+            'weight_kg' => 15,
+            'service_ids' => [$service->id],
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('inventory_items', [
+            'id' => $item->id,
+            'quantity_on_hand' => '1.200',
+        ]);
+        $this->assertDatabaseHas('inventory_movements', [
+            'inventory_item_id' => $item->id,
+            'movement_type' => 'usage',
+            'quantity_change' => '-0.800',
+            'recorded_by' => $staff->id,
+        ]);
+        $this->assertSame(0, Expense::query()->count());
+        $this->actingAs($admin)->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Detergent');
+    }
+
+    public function test_admin_inventory_page_loads_service_usage_relations(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $service = Service::create([
+            'name' => 'Wash',
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price' => 60,
+            'price_per_load' => 60,
+        ]);
+        $item = InventoryItem::query()->create([
+            'name' => 'Detergent',
+            'unit' => 'L',
+            'quantity_on_hand' => 20,
+            'low_stock_threshold' => 5,
+        ]);
+        ServiceInventoryUsage::query()->create([
+            'service_id' => $service->id,
+            'inventory_item_id' => $item->id,
+            'quantity_per_load' => 0.2,
+        ]);
+
+        $this->actingAs($admin)->get(route('inventory.index'))
+            ->assertOk()
+            ->assertSee('Automatic Service Consumption')
+            ->assertSee('Wash uses 0.200 L Detergent / load');
+    }
+
+    public function test_admin_can_log_expense_and_customer_merge_preserves_order_snapshot(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $staff = User::factory()->create(['role' => 'staff']);
+        $source = Customer::factory()->create(['name' => 'Duplicate Customer']);
+        $target = Customer::factory()->create(['name' => 'Primary Customer']);
+        $order = Order::factory()->for($staff, 'creator')->for($source)->create([
+            'customer_name' => 'Duplicate Customer',
+        ]);
+
+        $this->actingAs($admin)->post(route('expenses.store'), [
+            'category' => 'utilities',
+            'description' => 'Electricity bill',
+            'amount' => 1500,
+            'expense_date' => now()->toDateString(),
+        ])->assertRedirect();
+        $this->assertDatabaseHas('expenses', ['category' => 'utilities', 'amount' => '1500.00']);
+        $this->actingAs($admin)->get(route('expenses.index', [
+            'from' => now()->toDateString(),
+            'to' => now()->toDateString(),
+        ]))->assertOk()->assertSee('Electricity bill');
+        $this->actingAs($admin)->get(route('reports'))
+            ->assertOk()
+            ->assertSee('Net profit');
+
+        $this->actingAs($admin)->post(route('customers.merge', $source), [
+            'target_customer_id' => $target->id,
+        ])->assertRedirect();
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'customer_id' => $target->id,
+            'customer_name' => 'Duplicate Customer',
+        ]);
+        $this->assertDatabaseHas('customers', [
+            'id' => $source->id,
+            'is_active' => false,
+            'merged_into_id' => $target->id,
+        ]);
+    }
+
+    public function test_admin_order_correction_recalculates_and_keeps_audit_snapshot(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $staff = User::factory()->create(['role' => 'staff']);
+        $customer = Customer::factory()->create();
+        $service = Service::create([
+            'name' => 'Wash',
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price' => 55,
+            'price_per_load' => 55,
+        ]);
+        $this->actingAs($staff)->post(route('orders.add'), [
+            'customer_id' => $customer->id,
+            'weight_kg' => 8,
+            'service_ids' => [$service->id],
+        ])->assertRedirect();
+        $order = Order::query()->latest('id')->firstOrFail();
+
+        $this->actingAs($admin)->put(route('orders.update-details', $order), [
+            'customer_id' => $customer->id,
+            'weight_kg' => 15,
+            'service_ids' => [$service->id],
+            'item_details' => [['item_name' => 'Shirt', 'quantity' => 4]],
+            'reason' => 'Corrected weight after recount.',
+        ])->assertRedirect(route('orders.show', $order));
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'weight_kg' => '15.00',
+            'number_of_loads' => 2,
+            'total_price' => '110.00',
+        ]);
+        $this->assertDatabaseHas('order_edit_histories', [
+            'order_id' => $order->id,
+            'changed_by' => $admin->id,
+            'reason' => 'Corrected weight after recount.',
+        ]);
+        $this->assertDatabaseHas('order_item_details', [
+            'order_id' => $order->id,
+            'item_name' => 'Shirt',
+            'quantity' => 4,
+        ]);
+    }
+
+    public function test_staff_cannot_access_another_staffs_order_or_admin_inventory(): void
+    {
+        $owner = User::factory()->create(['role' => 'staff']);
+        $otherStaff = User::factory()->create(['role' => 'staff']);
+        $order = Order::factory()->for($owner, 'creator')->create([
+            'total_price' => 100,
+            'amount_paid' => 0,
+        ]);
+
+        $this->actingAs($otherStaff)->get(route('orders.show', $order))->assertForbidden();
+        $this->actingAs($otherStaff)->post(route('orders.payments.store', $order), [
+            'amount' => 50,
+            'payment_method' => 'cash',
+        ])->assertForbidden();
+        $this->actingAs($otherStaff)->get(route('inventory.index'))->assertForbidden();
+    }
+
+    public function test_admin_dashboard_kpis_and_chart_drill_down_to_filtered_records(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $staff = User::factory()->create(['role' => 'staff']);
+        $order = Order::factory()->for($staff, 'creator')->create([
+            'order_number' => 'TL-DASHBOARD-TEST',
+            'status' => 'received',
+            'created_at' => now()->startOfDay(),
+            'updated_at' => now()->startOfDay(),
+        ]);
+
+        $this->actingAs($admin)->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Daily Order Volume')
+            ->assertSee('Orders by Stage')
+            ->assertSee(route('orders.index'), false)
+            ->assertSee(route('schedule.index', ['status' => 'received']), false)
+            ->assertSee(route('schedule.index', ['date' => now()->toDateString()]), false);
+
+        $this->actingAs($admin)->get(route('schedule.index', ['date' => now()->toDateString()]))
+            ->assertOk()
+            ->assertSee($order->order_number);
+    }
+
+    public function test_payments_by_method_dashboard_link_filters_payment_accounts(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $staff = User::factory()->create(['role' => 'staff']);
+        $gcashOrder = Order::factory()->for($staff, 'creator')->create([
+            'customer_name' => 'GCash Customer',
+            'total_price' => 100,
+        ]);
+        $cashOrder = Order::factory()->for($staff, 'creator')->create([
+            'customer_name' => 'Cash Customer',
+            'total_price' => 100,
+        ]);
+        foreach ([[$gcashOrder, 'gcash'], [$cashOrder, 'cash']] as [$order, $method]) {
+            Payment::query()->create([
+                'order_id' => $order->id,
+                'amount' => 100,
+                'payment_method' => $method,
+                'payment_status' => 'paid',
+                'received_by' => $staff->id,
+                'paid_at' => now(),
+            ]);
+        }
+
+        $this->actingAs($admin)->get(route('payments.index', ['method' => 'gcash']))
+            ->assertOk()
+            ->assertSee('TL-'.$gcashOrder->id)
+            ->assertDontSee('TL-'.$cashOrder->id);
+    }
+
+    public function test_dashboard_and_reports_filter_metrics_by_selected_date_range(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $staff = User::factory()->create(['role' => 'staff']);
+        $today = now()->toDateString();
+        $yesterday = now()->subDay()->toDateString();
+        $todayOrder = Order::factory()->for($staff, 'creator')->create([
+            'order_number' => 'TL-TODAY',
+            'status' => 'claimed',
+            'total_price' => 120,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $yesterdayOrder = Order::factory()->for($staff, 'creator')->create([
+            'order_number' => 'TL-YESTERDAY',
+            'status' => 'claimed',
+            'total_price' => 80,
+            'created_at' => now()->subDay(),
+            'updated_at' => now()->subDay(),
+        ]);
+        Expense::query()->create([
+            'category' => 'supplies',
+            'description' => 'Today supplies',
+            'amount' => 30,
+            'expense_date' => $today,
+            'recorded_by' => $admin->id,
+        ]);
+        Expense::query()->create([
+            'category' => 'supplies',
+            'description' => 'Yesterday supplies',
+            'amount' => 20,
+            'expense_date' => $yesterday,
+            'recorded_by' => $admin->id,
+        ]);
+        Payment::query()->create([
+            'order_id' => $todayOrder->id,
+            'amount' => 120,
+            'payment_method' => 'cash',
+            'payment_status' => 'paid',
+            'received_by' => $staff->id,
+            'paid_at' => now(),
+        ]);
+        Payment::query()->create([
+            'order_id' => $yesterdayOrder->id,
+            'amount' => 80,
+            'payment_method' => 'cash',
+            'payment_status' => 'paid',
+            'received_by' => $staff->id,
+            'paid_at' => now()->subDay(),
+        ]);
+
+        $this->actingAs($admin)->get(route('dashboard', ['from' => $today, 'to' => $today]))
+            ->assertOk()
+            ->assertSee('Daily Order Volume')
+            ->assertSee('TL-TODAY')
+            ->assertDontSee('TL-YESTERDAY')
+            ->assertSee('<polyline', false)
+            ->assertSee('name="from"', false)
+            ->assertSee('name="to"', false);
+
+        $this->actingAs($admin)->get(route('reports', ['from' => $today, 'to' => $today]))
+            ->assertOk()
+            ->assertSee('₱120.00')
+            ->assertSee('₱30.00')
+            ->assertSee('₱90.00')
+            ->assertSee('Orders in selected range');
+
+        $this->actingAs($admin)->get(route('reports.print', ['from' => $today, 'to' => $today]))
+            ->assertOk()
+            ->assertSee('Today supplies')
+            ->assertDontSee('Yesterday supplies');
     }
 }

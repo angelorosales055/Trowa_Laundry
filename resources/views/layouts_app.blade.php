@@ -26,6 +26,8 @@
                     ['payments.index', 'Payments', '₱', ['staff','admin']],
                     ['reports', 'Reports', '▥', ['admin']],
                     ['billing', 'Billing', '▤', ['admin']],
+                    ['inventory.index', 'Inventory', '▤', ['admin']],
+                    ['expenses.index', 'Expenses', '−', ['admin']],
                     ['services.index', 'Settings', '⚙', ['admin']],
                 ])
                 @foreach($nav as [$route, $label, $icon, $roles])

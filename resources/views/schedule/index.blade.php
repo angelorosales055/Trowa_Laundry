@@ -2,6 +2,7 @@
 
 @section('content')
 @php($module = $module ?? 'status')
+@php($statusLabels = ['washing' => 'Washing', 'drying' => 'Drying', 'ironing' => 'Ironing', 'folding' => 'Folding', 'ready_for_pickup' => 'Ready for Pickup', 'claimed' => 'Claimed', 'cancelled' => 'Cancelled'])
 <div class="mb-6 flex items-start justify-between">
     <div><p class="mb-1 text-sm text-slate-500">{{ $module === 'management' ? 'Create and manage customer laundry orders' : 'Monitor and update laundry processing stages' }}</p><h1 class="text-3xl font-bold text-slate-900">{{ $module === 'management' ? 'Laundry Order Management' : 'Order Status' }}</h1></div>
     @if($module === 'management')
@@ -12,15 +13,55 @@
 </div>
 @if($module !== 'management')
 <div class="mb-5 flex flex-wrap gap-2">
-    @foreach([''=>'All','received'=>'Received','washing'=>'Washing','drying'=>'Drying','folding'=>'Folding','ready_for_pickup'=>'Ready for Pickup','claimed'=>'Claimed','cancelled'=>'Cancelled'] as $value => $label)
-        <a href="{{ route('schedule.index', ['status' => $value]) }}" class="{{ $status === $value ? 'bg-brand-500 text-white' : 'bg-white text-slate-600' }} rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold">{{ $label }}</a>
+    @foreach([''=>'All','received'=>'Received','washing'=>'Washing','drying'=>'Drying','ironing'=>'Iron','folding'=>'Folding','ready_for_pickup'=>'Ready for Pickup','claimed'=>'Claimed','cancelled'=>'Cancelled'] as $value => $label)
+        <a href="{{ route('schedule.index', ['status' => $value, 'date' => request('date'), 'from' => request('from'), 'to' => request('to')]) }}" class="{{ $status === $value ? 'bg-brand-500 text-white' : 'bg-white text-slate-600' }} rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold">{{ $label }}</a>
     @endforeach
 </div>
 @endif
-<form method="GET" class="mb-5">@if($module !== 'management')<input type="hidden" name="status" value="{{ $status }}">@endif<input name="search" value="{{ $search }}" class="field" placeholder="Search by customer or order number..."></form>
+<form method="GET" class="mb-5">@if($module !== 'management')<input type="hidden" name="status" value="{{ $status }}">@foreach(['date','from','to'] as $filter)<input type="hidden" name="{{ $filter }}" value="{{ request($filter) }}">@endforeach @endif<input name="search" value="{{ $search }}" class="field" placeholder="Search by customer or order number..."></form>
 <div class="panel overflow-hidden">
-    <div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th class="px-5 py-3">Order</th><th class="px-5 py-3">Customer</th><th class="px-5 py-3">Weight / Loads</th><th class="px-5 py-3">Total</th><th class="px-5 py-3">Payment</th><th class="px-5 py-3">Status</th><th class="px-5 py-3">{{ $module === 'management' ? 'Details' : 'Update' }}</th></tr></thead>
-    <tbody class="divide-y divide-slate-100">@forelse($orders as $order)<tr><td class="px-5 py-3 font-semibold text-brand-600"><a href="{{ route('orders.show', $order) }}" class="hover:underline">{{ $order->order_number ?? 'TL-'.$order->id }}</a></td><td class="px-5 py-3"><p>{{ $order->customer?->name ?? $order->customer_name }}</p><p class="text-xs text-slate-400">{{ $order->customer?->contact_number ?? $order->customer?->phone }}</p><p class="text-xs text-slate-400">{{ $order->services }}</p></td><td class="px-5 py-3">{{ $order->weight_kg }} kg <span class="text-slate-400">· {{ $order->number_of_loads }} load(s)</span></td><td class="px-5 py-3 font-semibold">₱{{ number_format((float) $order->total_price, 2) }}</td><td class="px-5 py-3"><span class="badge {{ $order->payment_status === 'paid' ? 'bg-emerald-100 text-emerald-700' : ($order->payment_status === 'partially_paid' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600') }}">{{ str_replace('_', ' ', ucfirst($order->payment_status ?? 'unpaid')) }}</span></td><td class="px-5 py-3"><span class="badge bg-blue-100 text-blue-700">{{ str_replace('_', ' ', ucfirst($order->status)) }}</span></td><td class="px-5 py-3">@if($module === 'management')<a href="{{ route('orders.show', $order) }}" class="btn-secondary px-3 py-1 text-xs">View Details</a>@else<form method="POST" action="{{ route('orders.status.update', $order) }}">@csrf<select name="status" onchange="this.form.submit()" class="field py-1 text-xs"><option value="received" @selected($order->status === 'received')>Received</option><option value="washing" @selected($order->status === 'washing')>Washing</option><option value="drying" @selected($order->status === 'drying')>Drying</option><option value="folding" @selected($order->status === 'folding')>Folding</option><option value="ready_for_pickup" @selected($order->status === 'ready_for_pickup')>Ready for Pickup</option><option value="claimed" @selected($order->status === 'claimed')>Claimed</option><option value="cancelled" @selected($order->status === 'cancelled')>Cancelled</option></select></form>@endif</td></tr>@empty<tr><td colspan="7" class="px-5 py-10 text-center text-slate-500">No orders found.</td></tr>@endforelse</tbody></table></div>
+    <div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th class="px-5 py-3">Order</th><th class="px-5 py-3">Customer</th><th class="px-5 py-3">Weight / Loads</th><th class="px-5 py-3">Total</th><th class="px-5 py-3">Payment</th><th class="px-5 py-3">Status</th><th class="px-5 py-3">{{ $module === 'management' ? 'Details' : 'Action' }}</th></tr></thead>
+    <tbody class="divide-y divide-slate-100">
+        @forelse($orders as $order)
+            @php($availableStatuses = $order->nextStatuses())
+            @php($nextStatus = collect($availableStatuses)->first(fn ($availableStatus) => $availableStatus !== 'cancelled'))
+            <tr>
+                <td class="px-5 py-3 font-semibold text-brand-600"><a href="{{ route('orders.show', $order) }}" class="hover:underline">{{ $order->order_number ?? 'TL-'.$order->id }}</a></td>
+                <td class="px-5 py-3"><p>{{ $order->customer?->name ?? $order->customer_name }}</p><p class="text-xs text-slate-400">{{ $order->customer?->contact_number ?? $order->customer?->phone }}</p><p class="text-xs text-slate-400">{{ $order->services }}</p></td>
+                <td class="px-5 py-3">{{ $order->weight_kg }} kg <span class="text-slate-400">· {{ $order->number_of_loads }} load(s)</span></td>
+                <td class="px-5 py-3 font-semibold">₱{{ number_format((float) $order->total_price, 2) }}</td>
+                <td class="px-5 py-3"><span class="badge {{ $order->payment_status === 'paid' ? 'bg-emerald-100 text-emerald-700' : ($order->payment_status === 'partially_paid' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600') }}">{{ str_replace('_', ' ', ucfirst($order->payment_status ?? 'unpaid')) }}</span></td>
+                <td class="px-5 py-3"><span class="badge bg-blue-100 text-blue-700">{{ str_replace('_', ' ', ucfirst($order->status)) }}</span></td>
+                <td class="px-5 py-3">
+                    @if($module === 'management')
+                        <a href="{{ route('orders.show', $order) }}" class="btn-secondary px-3 py-1 text-xs">View Details</a>
+                    @else
+                        <div class="flex flex-col items-start gap-2">
+                            @if($nextStatus)
+                                <form method="POST" action="{{ route('orders.status.update', $order) }}">
+                                    @csrf
+                                    <input type="hidden" name="status" value="{{ $nextStatus }}">
+                                    <button type="submit" class="btn-primary whitespace-nowrap px-3 py-2 text-xs">Move to {{ $statusLabels[$nextStatus] }} <span aria-hidden="true">→</span></button>
+                                </form>
+                            @endif
+                            @if(in_array('cancelled', $availableStatuses, true))
+                                <form method="POST" action="{{ route('orders.status.update', $order) }}" onsubmit="return confirm('Cancel this order? This action cannot be undone.');">
+                                    @csrf
+                                    <input type="hidden" name="status" value="cancelled">
+                                    <button type="submit" class="rounded-lg px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-50">Cancel Order</button>
+                                </form>
+                            @endif
+                            @if(! $nextStatus && ! in_array('cancelled', $availableStatuses, true))
+                                <span class="text-xs text-slate-400">No further actions</span>
+                            @endif
+                        </div>
+                    @endif
+                </td>
+            </tr>
+        @empty
+            <tr><td colspan="7" class="px-5 py-10 text-center text-slate-500">No orders found.</td></tr>
+        @endforelse
+    </tbody></table></div>
     <div class="border-t border-slate-100 px-5 py-3">{{ $orders->links() }}</div>
 </div>
 

@@ -5,6 +5,7 @@
     <p class="mb-1 text-sm font-medium text-brand-600">Payment module</p>
     <h1 class="text-3xl font-bold text-slate-900">Payments</h1>
     <p class="mt-1 text-sm text-slate-500">Review balances and record payments for laundry orders.</p>
+    @if($method || $from || $to)<p class="mt-2 text-xs text-brand-700">@if($method)Filtered by {{ strtoupper($method) }}@endif @if($from || $to){{ $from ? 'from '.$from : '' }}{{ $from && $to ? ' ' : '' }}{{ $to ? 'through '.$to : '' }}@endif · <a href="{{ route('payments.index') }}" class="underline">Clear filters</a></p>@endif
 </div>
 <div class="panel overflow-hidden">
     <div class="border-b border-slate-100 px-5 py-4">
@@ -17,7 +18,7 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
                 @forelse($orders as $order)
-                    @php($paid = (float) $order->payments->whereIn('payment_status', ['paid', 'partially_paid'])->sum('amount'))
+                    @php($paid = (float) $order->amount_paid)
                     @php($balance = max(0, (float) $order->total_price - $paid))
                     <tr>
                         <td class="px-5 py-3 font-semibold text-brand-600">{{ $order->order_number ?? 'TL-'.$order->id }}</td>

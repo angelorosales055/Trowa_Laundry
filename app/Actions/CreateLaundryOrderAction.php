@@ -12,9 +12,9 @@ use Illuminate\Support\Str;
 
 class CreateLaundryOrderAction
 {
-    public function handle(array $data, int $staffId): Order
+    public function handle(array $data, int $staffId, ApplyInventoryConsumptionAction $inventoryConsumption): Order
     {
-        return DB::transaction(function () use ($data, $staffId): Order {
+        return DB::transaction(function () use ($data, $staffId, $inventoryConsumption): Order {
             $weight = BigDecimal::of((string) $data['weight_kg']);
             [$wholeLoads, $remainder] = $weight->quotientAndRemainder(8);
             $loads = (int) $wholeLoads->plus($remainder->isZero() ? 0 : 1)->toInt();
@@ -27,7 +27,7 @@ class CreateLaundryOrderAction
             abort_unless($services->count() === count($data['service_ids']), 422, 'One or more selected services are unavailable.');
 
             $customer = isset($data['customer_id'])
-                ? Customer::query()->findOrFail($data['customer_id'])
+                ? Customer::query()->where('is_active', true)->findOrFail($data['customer_id'])
                 : Customer::query()->create([
                     'name' => $data['customer_name'],
                     'address' => $data['address'] ?? null,
@@ -89,6 +89,7 @@ class CreateLaundryOrderAction
                 'changed_by' => $staffId,
                 'notes' => 'Order received.',
             ]);
+            $inventoryConsumption->consume($order, $services->modelKeys(), $loads, $staffId);
 
             if ($amountPaid->isPositive()) {
                 $order->payments()->create([

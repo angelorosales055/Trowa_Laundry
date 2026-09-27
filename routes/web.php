@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderStatusController;
 use App\Http\Controllers\PaymentController;
@@ -23,17 +25,31 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::middleware('role:staff,admin')->group(function () {
         Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
         Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
-        Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule.index');
+        Route::put('/customers/{customer}', [CustomerController::class, 'update'])->middleware('role:admin')->name('customers.update');
+        Route::post('/customers/{customer}/merge', [CustomerController::class, 'merge'])->middleware('role:admin')->name('customers.merge');
+        Route::patch('/customers/{customer}/active', [CustomerController::class, 'toggleActive'])->middleware('role:admin')->name('customers.toggle-active');
+        Route::get('/schedule', [OrderStatusController::class, 'index'])->name('schedule.index');
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [ScheduleController::class, 'show'])->name('orders.show');
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
         Route::post('/orders/{order}/status', [OrderStatusController::class, 'update'])->name('orders.status.update');
         Route::post('/orders/{order}/payments', [PaymentController::class, 'store'])->name('orders.payments.store');
+        Route::post('/orders/{order}/payments/{payment}/refund', [PaymentController::class, 'refund'])->name('orders.payments.refund');
         Route::post('/orders/update', [DashboardController::class, 'updateOrder'])->name('orders.update');
         Route::post('/orders/add', [OrderController::class, 'store'])->name('orders.add');
     });
     Route::middleware('role:admin')->group(function () {
         Route::get('/reports', [DashboardController::class, 'reports'])->name('reports');
+        Route::get('/reports/print', [DashboardController::class, 'printReports'])->name('reports.print');
+        Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+        Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
+        Route::post('/inventory/{inventoryItem}/movements', [InventoryController::class, 'movement'])->name('inventory.movement');
+        Route::post('/inventory/service-usage', [InventoryController::class, 'configureUsage'])->name('inventory.usage.store');
+        Route::delete('/inventory/service-usage/{usage}', [InventoryController::class, 'deleteUsage'])->name('inventory.usage.destroy');
+        Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
+        Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+        Route::get('/orders/{order}/edit', [OrderController::class, 'edit'])->name('orders.edit');
+        Route::put('/orders/{order}', [OrderController::class, 'update'])->name('orders.update-details');
     });
     Route::middleware('role:admin')->group(function () {
         Route::get('/billing', [DashboardController::class, 'billing'])->name('billing');
