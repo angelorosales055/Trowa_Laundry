@@ -1,32 +1,274 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Young+Serif&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
 @theme {
-    --font-display: 'Outfit', ui-sans-serif, system-ui, sans-serif;
-    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-    --color-brand-50: #f0fdfa;
-    --color-brand-100: #ccfbf1;
-    --color-brand-200: #99f6e4;
-    --color-brand-400: #2dd4bf;
-    --color-brand-500: #14b8a6;
-    --color-brand-600: #0d9488;
-    --color-brand-700: #0f766e;
-    --color-brand-900: #134e4a;
+    --font-display: 'Recoleta', 'Fraunces', 'Young Serif', Georgia, serif;
+    --font-recoleta: 'Recoleta', 'Fraunces', 'Young Serif', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'Space Grotesk', ui-monospace, monospace;
+
+    /* Trowa Retro Signature Palette */
+    --color-sidecar: #F7E6CB;
+    --color-jellybean: #25799B;
+    --color-sinbad: #A2C5D8;
+    --color-milanred: #CB1B03;
+    --color-retro-ink: #182830;
+    --color-retro-cream: #FFFDF8;
+
+    /* Theme Tokens mapped to Retro Palette */
+    --color-brand-50: #FAF3E8;
+    --color-brand-100: #F7E6CB; /* Sidecar */
+    --color-brand-200: #D8E7F0;
+    --color-brand-300: #A2C5D8; /* Sinbad */
+    --color-brand-400: #559BB8;
+    --color-brand-500: #25799B; /* Jelly Bean */
+    --color-brand-600: #1E6482;
+    --color-brand-700: #174F67;
+    --color-brand-800: #103B4D;
+    --color-brand-900: #0B2632;
 }
 
 @layer base {
-    body { @apply bg-slate-50 text-slate-800 antialiased; }
-    h1, h2, h3, h4, h5, h6 { @apply font-display; }
-    * { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+    body {
+        background-color: #F7E6CB;
+        color: #182830;
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-image: 
+            radial-gradient(circle at 100% 0%, rgba(162, 197, 216, 0.25) 0, transparent 40%),
+            radial-gradient(circle at 0% 100%, rgba(203, 27, 3, 0.08) 0, transparent 35%);
+        background-attachment: fixed;
+    }
+
+    h1, h2, h3, h4, .font-recoleta {
+        font-family: 'Recoleta', 'Fraunces', 'Young Serif', Georgia, serif;
+        letter-spacing: -0.015em;
+    }
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #25799B #F7E6CB;
+    }
+
+    *::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    *::-webkit-scrollbar-track {
+        background: #F7E6CB;
+    }
+    *::-webkit-scrollbar-thumb {
+        background-color: #25799B;
+        border-radius: 9999px;
+    }
 }
 
 @layer components {
-    .panel { @apply rounded-2xl border border-slate-200/80 bg-white shadow-sm; }
-    .field { @apply w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-100; }
-    .btn-primary { @apply inline-flex items-center justify-center rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-200; }
-    .btn-secondary { @apply inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50; }
-    .badge { @apply inline-flex rounded-full px-2.5 py-1 text-xs font-semibold; }
+    /* Tactile Retro Panels */
+    .panel, .retro-panel {
+        background-color: #FFFDF8;
+        border: 2px solid #25799B;
+        box-shadow: 3px 3px 0px #25799B;
+        border-radius: 1.125rem;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .retro-panel-interactive {
+        background-color: #FFFDF8;
+        border: 2px solid #25799B;
+        box-shadow: 3px 3px 0px #25799B;
+        border-radius: 1.125rem;
+        transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease;
+    }
+    .retro-panel-interactive:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 5px 5px 0px #25799B;
+    }
+
+    /* Retro Input Fields */
+    .field {
+        width: 100%;
+        border-radius: 0.75rem;
+        border: 2px solid #25799B;
+        background-color: #FFFDF8;
+        padding: 0.625rem 0.875rem;
+        font-size: 0.875rem;
+        color: #182830;
+        outline: none;
+        transition: all 0.15s ease;
+        box-shadow: 2px 2px 0px rgba(37, 121, 155, 0.35);
+    }
+    .field:focus {
+        border-color: #25799B;
+        box-shadow: 3px 3px 0px #25799B;
+        background-color: #FFFFFF;
+    }
+    .field::placeholder {
+        color: #728b97;
+    }
+
+    /* Retro Buttons */
+    .btn-primary, .retro-btn-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border-radius: 0.75rem;
+        background-color: #CB1B03;
+        border: 2px solid #182830;
+        box-shadow: 3px 3px 0px #182830;
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #FFFDF8;
+        transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+        cursor: pointer;
+    }
+    .btn-primary:hover, .retro-btn-primary:hover {
+        background-color: #B51702;
+        transform: translate(-1px, -1px);
+        box-shadow: 4px 4px 0px #182830;
+    }
+    .btn-primary:active, .retro-btn-primary:active {
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0px #182830;
+    }
+
+    .btn-secondary, .retro-btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border-radius: 0.75rem;
+        border: 2px solid #25799B;
+        background-color: #FFFDF8;
+        box-shadow: 2px 2px 0px #25799B;
+        padding: 0.625rem 1.125rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #25799B;
+        transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+        cursor: pointer;
+    }
+    .btn-secondary:hover, .retro-btn-secondary:hover {
+        background-color: #A2C5D8;
+        color: #182830;
+        transform: translate(-1px, -1px);
+        box-shadow: 3px 3px 0px #25799B;
+    }
+    .btn-secondary:active, .retro-btn-secondary:active {
+        transform: translate(1px, 1px);
+        box-shadow: 1px 1px 0px #25799B;
+    }
+
+    .retro-btn-blue {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border-radius: 0.75rem;
+        background-color: #25799B;
+        border: 2px solid #182830;
+        box-shadow: 3px 3px 0px #182830;
+        padding: 0.625rem 1.125rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #FFFDF8;
+        transition: all 0.15s ease;
+        cursor: pointer;
+    }
+    .retro-btn-blue:hover {
+        background-color: #1D6482;
+        transform: translate(-1px, -1px);
+        box-shadow: 4px 4px 0px #182830;
+    }
+    .retro-btn-blue:active {
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0px #182830;
+    }
+
+    /* Badges & Tags */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border-radius: 9999px;
+        padding: 0.25rem 0.625rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: 1.5px solid currentColor;
+    }
+
+    /* Retro Stamp */
+    .retro-stamp {
+        display: inline-block;
+        padding: 0.15rem 0.5rem;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border: 1.5px dashed #25799B;
+        border-radius: 0.375rem;
+    }
+}
+
+/* Animations for Living & Moving Laundry Feel */
+@keyframes wash-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes wash-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.04); opacity: 0.9; }
+}
+
+@keyframes dryer-heat {
+    0%, 100% { filter: drop-shadow(0 0 2px rgba(203, 27, 3, 0.4)); }
+    50% { filter: drop-shadow(0 0 10px rgba(203, 27, 3, 0.85)); }
+}
+
+@keyframes live-pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(203, 27, 3, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 7px rgba(203, 27, 3, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(203, 27, 3, 0); }
+}
+
+@keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+}
+
+.animate-wash-spin {
+    animation: wash-spin 2.2s linear infinite;
+}
+
+.animate-wash-spin-fast {
+    animation: wash-spin 0.9s linear infinite;
+}
+
+.animate-dryer-heat {
+    animation: dryer-heat 2s ease-in-out infinite;
+}
+
+.animate-live-dot {
+    animation: live-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.marquee-container {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.marquee-content {
+    display: inline-block;
+    animation: marquee 32s linear infinite;
+}
+.marquee-content:hover {
+    animation-play-state: paused;
 }

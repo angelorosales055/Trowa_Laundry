@@ -22,9 +22,13 @@ class InventoryDemoSeeder extends Seeder
         }
 
         $items = [
-            ['name' => 'Detergent', 'unit' => 'L', 'quantity_on_hand' => 20, 'low_stock_threshold' => 5],
-            ['name' => 'Fabric Conditioner', 'unit' => 'L', 'quantity_on_hand' => 10, 'low_stock_threshold' => 3],
-            ['name' => 'Bleach', 'unit' => 'L', 'quantity_on_hand' => 5, 'low_stock_threshold' => 1],
+            ['name' => 'Surf Powder Detergent', 'unit' => 'sachet', 'quantity_on_hand' => 45, 'low_stock_threshold' => 15],
+            ['name' => 'Surf Fabcon Blossom Fresh', 'unit' => 'sachet', 'quantity_on_hand' => 30, 'low_stock_threshold' => 10],
+            ['name' => 'Downy Sunrise Fresh', 'unit' => 'sachet', 'quantity_on_hand' => 4, 'low_stock_threshold' => 10],
+            ['name' => 'Ariel Sunrise Power', 'unit' => 'sachet', 'quantity_on_hand' => 0, 'low_stock_threshold' => 8],
+            ['name' => 'Commercial Liquid Detergent', 'unit' => 'L', 'quantity_on_hand' => 20, 'low_stock_threshold' => 5],
+            ['name' => 'Fabric Softener Drum', 'unit' => 'L', 'quantity_on_hand' => 10, 'low_stock_threshold' => 3],
+            ['name' => 'Color-Safe Bleach', 'unit' => 'L', 'quantity_on_hand' => 5, 'low_stock_threshold' => 1],
         ];
 
         foreach ($items as $attributes) {

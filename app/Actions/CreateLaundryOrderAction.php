@@ -59,9 +59,17 @@ class CreateLaundryOrderAction
                 fn (BigDecimal $sum, array $item): BigDecimal => $sum->plus($item['subtotal']),
                 BigDecimal::zero()
             )->toScale(2, RoundingMode::HalfUp);
-            $amountPaid = BigDecimal::of((string) ($data['amount_paid'] ?? '0'))->toScale(2, RoundingMode::HalfUp);
-            abort_unless($amountPaid->isLessThanOrEqualTo($total), 422, 'Amount paid cannot exceed the total due.');
-            $change = $amountPaid->minus($total)->isNegative() ? BigDecimal::zero() : $amountPaid->minus($total);
+
+            if (isset($data['tendered_amount'])) {
+                $tendered = BigDecimal::of((string) $data['tendered_amount'])->toScale(2, RoundingMode::HalfUp);
+                $amountPaid = $tendered->isGreaterThan($total) ? $total : $tendered;
+                $change = $tendered->isGreaterThan($total) ? $tendered->minus($total) : BigDecimal::zero();
+            } else {
+                $amountPaid = BigDecimal::of((string) ($data['amount_paid'] ?? '0'))->toScale(2, RoundingMode::HalfUp);
+                abort_unless($amountPaid->isLessThanOrEqualTo($total), 422, 'Amount paid cannot exceed the total due.');
+                $change = BigDecimal::zero();
+            }
+
             $paymentStatus = $amountPaid->isZero()
                 ? 'unpaid'
                 : ($amountPaid->isEqualTo($total) ? 'paid' : 'partially_paid');
@@ -89,7 +97,7 @@ class CreateLaundryOrderAction
                 'changed_by' => $staffId,
                 'notes' => 'Order received.',
             ]);
-            $inventoryConsumption->consume($order, $services->modelKeys(), $loads, $staffId);
+            $inventoryConsumption->consume($order, $services->modelKeys(), $loads, $staffId, $data['inventory_items'] ?? []);
 
             if ($amountPaid->isPositive()) {
                 $order->payments()->create([

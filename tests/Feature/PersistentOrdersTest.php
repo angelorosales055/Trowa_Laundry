@@ -398,7 +398,7 @@ class PersistentOrdersTest extends TestCase
         ])->assertRedirect();
 
         $this->assertDatabaseHas('customers', ['name' => 'New Customer']);
-        $this->actingAs($staff)->get(route('schedule.index', ['status' => 'ready']))
+        $this->actingAs($staff)->get(route('orders.index', ['status' => 'ready']))
             ->assertOk()
             ->assertSee($order->services)
             ->assertSee('Schedule Customer');
@@ -456,10 +456,10 @@ class PersistentOrdersTest extends TestCase
 
         $order = Order::query()->latest('id')->firstOrFail();
         $this->assertSame(['washing', 'cancelled'], $order->nextStatuses());
-        $this->actingAs($staff)->get(route('schedule.index', ['status' => 'received']))
+        $this->actingAs($staff)->get(route('orders.index', ['status' => 'received']))
             ->assertOk()
             ->assertSee('Move to Washing')
-            ->assertSee('Cancel Order')
+            ->assertSee('Cancel')
             ->assertDontSee('<select name="status"', false);
         $this->actingAs($staff)->get(route('orders.show', $order))
             ->assertOk()
@@ -471,11 +471,11 @@ class PersistentOrdersTest extends TestCase
         ])->assertSessionHasErrors('status');
         $this->actingAs($staff)->post(route('orders.status.update', $order), [
             'status' => 'washing',
-        ])->assertRedirect(route('schedule.index', ['status' => 'washing']));
+        ])->assertRedirect(route('orders.index', ['status' => 'washing']));
 
         $order->refresh();
         $this->assertSame(['folding', 'cancelled'], $order->nextStatuses());
-        $this->actingAs($staff)->get(route('schedule.index', ['status' => 'washing']))
+        $this->actingAs($staff)->get(route('orders.index', ['status' => 'washing']))
             ->assertOk()
             ->assertSee($order->order_number);
         $this->actingAs($staff)->post(route('orders.status.update', $order), [
@@ -510,13 +510,13 @@ class PersistentOrdersTest extends TestCase
         $dryingOrder = Order::query()->latest('id')->firstOrFail();
         $this->actingAs($staff)->post(route('orders.status.update', $dryingOrder), [
             'status' => 'washing',
-        ])->assertRedirect(route('schedule.index', ['status' => 'washing']));
+        ])->assertRedirect(route('orders.index', ['status' => 'washing']));
         $dryingOrder->refresh();
         $this->assertSame(['drying', 'cancelled'], $dryingOrder->nextStatuses());
         $this->actingAs($staff)->post(route('orders.status.update', $dryingOrder), [
             'status' => 'drying',
-        ])->assertRedirect(route('schedule.index', ['status' => 'drying']));
-        $this->actingAs($staff)->get(route('schedule.index', ['status' => 'drying']))
+        ])->assertRedirect(route('orders.index', ['status' => 'drying']));
+        $this->actingAs($staff)->get(route('orders.index', ['status' => 'drying']))
             ->assertOk()
             ->assertSee($dryingOrder->order_number);
         $dryingOrder->refresh();
@@ -542,7 +542,7 @@ class PersistentOrdersTest extends TestCase
         ])->assertRedirect();
         $washOnlyOrder->refresh();
         $this->assertSame(['ready_for_pickup', 'cancelled'], $washOnlyOrder->nextStatuses());
-        $this->actingAs($staff)->get(route('schedule.index', ['status' => 'washing']))
+        $this->actingAs($staff)->get(route('orders.index', ['status' => 'washing']))
             ->assertOk()
             ->assertSee('Move to Ready for Pickup');
     }
@@ -588,8 +588,8 @@ class PersistentOrdersTest extends TestCase
         $order->refresh();
         $this->assertSame(['ironing', 'cancelled'], $order->nextStatuses());
         $this->actingAs($staff)->post(route('orders.status.update', $order), ['status' => 'ironing'])
-            ->assertRedirect(route('schedule.index', ['status' => 'ironing']));
-        $this->actingAs($staff)->get(route('schedule.index', ['status' => 'ironing']))
+            ->assertRedirect(route('orders.index', ['status' => 'ironing']));
+        $this->actingAs($staff)->get(route('orders.index', ['status' => 'ironing']))
             ->assertOk()
             ->assertSee($order->order_number)
             ->assertSee('Iron');
@@ -849,10 +849,10 @@ class PersistentOrdersTest extends TestCase
             ->assertSee('Daily Order Volume')
             ->assertSee('Orders by Stage')
             ->assertSee(route('orders.index'), false)
-            ->assertSee(route('schedule.index', ['status' => 'received']), false)
-            ->assertSee(route('schedule.index', ['date' => now()->toDateString()]), false);
+            ->assertSee(route('orders.index', ['status' => 'received']), false)
+            ->assertSee(route('orders.index', ['date' => now()->toDateString()]), false);
 
-        $this->actingAs($admin)->get(route('schedule.index', ['date' => now()->toDateString()]))
+        $this->actingAs($admin)->get(route('orders.index', ['date' => now()->toDateString()]))
             ->assertOk()
             ->assertSee($order->order_number);
     }

@@ -10,7 +10,7 @@ use Illuminate\Validation\ValidationException;
 
 class ApplyInventoryConsumptionAction
 {
-    public function consume(Order $order, array $serviceIds, int $loads, int $userId): void
+    public function consume(Order $order, array $serviceIds, int $loads, int $userId, array $manualItems = []): void
     {
         $usageRows = ServiceInventoryUsage::query()
             ->whereIn('service_id', $serviceIds)
@@ -22,12 +22,26 @@ class ApplyInventoryConsumptionAction
             $quantities[$usage->inventory_item_id] = ($quantities[$usage->inventory_item_id] ?? BigDecimal::zero())->plus($consumption);
         }
 
+        foreach ($manualItems as $itemId => $qty) {
+            if ($qty === null || $qty === '' || (float) $qty <= 0) {
+                continue;
+            }
+            $itemId = (int) $itemId;
+            $consumption = BigDecimal::of((string) $qty);
+            $quantities[$itemId] = ($quantities[$itemId] ?? BigDecimal::zero())->plus($consumption);
+        }
+
         foreach ($quantities as $itemId => $quantity) {
+            if ($quantity->isZero() || $quantity->isNegative()) {
+                continue;
+            }
+
             $item = InventoryItem::query()->lockForUpdate()->findOrFail($itemId);
             $remaining = BigDecimal::of((string) $item->quantity_on_hand)->minus($quantity);
             if ($remaining->isNegative()) {
+                $errorKey = isset($manualItems[$itemId]) ? 'inventory_items' : 'service_ids';
                 throw ValidationException::withMessages([
-                    'service_ids' => "Insufficient {$item->name} stock to create this order.",
+                    $errorKey => "Insufficient {$item->name} stock to create this order ({$item->quantity_on_hand} {$item->unit} available).",
                 ]);
             }
 
@@ -37,7 +51,7 @@ class ApplyInventoryConsumptionAction
                 'recorded_by' => $userId,
                 'movement_type' => 'usage',
                 'quantity_change' => (string) $quantity->negated(),
-                'notes' => "Consumed for order {$order->order_number}.",
+                'notes' => "Used {$quantity} {$item->unit}(s) for order {$order->order_number}.",
             ]);
         }
     }

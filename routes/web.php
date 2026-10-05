@@ -30,6 +30,7 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::patch('/customers/{customer}/active', [CustomerController::class, 'toggleActive'])->middleware('role:admin')->name('customers.toggle-active');
         Route::get('/schedule', [OrderStatusController::class, 'index'])->name('schedule.index');
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
         Route::get('/orders/{order}', [ScheduleController::class, 'show'])->name('orders.show');
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
         Route::post('/orders/{order}/status', [OrderStatusController::class, 'update'])->name('orders.status.update');
@@ -39,6 +40,7 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::post('/orders/add', [OrderController::class, 'store'])->name('orders.add');
     });
     Route::middleware('role:admin')->group(function () {
+        Route::get('/admin/customer-insights', [CustomerController::class, 'insights'])->name('customers.insights');
         Route::get('/reports', [DashboardController::class, 'reports'])->name('reports');
         Route::get('/reports/print', [DashboardController::class, 'printReports'])->name('reports.print');
         Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
