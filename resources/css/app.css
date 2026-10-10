@@ -272,3 +272,171 @@
 .marquee-content:hover {
     animation-play-state: paused;
 }
+
+/* ==========================================================================
+   Trowa Signature Retro Laundromat Loading Animations & Styles
+   ========================================================================== */
+
+/* Tumbling Laundry Clothes Inside Porthole Drum */
+@keyframes wash-tumble-1 {
+    0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+    25% { transform: translate(24px, -24px) rotate(90deg) scale(1.1); }
+    50% { transform: translate(6px, 18px) rotate(190deg) scale(0.92); }
+    75% { transform: translate(-22px, -8px) rotate(280deg) scale(1.06); }
+    100% { transform: translate(0, 0) rotate(360deg) scale(1); }
+}
+
+@keyframes wash-tumble-2 {
+    0% { transform: translate(0, 0) rotate(0deg) scale(0.95); }
+    25% { transform: translate(-22px, 16px) rotate(-95deg) scale(1.08); }
+    50% { transform: translate(-8px, -22px) rotate(-190deg) scale(0.9); }
+    75% { transform: translate(22px, -6px) rotate(-285deg) scale(1.04); }
+    100% { transform: translate(0, 0) rotate(-360deg) scale(0.95); }
+}
+
+@keyframes wash-tumble-3 {
+    0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+    33% { transform: translate(16px, 20px) rotate(120deg) scale(1.15); }
+    66% { transform: translate(-18px, -16px) rotate(240deg) scale(0.85); }
+    100% { transform: translate(0, 0) rotate(360deg) scale(1); }
+}
+
+@keyframes suds-wave {
+    0%, 100% { transform: translateY(0) scaleY(1); }
+    50% { transform: translateY(-8px) scaleY(1.18); }
+}
+
+@keyframes retro-meter-needle {
+    0% { transform: rotate(-55deg); }
+    20% { transform: rotate(10deg); }
+    40% { transform: rotate(45deg); }
+    60% { transform: rotate(70deg); }
+    80% { transform: rotate(62deg); }
+    100% { transform: rotate(76deg); }
+}
+
+@keyframes retro-hazard-stripes {
+    0% { background-position: 0 0; }
+    100% { background-position: 48px 0; }
+}
+
+@keyframes soap-bubble-drift {
+    0% { transform: translateY(16px) scale(0.5); opacity: 0; }
+    25% { opacity: 0.9; }
+    75% { opacity: 0.85; }
+    100% { transform: translateY(-34px) scale(1.25); opacity: 0; }
+}
+
+@keyframes machine-vibrate {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-1.5px, 1px); }
+    50% { transform: translate(1.5px, -1px); }
+    75% { transform: translate(-1px, -1.5px); }
+}
+
+@keyframes retro-topbar-sweep {
+    0% { width: 0%; opacity: 1; }
+    40% { width: 65%; opacity: 1; }
+    80% { width: 90%; opacity: 1; }
+    100% { width: 100%; opacity: 0.85; }
+}
+
+.animate-laundry-1 {
+    animation: wash-tumble-1 1.7s cubic-bezier(0.42, 0.05, 0.58, 0.95) infinite;
+    transform-origin: center;
+}
+
+.animate-laundry-2 {
+    animation: wash-tumble-2 2.1s cubic-bezier(0.42, 0.05, 0.58, 0.95) infinite;
+    transform-origin: center;
+}
+
+.animate-laundry-3 {
+    animation: wash-tumble-3 1.4s cubic-bezier(0.42, 0.05, 0.58, 0.95) infinite;
+    transform-origin: center;
+}
+
+.animate-suds-wave {
+    animation: suds-wave 1.3s ease-in-out infinite;
+}
+
+.animate-meter-needle {
+    animation: retro-meter-needle 1.25s ease-out forwards;
+    transform-origin: bottom center;
+}
+
+.animate-machine-vibrate {
+    animation: machine-vibrate 0.18s linear infinite;
+}
+
+.animate-soap-bubble {
+    animation: soap-bubble-drift 1.8s ease-in-out infinite;
+}
+
+.retro-hazard-bar {
+    background-image: repeating-linear-gradient(
+        45deg,
+        #CB1B03,
+        #CB1B03 14px,
+        #182830 14px,
+        #182830 28px
+    );
+    background-size: 40px 40px;
+    animation: retro-hazard-stripes 1.2s linear infinite;
+}
+
+.retro-hazard-bar-cyan {
+    background-image: repeating-linear-gradient(
+        45deg,
+        #25799B,
+        #25799B 14px,
+        #182830 14px,
+        #182830 28px
+    );
+    background-size: 40px 40px;
+    animation: retro-hazard-stripes 1.2s linear infinite;
+}
+
+.retro-hazard-bar-amber {
+    background-image: repeating-linear-gradient(
+        45deg,
+        #F59E0B,
+        #F59E0B 14px,
+        #182830 14px,
+        #182830 28px
+    );
+    background-size: 40px 40px;
+    animation: retro-hazard-stripes 1.2s linear infinite;
+}
+
+/* Button Loading State */
+.btn-wash-loading {
+    position: relative;
+    pointer-events: none !important;
+    opacity: 0.92 !important;
+    cursor: wait !important;
+    transform: translate(1px, 1px) !important;
+    box-shadow: 1px 1px 0px #182830 !important;
+}
+
+/* Top Retro Wash Navigation Progress Bar */
+#trowa-top-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    z-index: 9999;
+    pointer-events: none;
+    overflow: hidden;
+    background: rgba(24, 40, 48, 0.2);
+}
+
+#trowa-top-loader-inner {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #25799B, #CB1B03, #F59E0B, #10B981);
+    background-size: 200% 100%;
+    transition: width 0.3s ease-out;
+}
+

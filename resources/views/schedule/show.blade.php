@@ -164,7 +164,7 @@
                                     <span>Pay (₱{{ number_format($balance, 2) }}) ➔</span>
                                 </button>
                             @else
-                                <form method="POST" action="{{ route('orders.status.update', $order) }}" class="flex flex-1 flex-wrap items-end gap-3">
+                                <form method="POST" action="{{ route('orders.status.update', $order) }}" data-confirm="Mark Order #{{ $order->order_number }} as claimed and completed?" data-confirm-title="Confirm Order Claim" data-confirm-type="check" data-confirm-btn="Yes, Mark as Done" class="flex flex-1 flex-wrap items-end gap-3">
                                     @csrf
                                     <input type="hidden" name="status" value="claimed">
                                     <input type="hidden" name="redirect_to" value="orders.show">
@@ -179,7 +179,7 @@
                                 </form>
                             @endif
                         @else
-                            <form method="POST" action="{{ route('orders.status.update', $order) }}" class="flex flex-1 flex-wrap items-end gap-3">
+                            <form method="POST" action="{{ route('orders.status.update', $order) }}" data-confirm="Advance Order #{{ $order->order_number }} to '{{ $labels[$nextStatus] }}' stage?" data-confirm-title="Advance Order Status" data-confirm-type="primary" data-confirm-btn="Yes, Advance Order" class="flex flex-1 flex-wrap items-end gap-3">
                                 @csrf
                                 <input type="hidden" name="status" value="{{ $nextStatus }}">
                                 <div class="min-w-48 flex-1">
@@ -195,7 +195,7 @@
                     @endif
 
                     @if(in_array('cancelled', $availableStatuses, true))
-                        <form method="POST" action="{{ route('orders.status.update', $order) }}" onsubmit="return confirm('Cancel this order? This action cannot be undone.');">
+                        <form method="POST" action="{{ route('orders.status.update', $order) }}" data-confirm="Are you sure you want to cancel Order #{{ $order->order_number }}? This action cannot be undone." data-confirm-title="Cancel Laundry Ticket" data-confirm-type="danger" data-confirm-btn="Yes, Cancel Order">
                             @csrf
                             <input type="hidden" name="status" value="cancelled">
                             <button type="submit" class="font-mono text-xs font-bold text-red-600 hover:underline px-2 py-2">

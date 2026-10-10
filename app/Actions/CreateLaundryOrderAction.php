@@ -18,6 +18,13 @@ class CreateLaundryOrderAction
             $weight = BigDecimal::of((string) $data['weight_kg']);
             [$wholeLoads, $remainder] = $weight->quotientAndRemainder(8);
             $loads = (int) $wholeLoads->plus($remainder->isZero() ? 0 : 1)->toInt();
+
+            abort_if(
+                $loads > 8 || $weight->isGreaterThan(64),
+                422,
+                "Capacity Limit Exceeded: Trowa Laundry is equipped with 8 commercial washing machines (max 64.0 kg per run). The requested {$weight} kg requires {$loads} machines. Please reduce weight to 64.0 kg or split into separate orders."
+            );
+
             $services = Service::query()
                 ->whereKey($data['service_ids'])
                 ->where('is_active', true)
@@ -26,14 +33,24 @@ class CreateLaundryOrderAction
 
             abort_unless($services->count() === count($data['service_ids']), 422, 'One or more selected services are unavailable.');
 
-            $customer = isset($data['customer_id'])
-                ? Customer::query()->where('is_active', true)->findOrFail($data['customer_id'])
-                : Customer::query()->create([
+            if (isset($data['customer_id'])) {
+                $customer = Customer::query()->where('is_active', true)->findOrFail($data['customer_id']);
+                $custUpdates = array_filter([
+                    'address' => $data['address'] ?? null,
+                    'contact_number' => $data['contact_number'] ?? null,
+                    'phone' => $data['contact_number'] ?? null,
+                ]);
+                if (!empty($custUpdates)) {
+                    $customer->update($custUpdates);
+                }
+            } else {
+                $customer = Customer::query()->create([
                     'name' => $data['customer_name'],
                     'address' => $data['address'] ?? null,
                     'contact_number' => $data['contact_number'] ?? null,
                     'phone' => $data['contact_number'] ?? null,
                 ]);
+            }
 
             $lineItems = $services->map(function (Service $service) use ($loads, $weight): array {
                 $price = $service->price_per_load ?? $service->price;
@@ -74,6 +91,8 @@ class CreateLaundryOrderAction
                 ? 'unpaid'
                 : ($amountPaid->isEqualTo($total) ? 'paid' : 'partially_paid');
 
+            $initialStatus = $data['status'] ?? 'received';
+
             $order = Order::query()->create([
                 'order_number' => $this->generateOrderNumber(),
                 'created_by' => $staffId,
@@ -87,15 +106,19 @@ class CreateLaundryOrderAction
                 'change' => (string) $change,
                 'payment_status' => $paymentStatus,
                 'order_date' => now(),
-                'status' => 'received',
+                'status' => $initialStatus,
+                'soap_preference' => $data['soap_preference'] ?? null,
+                'customer_notes' => $data['customer_notes'] ?? null,
             ]);
 
             $order->orderServices()->createMany($lineItems->all());
             $order->itemDetails()->createMany($data['item_details'] ?? []);
             $order->statusHistories()->create([
-                'status' => 'received',
+                'status' => $initialStatus,
                 'changed_by' => $staffId,
-                'notes' => 'Order received.',
+                'notes' => $initialStatus === 'pending_confirmation' 
+                    ? 'Customer self-service intake submitted via online portal. Awaiting staff confirmation.' 
+                    : 'Order received at counter.',
             ]);
             $inventoryConsumption->consume($order, $services->modelKeys(), $loads, $staffId, $data['inventory_items'] ?? []);
 

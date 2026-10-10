@@ -32,7 +32,11 @@ class OrderStatusController extends Controller
         $search = $request->string('search')->trim()->toString();
         $orders = Order::query()
             ->with(['customer:id,name,phone,contact_number', 'orderServices.service'])
-            ->when($user->role === 'staff', fn ($query) => $query->where('created_by', $user->id))
+            ->when($user->role === 'staff', fn ($query) => $query->where(function ($q) use ($user): void {
+                $q->where('created_by', $user->id)
+                    ->orWhere('status', 'pending_confirmation')
+                    ->orWhereNotNull('customer_id');
+            }))
             ->when($status !== '', function ($query) use ($status): void {
                 $legacyStatuses = match ($status) {
                     'received' => ['received', 'pending'],
@@ -96,7 +100,7 @@ class OrderStatusController extends Controller
         ]);
 
         $user = $request->user();
-        abort_unless($user->role === 'admin' || $order->created_by === $user->id, 403);
+        abort_unless($user->role === 'admin' || $user->role === 'staff' || $order->created_by === $user->id, 403);
 
         // Claimed status payment verification and processing
         if ($data['status'] === 'claimed') {
@@ -129,6 +133,11 @@ class OrderStatusController extends Controller
 
         $updateOrderStatus->handle($order, $data['status'], (int) $user->id, $data['notes'] ?? null);
 
+        if (in_array($data['status'], ['ready_for_pickup', 'claimed'], true) && ! $order->ready_notified_at) {
+            $this->sendReadyForClaimNotification($order);
+            $order->update(['ready_notified_at' => now()]);
+        }
+
         $flashMessage = $data['status'] === 'claimed'
             ? "Order {$order->order_number} marked as Done and released to customer."
             : "Order {$order->order_number} moved to " . ucfirst(str_replace('_', ' ', $data['status'])) . '.';
@@ -153,5 +162,55 @@ class OrderStatusController extends Controller
         return redirect()
             ->route('orders.index', ['status' => $data['status']])
             ->with('status', $flashMessage);
+    }
+
+    public function confirmOnlineOrder(Order $order, Request $request, UpdateOrderStatusAction $updateOrderStatus): RedirectResponse
+    {
+        $user = $request->user();
+        abort_unless($user->role === 'admin' || $user->role === 'staff', 403);
+        abort_unless($order->status === 'pending_confirmation', 422, 'Order is not awaiting confirmation.');
+
+        $updateOrderStatus->handle(
+            $order,
+            'received',
+            (int) $user->id,
+            'Staff confirmed customer online intake. Customer notified to bring garments and settle payment.'
+        );
+
+        return back()->with('status', "Order {$order->order_number} confirmed! Customer can now bring garments to branch.");
+    }
+
+    public function rejectOnlineOrder(Order $order, Request $request, UpdateOrderStatusAction $updateOrderStatus): RedirectResponse
+    {
+        $user = $request->user();
+        abort_unless($user->role === 'admin' || $user->role === 'staff', 403);
+        abort_unless($order->status === 'pending_confirmation', 422, 'Order is not awaiting confirmation.');
+
+        $reason = $request->input('rejection_reason', 'Fleet capacity full or machine maintenance');
+        $order->update(['rejection_reason' => $reason]);
+        $updateOrderStatus->handle(
+            $order,
+            'cancelled',
+            (int) $user->id,
+            "Online intake rejected by staff: {$reason}"
+        );
+
+        return back()->with('status', "Order {$order->order_number} was rejected.");
+    }
+
+    public function resendReadyEmail(Order $order): RedirectResponse
+    {
+        $sent = app(\App\Actions\SendOrderReadyNotificationAction::class)->handle($order);
+        if ($sent) {
+            $order->update(['ready_notified_at' => now()]);
+            return back()->with('status', "Fresh Laundry Claim Notification successfully sent for Order #{$order->order_number}!");
+        }
+
+        return back()->withErrors(['email' => "No valid email found on file for Order #{$order->order_number} customer."]);
+    }
+
+    private function sendReadyForClaimNotification(Order $order): void
+    {
+        app(\App\Actions\SendOrderReadyNotificationAction::class)->handle($order);
     }
 }

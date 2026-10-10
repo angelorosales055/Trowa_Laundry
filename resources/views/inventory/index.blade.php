@@ -504,9 +504,9 @@
                         <span class="text-[#182830] font-bold">
                             {{ $usage->service->name }} uses {{ $usage->quantity_per_load }} {{ $usage->inventoryItem->unit }} {{ $usage->inventoryItem->name }} / load
                         </span>
-                        <form method="POST" action="{{ route('inventory.usage.destroy', $usage) }}">
+                        <form method="POST" action="{{ route('inventory.usage.destroy', $usage) }}" data-confirm="Are you sure you want to remove recipe usage of {{ $usage->inventoryItem->name }} for {{ $usage->service->name }}?" data-confirm-title="Remove Service Recipe" data-confirm-type="danger" data-confirm-btn="Yes, Remove">
                             @csrf @method('DELETE')
-                            <button class="font-mono text-xs font-bold text-[#CB1B03] hover:underline cursor-pointer">Remove ×</button>
+                            <button type="submit" class="font-mono text-xs font-bold text-[#CB1B03] hover:underline cursor-pointer">Remove ×</button>
                         </form>
                     </div>
                 @empty

@@ -39,10 +39,15 @@ class OrderController extends Controller
         $canonicalStatus = $statusAliases[$status] ?? $status;
 
         $baseQuery = Order::query()
-            ->when($user->role === 'staff', fn ($query) => $query->where('created_by', $user->id));
+            ->when($user->role === 'staff', fn ($query) => $query->where(function ($q) use ($user): void {
+                $q->where('created_by', $user->id)
+                    ->orWhere('status', 'pending_confirmation')
+                    ->orWhereNotNull('customer_id');
+            }));
 
         $stats = [
             'total_active' => (clone $baseQuery)->whereNotIn('status', ['claimed', 'delivered', 'cancelled'])->count(),
+            'pending_confirmation' => (clone $baseQuery)->where('status', 'pending_confirmation')->count(),
             'awaiting_wash' => (clone $baseQuery)->whereIn('status', ['received', 'pending'])->count(),
             'washing' => (clone $baseQuery)->whereIn('status', ['washing', 'in-progress'])->count(),
             'drying' => (clone $baseQuery)->where('status', 'drying')->count(),
@@ -125,10 +130,12 @@ class OrderController extends Controller
             'customer_name' => ['nullable', 'string', 'max:255', 'required_without:customer_id'],
             'address' => ['nullable', 'string', 'max:255'],
             'contact_number' => ['nullable', 'string', 'max:30'],
-            'weight_kg' => ['nullable', 'numeric', 'gt:0'],
-            'weight' => ['nullable', 'numeric', 'gt:0'],
+            'weight_kg' => ['nullable', 'numeric', 'gt:0', 'max:64'],
+            'weight' => ['nullable', 'numeric', 'gt:0', 'max:64'],
             'service_ids' => ['required', 'array', 'min:1'],
             'service_ids.*' => ['integer', 'distinct', 'exists:services,id'],
+            'soap_preference' => ['nullable', 'string', 'max:255'],
+            'customer_notes' => ['nullable', 'string', 'max:1000'],
             'item_details' => ['nullable', 'array'],
             'item_details.*.item_name' => ['nullable', 'string', 'max:100'],
             'item_details.*.quantity' => ['nullable', 'integer', 'min:1'],
@@ -138,6 +145,9 @@ class OrderController extends Controller
             'tendered_amount' => ['nullable', 'numeric', 'min:0'],
             'payment_method' => ['nullable', 'in:cash,gcash,other'],
             'reference_number' => ['nullable', 'string', 'max:255'],
+        ], [
+            'weight_kg.max' => 'Fleet capacity limit: Trowa Laundry has only 8 washing machines (maximum 64.0 kg). Please reduce weight.',
+            'weight.max' => 'Fleet capacity limit: Trowa Laundry has only 8 washing machines (maximum 64.0 kg). Please reduce weight.',
         ]);
         $data['item_details'] = $this->validatedItemDetails($data['item_details'] ?? []);
         $data['weight_kg'] = $data['weight_kg'] ?? $data['weight'] ?? null;

@@ -106,13 +106,13 @@
                                 <input type="hidden" name="icon" value="{{ $service->icon }}">
                                 <button class="retro-btn-secondary px-3 py-1 text-xs">Save</button>
                         </form>
-                                <form method="POST" action="{{ route('services.toggle-active', $service) }}" class="ml-2 inline">
+                                <form method="POST" action="{{ route('services.toggle-active', $service) }}" data-confirm="Are you sure you want to {{ $service->is_active ? 'deactivate' : 'activate' }} this service?" data-confirm-title="Toggle Service Status" data-confirm-type="warning" data-confirm-btn="Yes, Update" class="ml-2 inline">
                                     @csrf @method('PATCH')
                                     <button class="font-mono text-xs font-bold text-[#25799B] hover:underline">
                                         {{ $service->is_active ? 'Deactivate' : 'Activate' }}
                                     </button>
                                 </form>
-                                <form method="POST" action="{{ route('services.destroy', $service) }}" class="ml-2 inline" onsubmit="return confirm('Delete this service?');">
+                                <form method="POST" action="{{ route('services.destroy', $service) }}" data-confirm="Are you sure you want to delete service '{{ $service->name }}'? Existing order records will be preserved." data-confirm-title="Delete Service" data-confirm-type="danger" data-confirm-btn="Yes, Delete Service" class="ml-2 inline">
                                     @csrf @method('DELETE')
                                     <button class="font-mono text-sm font-bold text-red-500 hover:text-red-700 px-1">×</button>
                                 </form>

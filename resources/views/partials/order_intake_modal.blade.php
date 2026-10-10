@@ -190,6 +190,29 @@
                                 </button>
                             @endforeach
                         </div>
+
+                        <!-- 8 Washing Machines Fleet Limit Warning Banner -->
+                        <div id="wizard-capacity-warning" class="hidden mt-3 rounded-2xl border-2 border-[#CB1B03] bg-red-50 p-3.5 text-[#182830] shadow-[3px_3px_0px_#CB1B03]">
+                            <div class="flex items-start gap-3">
+                                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border-2 border-[#CB1B03] bg-[#CB1B03] text-white font-mono font-black text-lg">
+                                    !
+                                </div>
+                                <div class="space-y-1">
+                                    <h4 class="font-recoleta text-sm font-bold text-[#CB1B03] leading-tight flex items-center gap-1.5">
+                                        <svg class="h-4 w-4 text-[#CB1B03]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 2 22 22 22 12 2"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                        <span>Fleet Limit Warning: Maximum 8 Washing Machines</span>
+                                    </h4>
+                                    <p class="text-xs font-medium text-slate-700 leading-snug">
+                                        Our laundromat has a total fleet of <strong>8 washing machines</strong> (1 commercial machine = 8.0 kg max; maximum shop batch is <strong>64.0 kg</strong>).
+                                        Your entered weight (<span id="wizard-warning-kg-val" class="font-mono font-black text-[#CB1B03]">0</span> kg) requires 
+                                        <span id="wizard-warning-loads-val" class="font-mono font-black text-[#CB1B03]">0</span> machines, which exceeds the number of washing machines in the shop!
+                                    </p>
+                                    <p class="font-mono text-[11px] font-extrabold text-[#CB1B03]">
+                                        Please decrease the weight to ≤ 64.0 kg or split this customer order into separate batches.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- 1-Click Quick Packages Strip -->
@@ -309,8 +332,9 @@
                             <p class="text-xs font-medium text-[#25799B]">Select detergent &amp; fabcon sachets from real shop stock. Units used will automatically deduct from inventory.</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="badge border-[#182830] bg-[#F7E6CB] text-[#182830] font-mono text-[10px] font-bold">
-                                🏷️ Auto Per Sachet Logic
+                            <span class="badge border-[#182830] bg-[#F7E6CB] text-[#182830] font-mono text-[10px] font-bold flex items-center gap-1">
+                                <svg class="h-3 w-3 text-[#182830]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                                <span>Auto Per Sachet Logic</span>
                             </span>
                         </div>
                     </div>
@@ -351,23 +375,24 @@
                                             <div class="flex items-start justify-between gap-2 mb-1.5">
                                                 <div class="flex items-center gap-1.5 flex-wrap">
                                                     <strong class="font-recoleta text-sm font-bold text-[#182830]">{{ $invItem->name }}</strong>
-                                                    <span class="badge border-[#182830] bg-[#F7E6CB] text-[#182830] text-[9px] font-mono font-bold">
-                                                        🏷️ {{ $invItem->unit === 'sachet' ? 'Per Sachet' : $invItem->unit }}
+                                                    <span class="badge border-[#182830] bg-[#F7E6CB] text-[#182830] text-[9px] font-mono font-bold flex items-center gap-1">
+                                                        <svg class="h-2.5 w-2.5 text-[#182830]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                                                        <span>{{ $invItem->unit === 'sachet' ? 'Per Sachet' : $invItem->unit }}</span>
                                                     </span>
                                                 </div>
 
-                                                <!-- Medals Display in Transaction Intake -->
+                                                <!-- Status Badge in Transaction Intake -->
                                                 @if($isDepleted)
                                                     <span class="badge border border-red-800 bg-[#CB1B03] text-white text-[9px] font-mono font-black shrink-0">
-                                                        🏅 Depleted Medal (0 left)
+                                                        Depleted (0 left)
                                                     </span>
                                                 @elseif($isAlmostOut)
                                                     <span class="badge border border-amber-800 bg-amber-400 text-[#182830] text-[9px] font-mono font-black animate-pulse shrink-0">
-                                                        🎖️ Almost Out Medal ({{ $onHand }} left!)
+                                                        Almost Out ({{ $onHand }} left!)
                                                     </span>
                                                 @else
                                                     <span class="badge border border-emerald-600 bg-emerald-100 text-emerald-800 text-[9px] font-mono font-bold shrink-0">
-                                                        🥇 Healthy Stock
+                                                        Healthy Stock
                                                     </span>
                                                 @endif
                                             </div>
@@ -741,6 +766,14 @@
                 weightInput?.focus();
                 return false;
             }
+            if (weight > 64 || Math.ceil(weight / 8) > 8) {
+                const loads = Math.ceil(weight / 8);
+                alert(`Fleet Limit Exceeded: Trowa Laundry has only 8 washing machines (max 64.0 kg per run). The entered weight of ${weight.toFixed(1)} kg requires ${loads} machines. Please reduce the weight or process as multiple separate orders.`);
+                const warningEl = document.getElementById('wizard-capacity-warning');
+                if (warningEl) warningEl.classList.remove('hidden');
+                weightInput?.focus();
+                return false;
+            }
             if (checkedServices.length === 0) {
                 servicesError?.classList.remove('hidden');
                 return false;
@@ -813,7 +846,26 @@
     function recalculateServices() {
         const weight = parseFloat(weightInput?.value) || 0;
         const loads = weight > 0 ? Math.ceil(weight / 8) : 0;
-        if (loadsBadge) loadsBadge.textContent = loads;
+
+        const warningEl = document.getElementById('wizard-capacity-warning');
+        const warningKgVal = document.getElementById('wizard-warning-kg-val');
+        const warningLoadsVal = document.getElementById('wizard-warning-loads-val');
+
+        if (weight > 64 || loads > 8) {
+            if (warningEl) warningEl.classList.remove('hidden');
+            if (warningKgVal) warningKgVal.textContent = weight.toFixed(1);
+            if (warningLoadsVal) warningLoadsVal.textContent = loads;
+            if (loadsBadge) {
+                loadsBadge.textContent = `${loads} (OVER 8 MACHINES!)`;
+                loadsBadge.className = 'text-base font-black text-red-600 animate-pulse';
+            }
+        } else {
+            if (warningEl) warningEl.classList.add('hidden');
+            if (loadsBadge) {
+                loadsBadge.textContent = loads;
+                loadsBadge.className = 'text-base text-[#CB1B03]';
+            }
+        }
 
         let subtotal = 0;
         serviceCheckboxes.forEach(cb => {
@@ -1241,6 +1293,65 @@
             return false;
         }
 
+        const currentWeight = parseFloat(weightInput?.value) || 0;
+        if (currentWeight > 64 || Math.ceil(currentWeight / 8) > 8) {
+            e.preventDefault();
+            alert('Cannot proceed: Total weight exceeds our 8 washing machines capacity (64.0 kg).');
+            return false;
+        }
+
+        // Intercept with Trowa Retro Confirmation Modal
+        if (!form.hasAttribute('data-intake-confirmed')) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            const customerNameVal = customerName?.value.trim() || 'Walk-in Customer';
+            const loadsVal = Math.ceil(currentWeight / 8);
+            const timingVal = payNowRadio?.checked ? 'Tender Now (Paid)' : 'Pay on Claim';
+            const detailsHtml = `
+                <div class="flex justify-between py-0.5 border-b border-[#182830]/10">
+                    <span class="text-slate-600 font-bold">Customer:</span>
+                    <strong>${customerNameVal}</strong>
+                </div>
+                <div class="flex justify-between py-0.5 border-b border-[#182830]/10">
+                    <span class="text-slate-600 font-bold">Weight / Drums:</span>
+                    <strong>${currentWeight.toFixed(1)} kg (${loadsVal} drum${loadsVal === 1 ? '' : 's'})</strong>
+                </div>
+                <div class="flex justify-between py-0.5 border-b border-[#182830]/10">
+                    <span class="text-slate-600 font-bold">Payment Timing:</span>
+                    <span class="text-slate-700">${timingVal}</span>
+                </div>
+                <div class="flex justify-between pt-1">
+                    <span class="text-[#182830] font-black uppercase">Total Charges:</span>
+                    <strong class="font-recoleta text-base text-[#CB1B03]">₱${calculatedTotal.toFixed(2)}</strong>
+                </div>
+            `;
+
+            if (window.TrowaConfirm) {
+                window.TrowaConfirm({
+                    title: 'Confirm Laundry Intake Order',
+                    message: 'Please review and confirm order details before registering to laundry queue:',
+                    badge: 'Order Finalization',
+                    type: 'primary',
+                    confirmText: 'Yes, Finalize & Start Wash ➔',
+                    cancelText: 'Back to Review',
+                    details: detailsHtml
+                }, function() {
+                    form.setAttribute('data-intake-confirmed', 'true');
+                    const btn = document.getElementById('wizard-btn-submit');
+                    if (btn) {
+                        btn.click();
+                    } else {
+                        form.submit();
+                    }
+                });
+                return false;
+            }
+        }
+
+        // Confirmed! Clear temporary flag
+        form.removeAttribute('data-intake-confirmed');
+
         if (payNowRadio?.checked) {
             const rawTender = parseFloat(tenderInput?.value);
             if (isNaN(rawTender) || rawTender <= 0) {
@@ -1255,6 +1366,15 @@
         } else {
             if (hiddenAmountPaid) hiddenAmountPaid.value = '0';
             if (hiddenTenderedAmount) hiddenTenderedAmount.value = '0';
+        }
+
+        if (window.TrowaLoading) {
+            window.TrowaLoading.show({
+                header: '⚡ TROWA INTAKE TERMINAL ⚡',
+                stage: 'WEIGHING & WASHING',
+                title: 'Registering Laundry Ticket...',
+                message: 'Calibrating wash load, allocating supplies, and prepping machine bay...'
+            });
         }
     });
 

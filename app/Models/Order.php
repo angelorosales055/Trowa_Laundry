@@ -26,6 +26,13 @@ class Order extends Model
         'payment_status',
         'order_date',
         'status',
+        'soap_preference',
+        'customer_notes',
+        'rejection_reason',
+        'rating',
+        'rating_comment',
+        'rated_at',
+        'ready_notified_at',
     ];
 
     protected function casts(): array
@@ -36,6 +43,9 @@ class Order extends Model
             'amount_paid' => 'decimal:2',
             'change' => 'decimal:2',
             'order_date' => 'datetime',
+            'rating' => 'integer',
+            'rated_at' => 'datetime',
+            'ready_notified_at' => 'datetime',
         ];
     }
 
@@ -86,6 +96,7 @@ class Order extends Model
         }
 
         $next = match ($this->status) {
+            'pending_confirmation' => ['received'],
             'received', 'pending' => ['washing'],
             'washing', 'in-progress' => $this->nextProcessingStatusAfterWashing(),
             'drying' => $this->nextProcessingStatusAfterDrying(),

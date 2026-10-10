@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\CustomerDirectMessageMail;
 use App\Models\Customer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class CustomerController extends Controller
@@ -51,8 +53,13 @@ class CustomerController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:30'],
+            'contact_number' => ['nullable', 'string', 'max:30'],
             'email' => ['nullable', 'email', 'max:255'],
+            'address' => ['nullable', 'string', 'max:255'],
         ]);
+
+        $data['phone'] = $data['phone'] ?? $data['contact_number'] ?? null;
+        $data['contact_number'] = $data['contact_number'] ?? $data['phone'] ?? null;
 
         Customer::create($data);
 
@@ -188,6 +195,26 @@ class CustomerController extends Controller
             ->countBy()
             ->sortDesc();
 
+        // Customer Ratings & Reviews Telemetry
+        $ratedOrders = \App\Models\Order::query()
+            ->whereNotNull('rating')
+            ->when($from, fn ($q) => $q->whereDate('rated_at', '>=', $from))
+            ->when($to, fn ($q) => $q->whereDate('rated_at', '<=', $to))
+            ->with('customer')
+            ->latest('rated_at')
+            ->get();
+
+        $averageRating = $ratedOrders->isNotEmpty() ? round((float) $ratedOrders->avg('rating'), 1) : 5.0;
+        $totalRatingsCount = $ratedOrders->count();
+        $ratingBreakdown = [
+            5 => $ratedOrders->where('rating', 5)->count(),
+            4 => $ratedOrders->where('rating', 4)->count(),
+            3 => $ratedOrders->where('rating', 3)->count(),
+            2 => $ratedOrders->where('rating', 2)->count(),
+            1 => $ratedOrders->where('rating', 1)->count(),
+        ];
+        $recentReviews = $ratedOrders->take(10);
+
         return view('customers.insights', [
             'totalCustomers' => $totalCustomers,
             'totalOrdersCount' => $totalOrdersCount,
@@ -205,8 +232,39 @@ class CustomerController extends Controller
             'frequencyDistribution' => $frequencyDistribution,
             'dayOfWeekStats' => $dayOfWeekStats,
             'servicePreferences' => $servicePreferences,
+            'averageRating' => $averageRating,
+            'totalRatingsCount' => $totalRatingsCount,
+            'ratingBreakdown' => $ratingBreakdown,
+            'recentReviews' => $recentReviews,
             'from' => $from,
             'to' => $to,
         ]);
+    }
+
+    public function sendDirectEmail(Request $request, Customer $customer): RedirectResponse
+    {
+        $validated = $request->validate([
+            'subject' => ['required', 'string', 'max:150'],
+            'message' => ['required', 'string', 'max:2500'],
+        ]);
+
+        $recipientEmail = $customer->email ?? $customer->user?->email;
+
+        if (! $recipientEmail) {
+            return back()->withErrors(['email' => "Customer {$customer->name} does not have an email address on file."]);
+        }
+
+        try {
+            Mail::to($recipientEmail)->send(new CustomerDirectMessageMail(
+                customer: $customer,
+                customSubject: $validated['subject'],
+                customMessage: $validated['message'],
+                staff: $request->user()
+            ));
+
+            return back()->with('status', "Message successfully sent to {$customer->name} ({$recipientEmail})!");
+        } catch (\Throwable $e) {
+            return back()->withErrors(['email' => "Failed to deliver email: " . $e->getMessage()]);
+        }
     }
 }

@@ -3,6 +3,7 @@
 @section('content')
 @php
     $statusLabels = [
+        'pending_confirmation' => 'Pending Confirmation',
         'received' => 'Received',
         'washing' => 'Washing',
         'drying' => 'Drying',
@@ -130,6 +131,7 @@
         @php
             $stageTabs = [
                 '' => ['All Tickets', $stats['total_all'] ?? $orders->total()],
+                'pending_confirmation' => ['Online Requests', $stats['pending_confirmation'] ?? 0],
                 'received' => ['Intake / Queued', $stats['awaiting_wash']],
                 'washing' => ['Washing', $stats['washing']],
                 'drying' => ['Drying', $stats['drying']],
@@ -387,6 +389,7 @@
                             <!-- 6. Stage Status Badge -->
                             <td class="px-4 py-3 align-middle">
                                 <span class="inline-flex items-center gap-1.5 rounded-xl border-2 border-[#182830] px-2.5 py-1 font-mono text-xs font-black shadow-[1px_1px_0px_#182830] {{ match($order->status) {
+                                    'pending_confirmation' => 'bg-amber-400 text-amber-950 animate-pulse',
                                     'washing', 'in-progress' => 'bg-[#25799B] text-white',
                                     'drying' => 'bg-[#CB1B03] text-white',
                                     'ironing' => 'bg-amber-400 text-[#182830]',
@@ -396,14 +399,28 @@
                                     'cancelled' => 'bg-red-800 text-white',
                                     default => 'bg-[#F7E6CB] text-[#182830]',
                                 } }}">
-                                    <span>{{ str_replace('_', ' ', ucfirst($order->status)) }}</span>
+                                    <span>{{ $order->status === 'pending_confirmation' ? 'Online Request' : str_replace('_', ' ', ucfirst($order->status)) }}</span>
                                 </span>
                             </td>
 
                             <!-- 7. Action / Quick Stage Advancement -->
                             <td class="px-4 py-3 align-middle text-right">
                                 <div class="flex flex-col items-end gap-1">
-                                    @if($nextStatus)
+                                    @if($order->status === 'pending_confirmation')
+                                        <div class="flex items-center gap-1.5 mb-1">
+                                            <form method="POST" action="{{ route('orders.confirm-online', $order) }}" data-confirm="Accept Order #{{ $order->order_number }} into the shop wash queue?" data-confirm-title="Confirm Online Laundry Order" data-confirm-type="primary" data-confirm-btn="Yes, Accept Order">
+                                                @csrf
+                                                <button type="submit" class="rounded-xl border-2 border-[#182830] bg-emerald-600 px-3 py-1 font-recoleta text-xs font-black text-white shadow-[2px_2px_0px_#182830] hover:bg-emerald-700 transition cursor-pointer">
+                                                    ✓ Confirm
+                                                </button>
+                                            </form>
+                                            <button type="button" 
+                                                    onclick="openStaffRejectModal({{ $order->id }}, '{{ $order->order_number }}')" 
+                                                    class="rounded-xl border-2 border-[#182830] bg-[#CB1B03] px-2.5 py-1 font-recoleta text-xs font-black text-white shadow-[2px_2px_0px_#182830] hover:bg-[#B51702] transition cursor-pointer">
+                                                ✕ Reject
+                                            </button>
+                                        </div>
+                                    @elseif($nextStatus)
                                         @if($nextStatus === 'claimed')
                                             @if($balanceDue > 0)
                                                 <button type="button" 
@@ -418,7 +435,7 @@
                                                     <span>Pay (₱{{ number_format($balanceDue, 2) }}) ➔</span>
                                                 </button>
                                             @else
-                                                <form method="POST" action="{{ route('orders.status.update', $order) }}">
+                                                <form method="POST" action="{{ route('orders.status.update', $order) }}" data-confirm="Mark Order #{{ $order->order_number }} as claimed and completed?" data-confirm-title="Confirm Order Claim" data-confirm-type="check" data-confirm-btn="Yes, Mark as Done">
                                                     @csrf
                                                     <input type="hidden" name="status" value="claimed">
                                                     <input type="hidden" name="redirect_to" value="orders.index">
@@ -429,7 +446,7 @@
                                                 </form>
                                             @endif
                                         @else
-                                            <form method="POST" action="{{ route('orders.status.update', $order) }}">
+                                            <form method="POST" action="{{ route('orders.status.update', $order) }}" data-confirm="Advance Order #{{ $order->order_number }} to '{{ $statusLabels[$nextStatus] ?? ucfirst($nextStatus) }}' stage?" data-confirm-title="Advance Order Status" data-confirm-type="primary" data-confirm-btn="Yes, Advance Order">
                                                 @csrf
                                                 <input type="hidden" name="status" value="{{ $nextStatus }}">
                                                 <input type="hidden" name="redirect_to" value="orders.index">
@@ -447,7 +464,7 @@
                                         </a>
 
                                         @if(in_array('cancelled', $availableStatuses, true))
-                                            <form method="POST" action="{{ route('orders.status.update', $order) }}" onsubmit="return confirm('Cancel this laundry ticket?');">
+                                            <form method="POST" action="{{ route('orders.status.update', $order) }}" data-confirm="Are you sure you want to cancel Order #{{ $order->order_number }}? This will stop laundry processing and mark the ticket as cancelled." data-confirm-title="Cancel Laundry Ticket" data-confirm-type="danger" data-confirm-btn="Yes, Cancel Ticket">
                                                 @csrf
                                                 <input type="hidden" name="status" value="cancelled">
                                                 <input type="hidden" name="redirect_to" value="orders.index">
@@ -553,8 +570,63 @@
 <!-- Claim Release & Settlement Payment Window Modal Partial -->
 @include('partials.claim_payment_modal')
 
+<!-- Staff Reject Online Request Modal -->
+<div id="staff-reject-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#182830]/80 p-4 backdrop-blur-xs">
+    <div class="relative w-full max-w-md rounded-3xl border-3 border-[#182830] bg-[#FFFDF8] shadow-[8px_8px_0px_#182830] p-6">
+        <div class="flex items-center justify-between border-b-2 border-[#182830]/15 pb-3 mb-4">
+            <div>
+                <h3 class="font-recoleta text-lg font-black text-[#CB1B03]">Reject Online Request</h3>
+                <p class="font-mono text-xs text-slate-500">Ticket #<strong id="staff-reject-order-num" class="text-[#182830]"></strong></p>
+            </div>
+            <button type="button" onclick="closeStaffRejectModal()" class="flex h-8 w-8 items-center justify-center rounded-xl border-2 border-[#182830] bg-[#FFFDF8] text-sm font-black hover:bg-[#CB1B03] hover:text-white transition">
+                ✕
+            </button>
+        </div>
+
+        <form method="POST" id="staff-reject-form" class="space-y-4">
+            @csrf
+            <div>
+                <label class="block font-mono text-xs font-bold uppercase text-[#182830] mb-1">
+                    Select Rejection Reason <span class="text-[#CB1B03]">*</span>
+                </label>
+                <select name="rejection_reason" class="field text-xs font-medium mb-3">
+                    <option value="All 8 washing machines currently booked to maximum capacity">All 8 washing machines currently booked to maximum capacity</option>
+                    <option value="Outside operating hours / Store closing">Outside operating hours / Store closing</option>
+                    <option value="Garment types require dry cleaning not supported in commercial drums">Garment types require dry cleaning not supported in commercial drums</option>
+                    <option value="Customer unreachable or outside service radius">Customer unreachable or outside service radius</option>
+                </select>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-2">
+                <button type="button" onclick="closeStaffRejectModal()" class="rounded-xl border-2 border-[#182830] bg-[#FFFDF8] px-4 py-2 font-mono text-xs font-bold text-slate-700 shadow-[1px_1px_0px_#182830] hover:bg-slate-100">
+                    Cancel
+                </button>
+                <button type="submit" class="rounded-xl border-2 border-[#182830] bg-[#CB1B03] px-4 py-2 font-recoleta text-xs font-black text-white shadow-[2px_2px_0px_#182830] hover:bg-[#B51702]">
+                    Confirm Rejection
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @push('scripts')
 <script>
+window.openStaffRejectModal = function(orderId, orderNum) {
+    const modal = document.getElementById('staff-reject-modal');
+    const numEl = document.getElementById('staff-reject-order-num');
+    const form = document.getElementById('staff-reject-form');
+    if (numEl) numEl.textContent = orderNum;
+    if (form) form.action = `/orders/${orderId}/reject-online`;
+    modal?.classList.remove('hidden');
+    modal?.classList.add('flex');
+};
+
+window.closeStaffRejectModal = function() {
+    const modal = document.getElementById('staff-reject-modal');
+    modal?.classList.add('hidden');
+    modal?.classList.remove('flex');
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     // Quick Pay Modal Logic
     const qpModal = document.getElementById('quick-pay-modal');

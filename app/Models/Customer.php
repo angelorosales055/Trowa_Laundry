@@ -20,6 +20,11 @@ class Customer extends Model
         return $this->hasMany(Order::class);
     }
 
+    public function user(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(User::class, 'customer_id');
+    }
+
     public function mergedInto(): BelongsTo
     {
         return $this->belongsTo(self::class, 'merged_into_id');

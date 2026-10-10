@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CustomerPortalController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\InventoryController;
@@ -18,6 +19,23 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Customer Public Auth & Verification Routes
+Route::get('/customer/register', [CustomerPortalController::class, 'showRegister'])->name('customer.register');
+Route::post('/customer/register', [CustomerPortalController::class, 'processRegister'])->name('customer.register.post');
+Route::get('/customer/verify', [CustomerPortalController::class, 'showVerify'])->name('customer.verify');
+Route::post('/customer/verify', [CustomerPortalController::class, 'processVerify'])->name('customer.verify.post');
+Route::post('/customer/resend-code', [CustomerPortalController::class, 'resendCode'])->name('customer.resend-code');
+Route::get('/customer/login', [CustomerPortalController::class, 'showLogin'])->name('customer.login');
+Route::post('/customer/login', [CustomerPortalController::class, 'processLogin'])->name('customer.login.post');
+Route::post('/customer/logout', [CustomerPortalController::class, 'logout'])->name('customer.logout');
+
+// Customer Authenticated Portal Routes
+Route::middleware(['web', 'auth', 'role:customer'])->group(function () {
+    Route::get('/customer/portal', [CustomerPortalController::class, 'portal'])->name('customer.portal');
+    Route::post('/customer/orders', [CustomerPortalController::class, 'submitIntake'])->name('customer.orders.submit');
+    Route::post('/customer/orders/{order}/rate', [CustomerPortalController::class, 'submitRating'])->name('customer.orders.rate');
+});
+
 Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->middleware('role:staff,admin')
@@ -27,6 +45,7 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
         Route::put('/customers/{customer}', [CustomerController::class, 'update'])->middleware('role:admin')->name('customers.update');
         Route::post('/customers/{customer}/merge', [CustomerController::class, 'merge'])->middleware('role:admin')->name('customers.merge');
+        Route::post('/customers/{customer}/send-email', [CustomerController::class, 'sendDirectEmail'])->name('customers.send-email');
         Route::patch('/customers/{customer}/active', [CustomerController::class, 'toggleActive'])->middleware('role:admin')->name('customers.toggle-active');
         Route::get('/schedule', [OrderStatusController::class, 'index'])->name('schedule.index');
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
@@ -34,6 +53,9 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::get('/orders/{order}', [ScheduleController::class, 'show'])->name('orders.show');
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
         Route::post('/orders/{order}/status', [OrderStatusController::class, 'update'])->name('orders.status.update');
+        Route::post('/orders/{order}/resend-ready-email', [OrderStatusController::class, 'resendReadyEmail'])->name('orders.resend-ready-email');
+        Route::post('/orders/{order}/confirm-online', [OrderStatusController::class, 'confirmOnlineOrder'])->name('orders.confirm-online');
+        Route::post('/orders/{order}/reject-online', [OrderStatusController::class, 'rejectOnlineOrder'])->name('orders.reject-online');
         Route::post('/orders/{order}/payments', [PaymentController::class, 'store'])->name('orders.payments.store');
         Route::post('/orders/{order}/payments/{payment}/refund', [PaymentController::class, 'refund'])->name('orders.payments.refund');
         Route::post('/orders/update', [DashboardController::class, 'updateOrder'])->name('orders.update');
@@ -52,6 +74,12 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
         Route::get('/orders/{order}/edit', [OrderController::class, 'edit'])->name('orders.edit');
         Route::put('/orders/{order}', [OrderController::class, 'update'])->name('orders.update-details');
+
+        // Staff & Operator Account Management (Admin CRUD)
+        Route::get('/admin/staff', [\App\Http\Controllers\StaffManagementController::class, 'index'])->name('admin.staff.index');
+        Route::post('/admin/staff', [\App\Http\Controllers\StaffManagementController::class, 'store'])->name('admin.staff.store');
+        Route::put('/admin/staff/{staff}', [\App\Http\Controllers\StaffManagementController::class, 'update'])->name('admin.staff.update');
+        Route::delete('/admin/staff/{staff}', [\App\Http\Controllers\StaffManagementController::class, 'destroy'])->name('admin.staff.destroy');
     });
     Route::middleware('role:admin')->group(function () {
         Route::get('/billing', [DashboardController::class, 'billing'])->name('billing');

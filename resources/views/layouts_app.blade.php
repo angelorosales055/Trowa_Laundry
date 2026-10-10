@@ -12,6 +12,157 @@
     @stack('styles')
 </head>
 <body class="min-h-screen bg-[#F7E6CB] text-[#182830] font-sans antialiased selection:bg-[#A2C5D8] selection:text-[#182830]">
+<!-- Top Retro Laundromat Navigation Loading Bar -->
+<div id="trowa-top-loader" aria-hidden="true">
+    <div id="trowa-top-loader-inner"></div>
+</div>
+
+<!-- Global Trowa Laundromat Transaction Loading Modal -->
+<div id="global-wash-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#182830]/80 backdrop-blur-xs p-4 transition-opacity duration-200" role="status" aria-live="polite">
+    <div class="relative w-full max-w-sm rounded-3xl border-4 border-[#182830] bg-[#FFFDF8] shadow-[10px_10px_0px_#182830] overflow-hidden animate-machine-vibrate">
+        
+        <!-- Top Canopy -->
+        <div class="border-b-3 border-[#182830] bg-[#1E6482] px-4 py-2.5 text-[#FFFDF8] flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="h-2.5 w-2.5 rounded-full bg-[#CB1B03] shadow-[0_0_6px_#CB1B03] animate-pulse"></span>
+                <span class="font-recoleta text-xs sm:text-sm font-black tracking-wide text-[#F7E6CB]" id="global-wash-header">
+                    ⚡ TROWA LAUNDRY SYSTEM ⚡
+                </span>
+            </div>
+            <span class="rounded bg-[#14232B] px-2 py-0.5 font-mono text-[9px] font-bold text-[#BAE6FD] border border-[#182830]" id="global-wash-stage">
+                PROCESSING
+            </span>
+        </div>
+
+        <!-- Body -->
+        <div class="p-5 flex flex-col items-center text-center space-y-3.5">
+            <!-- Compact Washing Machine Porthole -->
+            <div class="relative flex h-28 w-28 items-center justify-center rounded-full border-6 border-[#182830] bg-gradient-to-tr from-[#94A3B8] via-[#E2E8F0] to-[#FFFFFF] p-2 shadow-[4px_4px_0px_#182830]">
+                <!-- Outer Rivets -->
+                <div class="absolute top-1 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-[#182830]"></div>
+                <div class="absolute bottom-1 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-[#182830]"></div>
+                <div class="absolute left-1 top-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full bg-[#182830]"></div>
+                <div class="absolute right-1 top-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full bg-[#182830]"></div>
+
+                <!-- Drum Window -->
+                <div class="relative h-full w-full rounded-full border-3 border-[#182830] bg-radial from-[#1A4559] via-[#0E232F] to-[#071319] overflow-hidden flex items-center justify-center">
+                    <div class="absolute inset-0 rounded-full border-2 border-dashed border-[#A2C5D8]/30 animate-wash-spin"></div>
+                    <!-- Sloshing water -->
+                    <div class="absolute bottom-0 inset-x-0 h-14 bg-gradient-to-t from-[#0284C7]/80 via-[#0EA5E9]/60 to-[#38BDF8]/20 animate-suds-wave"></div>
+                    
+                    <!-- Tumbling mini garments -->
+                    <div class="absolute z-10 animate-laundry-1">
+                        <svg class="h-8 w-8 text-[#CB1B03]" viewBox="0 0 64 64" fill="none">
+                            <path d="M20 12 L26 18 C28 20 36 20 38 18 L44 12 L56 20 L50 28 L44 24 L44 52 L20 52 L20 24 L14 28 L8 20 Z" fill="#CB1B03" stroke="#182830" stroke-width="3" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="absolute z-10 animate-laundry-2">
+                        <svg class="h-7 w-7 text-[#F59E0B]" viewBox="0 0 64 64" fill="none">
+                            <path d="M24 10 L38 10 L38 34 C38 42 46 44 48 48 C50 52 46 56 40 56 C32 56 22 50 20 40 L24 10 Z" fill="#F59E0B" stroke="#182830" stroke-width="3" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+
+                    <!-- Glass Reflection -->
+                    <div class="pointer-events-none absolute -top-4 -left-4 h-16 w-16 rounded-full bg-white/30 blur-xs"></div>
+                </div>
+            </div>
+
+            <!-- Title & Subtitle -->
+            <div class="space-y-1">
+                <h4 id="global-wash-title" class="font-recoleta text-lg font-black text-[#182830]">
+                    Calibrating Wash Batch...
+                </h4>
+                <p id="global-wash-msg" class="font-mono text-xs text-[#25799B] font-semibold">
+                    Updating laundromat records in real-time...
+                </p>
+            </div>
+
+            <!-- Chunky Hazard Bar -->
+            <div class="w-full h-4 overflow-hidden rounded-xl border-2 border-[#182830] bg-[#FFFDF8] p-0.5 shadow-[2px_2px_0px_#182830]">
+                <div class="h-full w-full rounded-lg retro-hazard-bar"></div>
+            </div>
+        </div>
+
+        <div class="border-t-2 border-[#182830] bg-[#F7E6CB] px-4 py-2 font-mono text-[10px] text-slate-700 font-bold flex justify-between">
+            <span>STATION: TERMINAL #01</span>
+            <span class="text-[#CB1B03] flex items-center gap-1">
+                <span class="h-1.5 w-1.5 rounded-full bg-[#CB1B03] animate-ping"></span>
+                ACTIVE VORTEX
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- Global Trowa Retro Laundromat Confirmation Modal -->
+<div id="retro-confirm-modal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-[#182830]/80 backdrop-blur-xs p-4 transition-all duration-200" role="dialog" aria-modal="true">
+    <div class="relative w-full max-w-md rounded-3xl border-4 border-[#182830] bg-[#FFFDF8] shadow-[8px_8px_0px_#182830] overflow-hidden text-[#182830] animate-in fade-in zoom-in-95 duration-150">
+        
+        <!-- Header -->
+        <div class="border-b-3 border-[#182830] bg-[#1E6482] px-5 py-3 text-[#FFFDF8] flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <span class="flex h-7 w-7 items-center justify-center rounded-lg border-2 border-[#182830] bg-[#FFFDF8] text-[#CB1B03] shadow-[1px_1px_0px_#182830]">
+                    <!-- Ticket / Stamp Vector Icon -->
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                </span>
+                <div>
+                    <h3 class="font-recoleta text-base font-black text-[#F7E6CB] leading-tight" id="retro-confirm-title">
+                        Confirm Action
+                    </h3>
+                    <p class="font-mono text-[9px] uppercase tracking-wider text-[#A2C5D8]" id="retro-confirm-badge">
+                        Trowa Laundromat
+                    </p>
+                </div>
+            </div>
+            <button type="button" id="retro-confirm-btn-close" class="flex h-7 w-7 items-center justify-center rounded-lg border border-[#182830] bg-[#FFFDF8] text-sm font-black text-[#182830] shadow-[1px_1px_0px_#182830] hover:bg-[#CB1B03] hover:text-white transition cursor-pointer" aria-label="Close">
+                ×
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-5 sm:p-6 space-y-4 font-sans bg-[#FFFDF8]">
+            <div class="flex items-start gap-3.5">
+                <div id="retro-confirm-icon-wrap" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-[#182830] bg-[#CB1B03] text-white shadow-[2px_2px_0px_#182830]">
+                    <svg id="retro-confirm-icon-danger" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <svg id="retro-confirm-icon-primary" class="h-6 w-6 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <svg id="retro-confirm-icon-check" class="h-6 w-6 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                </div>
+                <div class="flex-1 space-y-1">
+                    <p id="retro-confirm-message" class="text-sm font-bold text-[#182830] leading-snug">
+                        Are you sure you want to proceed with this action?
+                    </p>
+                    <p id="retro-confirm-hint" class="text-xs text-slate-600 font-medium leading-relaxed">
+                        Please review the details below before confirming.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Optional Details Summary Box -->
+            <div id="retro-confirm-details" class="hidden rounded-2xl border-2 border-[#182830] bg-[#F7E6CB]/40 p-3.5 font-mono text-xs text-[#182830] space-y-1.5 shadow-[2px_2px_0px_#182830]">
+            </div>
+
+            <!-- Footer Action Buttons -->
+            <div class="flex items-center justify-end gap-2.5 pt-3 border-t-2 border-[#182830]/15">
+                <button type="button" id="retro-confirm-btn-cancel" class="rounded-xl border-2 border-[#182830] bg-[#FFFDF8] px-4 py-2 font-mono text-xs font-bold text-slate-700 shadow-[2px_2px_0px_#182830] hover:bg-slate-100 transition cursor-pointer">
+                    Cancel
+                </button>
+                <button type="button" id="retro-confirm-btn-proceed" class="rounded-xl border-2 border-[#182830] bg-[#CB1B03] px-5 py-2 font-recoleta text-sm font-bold text-white shadow-[3px_3px_0px_#182830] hover:bg-[#B51702] transition cursor-pointer flex items-center gap-1.5">
+                    <span id="retro-confirm-btn-proceed-label">Yes, Proceed</span>
+                    <span id="retro-confirm-btn-proceed-arrow">➔</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 @auth
     <!-- Mobile Sticky Top Bar -->
     <header class="lg:hidden sticky top-0 z-40 flex items-center justify-between border-b-2 border-[#182830] bg-[#25799B] px-4 py-3 text-[#FFFDF8] shadow-[0_3px_0_#182830] print:hidden">
@@ -39,6 +190,9 @@
                 <span class="h-2 w-2 rounded-full bg-[#CB1B03] animate-pulse"></span>
                 <span class="font-mono text-[10px] font-bold">ONLINE</span>
             </span>
+            <button type="button" onclick="confirmStaffLogout()" title="Sign out station" class="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-[#182830] bg-[#FFFDF8] text-[#CB1B03] shadow-[1px_1px_0px_#182830] hover:bg-[#CB1B03] hover:text-white transition cursor-pointer">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </button>
         </div>
     </header>
 
@@ -51,7 +205,7 @@
             <!-- Sidebar Header & Laundromat Emblem -->
             <div class="border-b-2 border-[#182830] bg-[#1E6482] p-5 lg:p-6">
                 <div class="flex items-center justify-between">
-                    <a href="{{ route('dashboard') }}" class="group flex items-center gap-3.5">
+                    <a href="{{ auth()->check() && auth()->user()->role === 'customer' ? route('customer.portal') : route('dashboard') }}" class="group flex items-center gap-3.5">
                         <div class="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border-2 border-[#182830] bg-[#FFFDF8] text-[#25799B] shadow-[3px_3px_0px_#182830] transition-transform group-hover:rotate-6">
                             <!-- Natural Retro Washing Machine Vector Icon -->
                             <svg class="h-7 w-7 text-[#25799B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -85,8 +239,15 @@
                 </div>
             </div>
 
-            <!-- Quick Action: Fast Order Launch Button (Floor Staff Only) -->
-            @if(auth()->user()->role === 'staff')
+            <!-- Quick Action: Fast Order Launch Button -->
+            @if(auth()->user()->role === 'customer')
+                <div class="p-4 lg:px-5 lg:pt-4 lg:pb-2">
+                    <button type="button" onclick="document.getElementById('btn-open-intake-wizard')?.click()" class="w-full flex items-center justify-center gap-2.5 rounded-xl border-2 border-[#182830] bg-[#CB1B03] px-4 py-3 font-recoleta text-base font-bold text-[#FFFDF8] shadow-[3px_3px_0px_#182830] transition hover:bg-[#B51702] cursor-pointer">
+                        <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        <span>New Laundry Request</span>
+                    </button>
+                </div>
+            @elseif(auth()->user()->role === 'staff')
                 <div class="p-4 lg:px-5 lg:pt-4 lg:pb-2">
                     <button type="button" data-modal-open="order-modal" class="w-full flex items-center justify-center gap-2.5 rounded-xl border-2 border-[#182830] bg-[#CB1B03] px-4 py-3 font-recoleta text-base font-bold text-[#FFFDF8] shadow-[3px_3px_0px_#182830] transition hover:bg-[#B51702] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 cursor-pointer">
                         <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -97,29 +258,57 @@
 
             <!-- Spacious Nav Links -->
             <nav class="flex-1 space-y-1.5 overflow-y-auto p-4 lg:p-5 pt-2">
-                @if(auth()->user()->role === 'staff')
+                @if(auth()->user()->role === 'customer')
+                    <p class="px-3 pt-2 pb-1 font-mono text-[11px] font-bold uppercase tracking-widest text-[#A2C5D8]">Customer Portal</p>
+                    @php
+                        $nav = [
+                            ['customer.portal', 'My Dashboard', 'dashboard', 'Mascot jokes & personal expense analytics', ['tab' => 'dashboard']],
+                            ['customer.portal', 'Live Cycle Tracker', 'machines', 'Real-time wash progress & garments status', ['tab' => 'active']],
+                            ['customer.portal', 'Transaction History', 'billing', 'Past laundry tickets, reviews & receipts', ['tab' => 'history']],
+                        ];
+                    @endphp
+                @elseif(auth()->user()->role === 'staff')
                     <p class="px-3 pt-2 pb-1 font-mono text-[11px] font-bold uppercase tracking-widest text-[#A2C5D8]">Staff Operations</p>
-                    @php($nav = [
-                        ['dashboard', 'Staff Station', 'dashboard', 'Live operations deck & machine glance'],
-                        ['orders.index', 'Laundry Queue', 'queue', 'Orders intake, weights & settlement'],
-                        ['schedule.index', 'Machine Bay Showroom', 'machines', 'Live 16-unit floor showroom & stages'],
-                        ['customers.index', 'Customer Directory', 'customers', 'Client accounts & contact stubs'],
-                    ])
+                    @php
+                        $nav = [
+                            ['dashboard', 'Staff Station', 'dashboard', 'Live operations deck & machine glance'],
+                            ['orders.index', 'Laundry Queue', 'queue', 'Orders intake, weights & settlement'],
+                            ['schedule.index', 'Machine Bay Showroom', 'machines', 'Live 16-unit floor showroom & stages'],
+                            ['customers.index', 'Customer Directory', 'customers', 'Client accounts & contact stubs'],
+                        ];
+                    @endphp
                 @else
                     <p class="px-3 pt-2 pb-1 font-mono text-[11px] font-bold uppercase tracking-widest text-[#A2C5D8]">Executive Management</p>
-                    @php($nav = [
-                        ['dashboard', 'Executive Dashboard', 'dashboard', 'Financial metrics, volume & fleet glance'],
-                        ['customers.insights', 'Customer Insights', 'insights', 'LTV, repeat rates & VIP intelligence'],
-                        ['inventory.index', 'Supply Inventory & Helper', 'inventory', 'Stockroom, burn rate & smart helper'],
-                        ['reports', 'Business Reports & Plans', 'reports', 'Financial audits, billing ledger & strategy'],
-                        ['expenses.index', 'Shop Expenses', 'expenses', 'Operating costs & vendor audits'],
-                        ['services.index', 'Service Catalog', 'services', 'Pricing configuration & laundry services'],
-                    ])
+                    @php
+                        $nav = [
+                            ['dashboard', 'Executive Dashboard', 'dashboard', 'Financial metrics, volume & fleet glance'],
+                            ['admin.staff.index', 'Staff & Team', 'customers', 'Staff CRUD, operator logins & permissions'],
+                            ['customers.insights', 'Customer Insights', 'insights', 'LTV, repeat rates & VIP intelligence'],
+                            ['inventory.index', 'Supply Inventory & Helper', 'inventory', 'Stockroom, burn rate & smart helper'],
+                            ['reports', 'Business Reports & Plans', 'reports', 'Financial audits, billing ledger & strategy'],
+                            ['expenses.index', 'Shop Expenses', 'expenses', 'Operating costs & vendor audits'],
+                            ['services.index', 'Service Catalog', 'services', 'Pricing configuration & laundry services'],
+                        ];
+                    @endphp
                 @endif
 
-                @foreach($nav as [$route, $label, $iconKey, $hint])
-                    @php($isActive = request()->routeIs($route))
-                    <a href="{{ route($route) }}" 
+                @foreach($nav as $item)
+                    @php
+                        $route = $item[0];
+                        $label = $item[1];
+                        $iconKey = $item[2];
+                        $hint = $item[3];
+                        $params = $item[4] ?? [];
+                        if (auth()->user()->role === 'customer') {
+                            $targetTab = $params['tab'] ?? 'dashboard';
+                            $currentTab = request('tab', 'dashboard');
+                            $isActive = request()->routeIs($route) && ($currentTab === $targetTab);
+                        } else {
+                            $isActive = request()->routeIs($route);
+                        }
+                        $url = !empty($params) ? route($route, $params) : route($route);
+                    @endphp
+                    <a href="{{ $url }}" 
                        title="{{ $hint }}"
                        class="group flex items-center justify-between rounded-xl px-4 py-3 text-sm font-bold transition-all {{ $isActive ? 'border-2 border-[#182830] bg-[#F7E6CB] text-[#182830] shadow-[3px_3px_0px_#182830]' : 'border-2 border-transparent text-[#F7E6CB] hover:border-[#182830]/40 hover:bg-[#1E6482] hover:text-[#FFFDF8]' }}">
                         <div class="flex items-center gap-3.5 min-w-0">
@@ -183,9 +372,9 @@
                         <p class="truncate text-xs font-bold leading-tight">{{ auth()->user()->name }}</p>
                         <p class="font-mono text-[10px] font-semibold uppercase text-[#25799B]">{{ auth()->user()->role === 'staff' ? 'Counter Staff' : 'Store Admin' }}</p>
                     </div>
-                    <form method="POST" action="{{ route('logout') }}">
+                    <form method="POST" action="{{ route('logout') }}" id="staff-logout-form">
                         @csrf
-                        <button type="submit" title="Sign out" class="flex h-9 w-9 items-center justify-center rounded-lg border-2 border-[#182830] bg-[#F7E6CB] text-[#CB1B03] shadow-[1px_1px_0px_#182830] transition hover:bg-[#CB1B03] hover:text-white active:translate-x-0.5 active:translate-y-0.5 cursor-pointer">
+                        <button type="button" onclick="confirmStaffLogout()" title="Sign out station" class="flex h-9 w-9 items-center justify-center rounded-lg border-2 border-[#182830] bg-[#F7E6CB] text-[#CB1B03] shadow-[1px_1px_0px_#182830] transition hover:bg-[#CB1B03] hover:text-white active:translate-x-0.5 active:translate-y-0.5 cursor-pointer">
                             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                         </button>
                     </form>
@@ -374,6 +563,341 @@
                     modal.classList.remove('flex');
                 });
             }
+        });
+
+        // ======================================================================
+        // Global Trowa Retro Laundromat Loading System
+        // ======================================================================
+        window.TrowaLoading = {
+            show: function(opts) {
+                const modal = document.getElementById('global-wash-modal');
+                if (!modal) return;
+                if (opts?.header) {
+                    const h = document.getElementById('global-wash-header');
+                    if (h) h.textContent = opts.header;
+                }
+                if (opts?.stage) {
+                    const s = document.getElementById('global-wash-stage');
+                    if (s) s.textContent = opts.stage;
+                }
+                if (opts?.title) {
+                    const t = document.getElementById('global-wash-title');
+                    if (t) t.textContent = opts.title;
+                }
+                if (opts?.message) {
+                    const m = document.getElementById('global-wash-msg');
+                    if (m) m.textContent = opts.message;
+                }
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                if (window.SoundFx) SoundFx.click();
+            },
+            hide: function() {
+                const modal = document.getElementById('global-wash-modal');
+                if (!modal) return;
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            },
+            startTopLoader: function() {
+                const inner = document.getElementById('trowa-top-loader-inner');
+                if (!inner) return;
+                inner.style.opacity = '1';
+                inner.style.transition = 'width 0.4s ease-out';
+                inner.style.width = '75%';
+            },
+            finishTopLoader: function() {
+                const inner = document.getElementById('trowa-top-loader-inner');
+                if (!inner) return;
+                inner.style.width = '100%';
+                setTimeout(() => {
+                    inner.style.opacity = '0';
+                    setTimeout(() => {
+                        inner.style.width = '0%';
+                        inner.style.opacity = '1';
+                    }, 300);
+                }, 200);
+            }
+        };
+
+        // ======================================================================
+        // Global Trowa Retro Confirmation Modal System
+        // ======================================================================
+        window.TrowaConfirm = function(options, onConfirm, onCancel) {
+            const modal = document.getElementById('retro-confirm-modal');
+            if (!modal) {
+                if (window.confirm(options.message || 'Are you sure?')) {
+                    if (typeof onConfirm === 'function') onConfirm();
+                } else {
+                    if (typeof onCancel === 'function') onCancel();
+                }
+                return;
+            }
+
+            const titleEl = document.getElementById('retro-confirm-title');
+            const msgEl = document.getElementById('retro-confirm-message');
+            const hintEl = document.getElementById('retro-confirm-hint');
+            const badgeEl = document.getElementById('retro-confirm-badge');
+            const detailsEl = document.getElementById('retro-confirm-details');
+            const proceedBtn = document.getElementById('retro-confirm-btn-proceed');
+            const proceedLabel = document.getElementById('retro-confirm-btn-proceed-label');
+            const cancelBtn = document.getElementById('retro-confirm-btn-cancel');
+            const closeBtn = document.getElementById('retro-confirm-btn-close');
+            const iconWrap = document.getElementById('retro-confirm-icon-wrap');
+            const iconDanger = document.getElementById('retro-confirm-icon-danger');
+            const iconPrimary = document.getElementById('retro-confirm-icon-primary');
+            const iconCheck = document.getElementById('retro-confirm-icon-check');
+
+            const type = options.type || 'primary'; // 'danger', 'primary', 'check', 'warning'
+            
+            if (titleEl) titleEl.textContent = options.title || 'Please Confirm';
+            if (msgEl) msgEl.textContent = options.message || 'Are you sure you want to proceed?';
+            if (hintEl) hintEl.textContent = options.hint || 'Please review the details below before confirming.';
+            if (badgeEl) badgeEl.textContent = options.badge || (type === 'danger' ? 'Action Warning' : 'Confirmation');
+
+            if (detailsEl) {
+                if (options.details) {
+                    detailsEl.innerHTML = options.details;
+                    detailsEl.classList.remove('hidden');
+                } else {
+                    detailsEl.innerHTML = '';
+                    detailsEl.classList.add('hidden');
+                }
+            }
+
+            // Type styling
+            if (iconWrap && proceedBtn) {
+                if (type === 'danger') {
+                    iconWrap.className = 'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-[#182830] bg-[#CB1B03] text-white shadow-[2px_2px_0px_#182830]';
+                    proceedBtn.className = 'rounded-xl border-2 border-[#182830] bg-[#CB1B03] px-5 py-2 font-recoleta text-sm font-bold text-white shadow-[3px_3px_0px_#182830] hover:bg-[#B51702] transition cursor-pointer flex items-center gap-1.5';
+                    if (iconDanger) iconDanger.classList.remove('hidden');
+                    if (iconPrimary) iconPrimary.classList.add('hidden');
+                    if (iconCheck) iconCheck.classList.add('hidden');
+                } else if (type === 'check') {
+                    iconWrap.className = 'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-[#182830] bg-emerald-700 text-white shadow-[2px_2px_0px_#182830]';
+                    proceedBtn.className = 'rounded-xl border-2 border-[#182830] bg-emerald-700 px-5 py-2 font-recoleta text-sm font-bold text-white shadow-[3px_3px_0px_#182830] hover:bg-emerald-800 transition cursor-pointer flex items-center gap-1.5';
+                    if (iconDanger) iconDanger.classList.add('hidden');
+                    if (iconPrimary) iconPrimary.classList.add('hidden');
+                    if (iconCheck) iconCheck.classList.remove('hidden');
+                } else if (type === 'warning') {
+                    iconWrap.className = 'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-[#182830] bg-amber-500 text-[#182830] shadow-[2px_2px_0px_#182830]';
+                    proceedBtn.className = 'rounded-xl border-2 border-[#182830] bg-[#182830] px-5 py-2 font-recoleta text-sm font-bold text-white shadow-[3px_3px_0px_#182830] hover:bg-slate-800 transition cursor-pointer flex items-center gap-1.5';
+                    if (iconDanger) iconDanger.classList.remove('hidden');
+                    if (iconPrimary) iconPrimary.classList.add('hidden');
+                    if (iconCheck) iconCheck.classList.add('hidden');
+                } else {
+                    iconWrap.className = 'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-[#182830] bg-[#25799B] text-white shadow-[2px_2px_0px_#182830]';
+                    proceedBtn.className = 'rounded-xl border-2 border-[#182830] bg-[#25799B] px-5 py-2 font-recoleta text-sm font-bold text-white shadow-[3px_3px_0px_#182830] hover:bg-[#1E6482] transition cursor-pointer flex items-center gap-1.5';
+                    if (iconDanger) iconDanger.classList.add('hidden');
+                    if (iconPrimary) iconPrimary.classList.remove('hidden');
+                    if (iconCheck) iconCheck.classList.add('hidden');
+                }
+            }
+
+            if (proceedLabel) proceedLabel.textContent = options.confirmText || 'Yes, Proceed';
+            if (cancelBtn) cancelBtn.textContent = options.cancelText || 'Cancel';
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            if (window.SoundFx) SoundFx.click();
+
+            function closeModal() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                cleanup();
+            }
+
+            function onProceed() {
+                closeModal();
+                if (typeof onConfirm === 'function') onConfirm();
+            }
+
+            function onCancel() {
+                closeModal();
+                if (typeof onCancel === 'function') onCancel();
+            }
+
+            function cleanup() {
+                proceedBtn?.removeEventListener('click', onProceed);
+                cancelBtn?.removeEventListener('click', onCancel);
+                closeBtn?.removeEventListener('click', onCancel);
+                modal?.removeEventListener('click', onBackdrop);
+                document.removeEventListener('keydown', onKey);
+            }
+
+            function onBackdrop(e) {
+                if (e.target === modal) onCancel();
+            }
+
+            function onKey(e) {
+                if (e.key === 'Escape') onCancel();
+            }
+
+            proceedBtn?.addEventListener('click', onProceed);
+            cancelBtn?.addEventListener('click', onCancel);
+            closeBtn?.addEventListener('click', onCancel);
+            modal?.addEventListener('click', onBackdrop);
+            document.addEventListener('keydown', onKey);
+        };
+
+        // Declarative [data-confirm] Interceptor for Forms (Capturing Phase)
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            if (form.hasAttribute('data-confirm-confirmed')) {
+                form.removeAttribute('data-confirm-confirmed');
+                return;
+            }
+
+            if (form.hasAttribute('data-confirm')) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                const msg = form.getAttribute('data-confirm');
+                const title = form.getAttribute('data-confirm-title') || 'Confirm Action';
+                const type = form.getAttribute('data-confirm-type') || 'primary';
+                const confirmText = form.getAttribute('data-confirm-btn') || 'Yes, Proceed';
+                const details = form.getAttribute('data-confirm-details') || '';
+
+                window.TrowaConfirm({
+                    title: title,
+                    message: msg,
+                    type: type,
+                    confirmText: confirmText,
+                    details: details
+                }, function() {
+                    form.setAttribute('data-confirm-confirmed', 'true');
+                    const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.click();
+                    } else {
+                        form.submit();
+                    }
+                });
+            }
+        }, true);
+
+        // Declarative [data-confirm] Interceptor for Buttons & Links (Capturing Phase)
+        document.addEventListener('click', function(e) {
+            const el = e.target.closest('[data-confirm]:not(form)');
+            if (!el) return;
+            if (el.hasAttribute('data-confirm-confirmed')) {
+                el.removeAttribute('data-confirm-confirmed');
+                return;
+            }
+
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            const msg = el.getAttribute('data-confirm');
+            const title = el.getAttribute('data-confirm-title') || 'Confirm Action';
+            const type = el.getAttribute('data-confirm-type') || 'primary';
+            const confirmText = el.getAttribute('data-confirm-btn') || 'Yes, Proceed';
+            const details = el.getAttribute('data-confirm-details') || '';
+
+            window.TrowaConfirm({
+                title: title,
+                message: msg,
+                type: type,
+                confirmText: confirmText,
+                details: details
+            }, function() {
+                el.setAttribute('data-confirm-confirmed', 'true');
+                el.click();
+            });
+        }, true);
+
+        window.confirmStaffLogout = function() {
+            if (window.TrowaConfirm) {
+                window.TrowaConfirm({
+                    title: 'Confirm Sign Out',
+                    message: 'Are you sure you want to end your current staff session and sign out from Trowa Laundry station?',
+                    hint: 'Make sure any pending customer intake or cash drawer transactions are saved.',
+                    badge: 'Station Security',
+                    type: 'warning',
+                    confirmText: 'Yes, Sign Out Station',
+                    cancelText: 'Stay Signed In'
+                }, function() {
+                    document.getElementById('staff-logout-form')?.submit();
+                });
+            } else if (confirm('Are you sure you want to sign out from Trowa Laundry station?')) {
+                document.getElementById('staff-logout-form')?.submit();
+            }
+        };
+
+        // Form Submit Loading Interceptor
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            if (form.hasAttribute('data-no-loading')) return;
+            if (typeof form.checkValidity === 'function' && !form.checkValidity()) return;
+
+            const submitBtn = form.querySelector('button[type="submit"]:not([disabled]), input[type="submit"]:not([disabled])');
+            if (submitBtn) {
+                const originalHtml = submitBtn.innerHTML;
+                submitBtn.setAttribute('data-original-html', originalHtml);
+                submitBtn.classList.add('btn-wash-loading');
+                setTimeout(() => {
+                    submitBtn.disabled = true;
+                }, 20);
+
+                const txt = submitBtn.textContent.trim().toLowerCase();
+                let loadingLabel = 'Processing...';
+
+                if (form.id === 'wizard-intake-form') {
+                    loadingLabel = 'Weighing & Registering...';
+                    window.TrowaLoading.show({
+                        header: '⚡ TROWA INTAKE TERMINAL ⚡',
+                        stage: 'WEIGHING & WASHING',
+                        title: 'Registering Laundry Ticket...',
+                        message: 'Calibrating wash load, allocating supplies, and prepping machine bay...'
+                    });
+                } else if (form.id === 'claim-payment-form') {
+                    loadingLabel = 'Settling & Releasing...';
+                    window.TrowaLoading.show({
+                        header: '⚡ CASHIER & CLAIM TERMINAL ⚡',
+                        stage: 'SETTLEMENT',
+                        title: 'Settling Laundry Ticket...',
+                        message: 'Recording cash register receipt and releasing fresh clean garments...'
+                    });
+                } else if (txt.includes('sign in') || txt.includes('login')) {
+                    loadingLabel = 'Spinning Up Station...';
+                } else if (txt.includes('move to')) {
+                    loadingLabel = 'Transitioning Drum...';
+                } else if (txt.includes('done') || txt.includes('claim')) {
+                    loadingLabel = 'Releasing Order...';
+                } else if (txt.includes('save') || txt.includes('add') || txt.includes('update') || txt.includes('create')) {
+                    loadingLabel = 'Saving Records...';
+                } else if (txt.includes('filter')) {
+                    loadingLabel = 'Filtering Queue...';
+                }
+
+                // Retro washing machine spinning SVG
+                const washerSpinnerSvg = `<svg class="h-4 w-4 animate-wash-spin inline-block mr-1.5 text-current shrink-0 align-middle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="2" width="20" height="20" rx="4"/><circle cx="12" cy="13" r="5" stroke-dasharray="24" stroke-dashoffset="6"/><circle cx="12" cy="13" r="2" fill="currentColor"/><circle cx="6" cy="6" r="1" fill="currentColor"/><circle cx="9" cy="6" r="1" fill="currentColor"/></svg>`;
+                submitBtn.innerHTML = `${washerSpinnerSvg}<span>${loadingLabel}</span>`;
+            }
+
+            window.TrowaLoading.startTopLoader();
+        });
+
+        // Top Navigation Loading Bar on Page Links
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('a[href]');
+            if (!link) return;
+            const href = link.getAttribute('href');
+            if (!href || href.startsWith('#') || href.startsWith('javascript:') || link.getAttribute('target') === '_blank' || link.hasAttribute('download')) {
+                return;
+            }
+            window.TrowaLoading.startTopLoader();
+        });
+
+        // Bfcache & History restoration
+        window.addEventListener('pageshow', function() {
+            window.TrowaLoading.hide();
+            window.TrowaLoading.finishTopLoader();
+            document.querySelectorAll('.btn-wash-loading').forEach(btn => {
+                btn.classList.remove('btn-wash-loading');
+                btn.removeAttribute('disabled');
+                const orig = btn.getAttribute('data-original-html');
+                if (orig) btn.innerHTML = orig;
+            });
         });
     });
 </script>

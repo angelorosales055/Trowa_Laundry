@@ -376,165 +376,346 @@
                 </p>
             </div>
 
-            <!-- Live Machine Bay Analog Gauges -->
-            <div class="relative z-10 my-3 grid grid-cols-3 gap-2 font-mono text-center">
-                <div class="rounded-xl border-2 border-[#182830] bg-[#14232B] p-2 text-[#FFFDF8] shadow-[2px_2px_0px_#182830]">
-                    <span class="block text-[9px] uppercase tracking-wider text-[#A2C5D8]">Steam Core</span>
-                    <strong class="text-xs font-bold text-[#10B981]">60°C Active</strong>
+            <!-- Machine Bay Live Status Badge -->
+            <div class="relative z-10 my-4 flex items-center justify-between rounded-2xl border-2 border-[#182830] bg-[#14232B] px-4 py-2.5 text-[#FFFDF8] shadow-[3px_3px_0px_#182830]">
+                <div class="flex items-center gap-2 font-mono text-xs">
+                    <span class="h-2.5 w-2.5 rounded-full bg-[#10B981] animate-ping"></span>
+                    <span class="font-bold text-[#F7E6CB]">Commercial Bay:</span>
+                    <span class="text-[#BAE6FD]">8 Machines Online</span>
                 </div>
-                <div class="rounded-xl border-2 border-[#182830] bg-[#14232B] p-2 text-[#FFFDF8] shadow-[2px_2px_0px_#182830]">
-                    <span class="block text-[9px] uppercase tracking-wider text-[#A2C5D8]">Vortex Spin</span>
-                    <strong class="text-xs font-bold text-[#BAE6FD]">1400 RPM</strong>
-                </div>
-                <div class="rounded-xl border-2 border-[#182830] bg-[#14232B] p-2 text-[#FFFDF8] shadow-[2px_2px_0px_#182830]">
-                    <span class="block text-[9px] uppercase tracking-wider text-[#A2C5D8]">Sachet Lab</span>
-                    <strong class="text-xs font-bold text-[#F7E6CB]">100% Ready</strong>
-                </div>
+                <span class="rounded-lg border border-[#182830] bg-[#25799B] px-2 py-0.5 font-mono text-[10px] font-bold text-[#FFFDF8]">
+                    Est. 2024
+                </span>
             </div>
 
-            <!-- Bottom: 3 Mini Steps -->
+            <!-- Bottom: 3 Clean Workflow Steps -->
             <div class="relative z-10 grid grid-cols-3 gap-2 text-center text-xs">
                 <div class="rounded-xl border-2 border-[#182830] bg-[#1E6482] p-2 shadow-[2px_2px_0px_#182830]">
-                    <strong class="block font-mono text-sm text-[#F7E6CB]">01</strong>
-                    <span class="text-[10px] text-[#A2C5D8]">Drop-off</span>
+                    <strong class="block font-mono text-xs text-[#F7E6CB]">01 · Drop-off</strong>
+                    <span class="text-[10px] text-[#A2C5D8]">Weigh &amp; Tag</span>
                 </div>
                 <div class="rounded-xl border-2 border-[#182830] bg-[#1E6482] p-2 shadow-[2px_2px_0px_#182830]">
-                    <strong class="block font-mono text-sm text-[#F7E6CB]">02</strong>
-                    <span class="text-[10px] text-[#A2C5D8]">Wash & Dry</span>
+                    <strong class="block font-mono text-xs text-[#F7E6CB]">02 · Wash &amp; Dry</strong>
+                    <span class="text-[10px] text-[#A2C5D8]">Custom Soap</span>
                 </div>
                 <div class="rounded-xl border-2 border-[#182830] bg-[#1E6482] p-2 shadow-[2px_2px_0px_#182830]">
-                    <strong class="block font-mono text-sm text-[#F7E6CB]">03</strong>
-                    <span class="text-[10px] text-[#A2C5D8]">Pick-up</span>
+                    <strong class="block font-mono text-xs text-[#F7E6CB]">03 · Fresh Fold</strong>
+                    <span class="text-[10px] text-[#A2C5D8]">Ready to Wear</span>
                 </div>
             </div>
         </section>
 
-        <!-- Right Side: Tactical Sign-in Form & Live Laundromat Operations Board -->
-        <section class="flex flex-col justify-between bg-[#FFFDF8] p-6 sm:p-8 lg:col-span-7 lg:p-10">
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
-                <!-- Left Sub-column: The Sign-in Form -->
-                <div class="md:col-span-7 flex flex-col justify-between">
+        <!-- Right Side: Clean, Focused Authentication & Sign-Up Hub -->
+        <section class="flex flex-col justify-between bg-[#FFFDF8] p-6 sm:p-10 lg:col-span-7">
+            <div class="w-full max-w-lg mx-auto my-auto">
+                
+                <!-- Sign In & Sign Up Navigation Bar -->
+                <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#182830]/15 pb-4">
+                    <!-- Segmented Role Selector -->
+                    <div class="inline-flex rounded-2xl border-2 border-[#182830] bg-[#F7E6CB]/50 p-1 shadow-[2px_2px_0px_#182830]">
+                        <button type="button" 
+                                id="tab-btn-staff" 
+                                onclick="switchLoginRole('staff')" 
+                                class="rounded-xl px-4 py-2 font-mono text-xs font-bold transition cursor-pointer border-2 border-[#182830] bg-[#25799B] text-white shadow-[1px_1px_0px_#182830]">
+                            👔 Staff &amp; Counter
+                        </button>
+                        <button type="button" 
+                                id="tab-btn-customer" 
+                                onclick="switchLoginRole('customer')" 
+                                class="rounded-xl px-4 py-2 font-mono text-xs font-bold transition cursor-pointer text-[#182830] hover:bg-[#FFFDF8]">
+                            🧺 Customer Portal
+                        </button>
+                    </div>
+
+                    <!-- Primary Register Now / Sign Up Button -->
+                    <a href="{{ route('customer.register') }}" 
+                       class="inline-flex items-center gap-1.5 rounded-xl border-2 border-[#182830] bg-[#CB1B03] px-4 py-2 font-mono text-xs font-black text-white shadow-[2px_2px_0px_#182830] hover:bg-[#B51702] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer">
+                        <span>✨ Register Now / Sign Up</span>
+                        <span>➔</span>
+                    </a>
+                </div>
+
+                <!-- Contextual Header -->
+                <div class="mb-6">
+                    <span id="role-badge" class="inline-block rounded-md border border-[#182830] bg-[#CB1B03] px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#FFFDF8] shadow-[1px_1px_0px_#182830]">
+                        Terminal #01 · Staff Auth
+                    </span>
+                    <h2 id="role-heading" class="font-recoleta text-2xl sm:text-3xl font-black text-[#182830] mt-1.5 leading-tight">
+                        Staff &amp; Counter Sign In
+                    </h2>
+                    <p id="role-description" class="text-xs text-[#25799B] font-semibold mt-1">
+                        Enter your staff credentials to access the counter terminal and laundry queue.
+                    </p>
+                </div>
+
+                @if($errors->any())
+                    <div class="mb-5 flex items-center gap-2.5 rounded-xl border-2 border-[#182830] bg-[#CB1B03] p-3 text-xs font-bold text-white shadow-[2px_2px_0px_#182830]">
+                        <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <span>{{ $errors->first() }}</span>
+                    </div>
+                @endif
+
+                @if(session('status'))
+                    <div class="mb-5 flex items-center gap-2.5 rounded-xl border-2 border-emerald-600 bg-emerald-50 p-3 text-xs font-bold text-emerald-900 shadow-[2px_2px_0px_#182830]">
+                        <svg class="h-4 w-4 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>{{ session('status') }}</span>
+                    </div>
+                @endif
+
+                <!-- The Focused Sign-In Form (No pre-filled credentials, no demo auto-fill) -->
+                <form method="POST" action="{{ route('login.post') }}" id="login-form" class="space-y-4">
+                    @csrf
                     <div>
-                        <div class="mb-5">
-                            <span class="inline-block rounded-md border border-[#182830] bg-[#CB1B03] px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#FFFDF8] shadow-[1px_1px_0px_#182830]">
-                                Terminal #01 · Shift Auth
+                        <label for="username-input" id="login-input-label" class="block font-mono text-xs font-bold text-[#182830] mb-1">
+                            Staff Username or Email
+                        </label>
+                        <input id="username-input" 
+                               name="username" 
+                               value="{{ old('username') }}" 
+                               type="text" 
+                               autocomplete="username" 
+                               class="field text-sm font-medium w-full" 
+                               placeholder="e.g. your_username or name@email.com" 
+                               required 
+                               autofocus>
+                    </div>
+
+                    <div>
+                        <label for="login-password" class="block font-mono text-xs font-bold text-[#182830] mb-1">
+                            Password
+                        </label>
+                        <div class="relative">
+                            <input id="login-password" 
+                                   name="password" 
+                                   type="password" 
+                                   value="" 
+                                   autocomplete="current-password" 
+                                   class="field pr-16 text-sm font-medium w-full" 
+                                   placeholder="Enter your password" 
+                                   required>
+                            <button type="button" 
+                                    id="toggle-password" 
+                                    class="absolute inset-y-0 right-2 my-auto h-7 px-2 text-[11px] font-mono font-bold text-[#25799B] hover:text-[#CB1B03] cursor-pointer">
+                                Show
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs font-mono pt-1">
+                        <label class="flex items-center gap-2 text-slate-700 cursor-pointer select-none">
+                            <input type="checkbox" name="remember" class="rounded border-[#182830] text-[#CB1B03] focus:ring-0">
+                            <span class="font-bold">Remember this station</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" id="login-submit-btn" class="retro-btn-primary w-full py-3.5 text-sm mt-3 transition-all cursor-pointer">
+                        <span id="login-submit-label">Sign In to Station ➔</span>
+                    </button>
+                </form>
+
+                <!-- New Customer Sign Up Prompt Card -->
+                <div class="mt-8 rounded-2xl border-2 border-[#182830] bg-[#FFFDF8] p-4 sm:p-5 shadow-[4px_4px_0px_#182830]">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div>
+                            <span class="font-mono text-[10px] font-black uppercase text-[#CB1B03] tracking-wider block">
+                                Are You A Customer?
                             </span>
-                            <h2 class="font-recoleta text-2xl sm:text-3xl font-black text-[#182830] mt-1.5 leading-tight">
-                                Ready for your shift?
-                            </h2>
-                            <p class="text-xs text-[#25799B] font-semibold mt-1">
-                                Enter your credentials to access the counter terminal.
+                            <strong class="font-recoleta text-base text-[#182830] block">
+                                Track laundry or request a wash online
+                            </strong>
+                            <p class="font-mono text-[11px] text-[#25799B] mt-0.5">
+                                Create your account to book wash orders, select custom soaps, and rate clean clothes.
                             </p>
                         </div>
+                        <a href="{{ route('customer.register') }}" 
+                           class="shrink-0 rounded-xl border-2 border-[#182830] bg-[#F7E6CB] px-4 py-2.5 text-center font-mono text-xs font-black text-[#182830] shadow-[2px_2px_0px_#182830] hover:bg-[#ebd5b2] hover:-translate-x-0.5 hover:-translate-y-0.5 transition cursor-pointer">
+                            Register Now ➔
+                        </a>
+                    </div>
+                </div>
 
-                        @if($errors->any())
-                            <div class="mb-5 flex items-center gap-2.5 rounded-xl border-2 border-[#182830] bg-[#CB1B03] p-3 text-xs font-bold text-white shadow-[2px_2px_0px_#182830]">
-                                <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                                <span>{{ $errors->first() }}</span>
+                <!-- ========================================================================= -->
+                <!-- Retro Commercial Washing Machine Sign-In Loading Overlay Modal            -->
+                <!-- Immersive 1974 Industrial Laundromat Station Authentication Sequence      -->
+                <!-- ========================================================================= -->
+                <div id="login-wash-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#182830]/85 backdrop-blur-md p-4 transition-all duration-300" role="dialog" aria-modal="true" aria-labelledby="overlay-cycle-title">
+                    <div class="relative w-full max-w-lg rounded-3xl border-4 border-[#182830] bg-[#FFFDF8] shadow-[12px_12px_0px_#182830] overflow-hidden animate-machine-vibrate">
+                        
+                        <!-- Illuminated Vintage Header Canopy -->
+                        <div class="border-b-4 border-[#182830] bg-[#1E6482] px-5 py-3 text-[#FFFDF8] flex items-center justify-between shadow-[0_3px_0_#182830]">
+                            <div class="flex items-center gap-2.5">
+                                <span class="flex items-center gap-1.5">
+                                    <span class="h-3 w-3 rounded-full bg-[#CB1B03] shadow-[0_0_8px_#CB1B03] animate-pulse"></span>
+                                    <span class="h-3 w-3 rounded-full bg-[#F59E0B] shadow-[0_0_8px_#F59E0B]"></span>
+                                    <span class="h-3 w-3 rounded-full bg-[#10B981] shadow-[0_0_8px_#10B981] animate-pulse"></span>
+                                </span>
+                                <span class="font-recoleta text-sm sm:text-base font-black tracking-wide text-[#F7E6CB]">
+                                    ⚡ TROWA INDUSTRIAL VORTEX · STATION #01 ⚡
+                                </span>
                             </div>
-                        @endif
+                            <span class="rounded-md border border-[#182830] bg-[#14232B] px-2.5 py-0.5 font-mono text-[10px] font-black text-[#BAE6FD]">
+                                SHIFT INTAKE
+                            </span>
+                        </div>
 
-                        <form method="POST" action="{{ route('login.post') }}" class="space-y-4">
-                            @csrf
-                            <div>
-                                <label for="username-input" class="block font-mono text-xs font-bold text-[#182830] mb-1">
-                                    Staff Username
-                                </label>
-                                <input id="username-input" name="username" value="{{ old('username', 'staff123') }}" type="text" autocomplete="username" class="field text-sm" placeholder="e.g. staff123" required autofocus>
-                            </div>
+                        <!-- Main Machine Drum Chamber & Dashboard -->
+                        <div class="p-6 sm:p-7 flex flex-col items-center text-center space-y-5">
+                            
+                            <!-- Large Heavy Industrial Brushed Metal Porthole Window with Tumbling Clothes -->
+                            <div class="relative flex items-center justify-center">
+                                <div class="relative flex h-52 w-52 sm:h-60 sm:w-60 items-center justify-center rounded-full border-8 border-[#182830] bg-gradient-to-tr from-[#94A3B8] via-[#E2E8F0] to-[#FFFFFF] p-3 shadow-[8px_8px_0px_#182830]">
+                                    
+                                    <!-- 8 Heavy Rivet Screws Around Rim -->
+                                    <div class="absolute top-2 left-1/2 -translate-x-1/2 h-2 w-2 rounded-full bg-[#182830]"></div>
+                                    <div class="absolute bottom-2 left-1/2 -translate-x-1/2 h-2 w-2 rounded-full bg-[#182830]"></div>
+                                    <div class="absolute left-2 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-[#182830]"></div>
+                                    <div class="absolute right-2 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-[#182830]"></div>
+                                    <div class="absolute top-6 left-6 h-2 w-2 rounded-full bg-[#182830]"></div>
+                                    <div class="absolute top-6 right-6 h-2 w-2 rounded-full bg-[#182830]"></div>
+                                    <div class="absolute bottom-6 left-6 h-2 w-2 rounded-full bg-[#182830]"></div>
+                                    <div class="absolute bottom-6 right-6 h-2 w-2 rounded-full bg-[#182830]"></div>
 
-                            <div>
-                                <label for="login-password" class="block font-mono text-xs font-bold text-[#182830] mb-1">
-                                    Password
-                                </label>
-                                <div class="relative">
-                                    <input id="login-password" name="password" type="password" value="pass123" autocomplete="current-password" class="field pr-16 text-sm" placeholder="Enter password" required>
-                                    <button type="button" id="toggle-password" class="absolute inset-y-0 right-2 my-auto h-7 px-2 text-[11px] font-mono font-bold text-[#25799B] hover:text-[#CB1B03] cursor-pointer">
-                                        Show
-                                    </button>
+                                    <!-- Chrome Latch on Right Rim -->
+                                    <div class="absolute -right-3.5 top-1/2 -translate-y-1/2 h-12 w-4 rounded-md border-2 border-[#182830] bg-[#64748B] shadow-[2px_2px_0px_#182830] flex items-center justify-center">
+                                        <div class="h-6 w-1 rounded bg-[#182830]"></div>
+                                    </div>
+
+                                    <!-- Heavy Left Hinge Assembly -->
+                                    <div class="absolute -left-3 top-1/3 -translate-y-1/2 h-8 w-3 rounded-l-md border-2 border-[#182830] bg-[#475569]"></div>
+                                    <div class="absolute -left-3 bottom-1/3 translate-y-1/2 h-8 w-3 rounded-l-md border-2 border-[#182830] bg-[#475569]"></div>
+
+                                    <!-- Inner Drum Glass Cavity -->
+                                    <div class="relative h-full w-full rounded-full border-4 border-[#182830] bg-radial from-[#16384A] via-[#0E232F] to-[#071319] overflow-hidden shadow-inner flex items-center justify-center">
+                                        
+                                        <!-- Rotating Perforated Drum Pattern -->
+                                        <div class="absolute inset-0 rounded-full border-4 border-dashed border-[#A2C5D8]/25 animate-wash-spin-fast"></div>
+
+                                        <!-- Swirling Wash Water & Soapy Wave -->
+                                        <div class="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[#0284C7]/85 via-[#0EA5E9]/65 to-[#38BDF8]/20 animate-suds-wave"></div>
+
+                                        <!-- Floating Iridescent Soap Bubbles -->
+                                        <div class="absolute inset-0 pointer-events-none overflow-hidden">
+                                            <div class="absolute h-6 w-6 rounded-full bg-white/75 shadow-[0_0_10px_white] left-[20%] top-[60%] animate-soap-bubble"></div>
+                                            <div class="absolute h-4 w-4 rounded-full bg-cyan-200/85 shadow-[0_0_8px_cyan] left-[68%] top-[48%] animate-soap-bubble" style="animation-delay: 0.35s;"></div>
+                                            <div class="absolute h-5 w-5 rounded-full bg-pink-200/75 shadow-[0_0_10px_pink] left-[42%] top-[35%] animate-soap-bubble" style="animation-delay: 0.75s;"></div>
+                                            <div class="absolute h-3 w-3 rounded-full bg-white/90 left-[78%] top-[68%] animate-soap-bubble" style="animation-delay: 1.1s;"></div>
+                                        </div>
+
+                                        <!-- TUMBLING CLOTHES IN 1400 RPM WASH VORTEX -->
+                                        <!-- 1. Milan Red T-Shirt with retro TL monogram -->
+                                        <div class="absolute z-10 animate-laundry-1 pointer-events-none">
+                                            <svg class="h-16 w-16 sm:h-20 sm:w-20 drop-shadow-[2px_3px_2px_rgba(0,0,0,0.65)]" viewBox="0 0 64 64" fill="none">
+                                                <path d="M20 12 L26 18 C28 20 36 20 38 18 L44 12 L56 20 L50 28 L44 24 L44 52 L20 52 L20 24 L14 28 L8 20 Z" fill="#CB1B03" stroke="#182830" stroke-width="2.5" stroke-linejoin="round"/>
+                                                <path d="M26 18 C28 22 36 22 38 18" stroke="#F7E6CB" stroke-width="2" fill="none"/>
+                                                <circle cx="32" cy="34" r="5.5" fill="#F7E6CB" stroke="#182830" stroke-width="1.2"/>
+                                                <text x="32" y="37.5" font-size="6" font-weight="900" text-anchor="middle" fill="#182830" font-family="monospace">TL</text>
+                                            </svg>
+                                        </div>
+
+                                        <!-- 2. Retro Sinbad Blue Beach Towel -->
+                                        <div class="absolute z-10 animate-laundry-2 pointer-events-none">
+                                            <svg class="h-14 w-14 sm:h-16 sm:w-16 drop-shadow-[2px_3px_2px_rgba(0,0,0,0.65)]" viewBox="0 0 64 64" fill="none">
+                                                <rect x="14" y="16" width="36" height="32" rx="4" fill="#25799B" stroke="#182830" stroke-width="2.5"/>
+                                                <line x1="14" y1="24" x2="50" y2="24" stroke="#FFFDF8" stroke-width="2.2" stroke-dasharray="3 2"/>
+                                                <line x1="14" y1="40" x2="50" y2="40" stroke="#FFFDF8" stroke-width="2.2" stroke-dasharray="3 2"/>
+                                                <line x1="22" y1="16" x2="22" y2="48" stroke="#182830" stroke-width="1.5"/>
+                                            </svg>
+                                        </div>
+
+                                        <!-- 3. Retro Striped Yellow & Coral Athletic Sock -->
+                                        <div class="absolute z-10 animate-laundry-3 pointer-events-none">
+                                            <svg class="h-12 w-12 sm:h-14 sm:w-14 drop-shadow-[2px_3px_2px_rgba(0,0,0,0.65)]" viewBox="0 0 64 64" fill="none">
+                                                <path d="M24 10 L38 10 L38 34 C38 42 46 44 48 48 C50 52 46 56 40 56 C32 56 22 50 20 40 L24 10 Z" fill="#F59E0B" stroke="#182830" stroke-width="2.5" stroke-linejoin="round"/>
+                                                <line x1="24" y1="16" x2="38" y2="16" stroke="#CB1B03" stroke-width="2.5"/>
+                                                <line x1="24" y1="22" x2="38" y2="22" stroke="#FFFDF8" stroke-width="2.5"/>
+                                                <line x1="24" y1="28" x2="38" y2="28" stroke="#CB1B03" stroke-width="2.5"/>
+                                            </svg>
+                                        </div>
+
+                                        <!-- Curved Glass Glare Specular Highlight -->
+                                        <div class="pointer-events-none absolute -top-12 -left-12 h-40 w-40 rounded-full bg-white/20 blur-xs"></div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <button type="submit" class="retro-btn-primary w-full py-3 text-sm mt-2">
-                                Sign In to Station ➔
-                            </button>
-                        </form>
-
-                        <!-- Quick Fill Demo Buttons for Local Prototype -->
-                        <div class="mt-5 rounded-2xl border-2 border-dashed border-[#182830]/30 bg-[#F7E6CB]/40 p-3">
-                            <p class="text-center font-mono text-[10px] font-bold uppercase text-[#25799B] mb-2">Quick Fill Demo Access</p>
-                            <div class="flex gap-2">
-                                <button type="button" onclick="fillCreds('staff123', 'pass123')" class="flex-1 rounded-lg border border-[#182830] bg-[#FFFDF8] py-1.5 font-mono text-[11px] font-bold text-[#182830] shadow-[2px_2px_0px_#182830] hover:bg-[#A2C5D8] transition cursor-pointer">
-                                    Staff User
-                                </button>
-                                <button type="button" onclick="fillCreds('admin123', 'pass123')" class="flex-1 rounded-lg border border-[#182830] bg-[#FFFDF8] py-1.5 font-mono text-[11px] font-bold text-[#182830] shadow-[2px_2px_0px_#182830] hover:bg-[#A2C5D8] transition cursor-pointer">
-                                    Admin User
-                                </button>
+                            <!-- Dynamic Cycle Status Title & Monospace Readout -->
+                            <div class="w-full space-y-1.5">
+                                <div class="flex items-center justify-center gap-2">
+                                    <span class="inline-flex h-2.5 w-2.5 rounded-full bg-[#10B981] animate-ping"></span>
+                                    <h3 id="overlay-cycle-title" class="font-recoleta text-xl sm:text-2xl font-black text-[#182830]">
+                                        Starting Shift Wash Cycle...
+                                    </h3>
+                                </div>
+                                <div class="rounded-xl border-2 border-[#182830] bg-[#14232B] px-3.5 py-2 shadow-[2px_2px_0px_#182830]">
+                                    <p id="overlay-cycle-sub" class="font-mono text-xs font-bold text-[#F7E6CB] tracking-wide">
+                                        [STAGE 01/04] Dispensing Surf & Downy sachets + Calibrating water...
+                                    </p>
+                                </div>
                             </div>
+
+                            <!-- Analog Machine Gauges Strip (Steam / RPM / Detergent) -->
+                            <div class="grid grid-cols-3 gap-2 w-full font-mono text-center text-xs">
+                                <div class="rounded-xl border-2 border-[#182830] bg-[#FFFDF8] p-2 text-[#182830] shadow-[2px_2px_0px_#182830]">
+                                    <span class="block text-[9px] uppercase tracking-wider text-slate-500">Steam Core</span>
+                                    <strong class="text-[11px] font-bold text-[#10B981]">60°C Active</strong>
+                                </div>
+                                <div class="rounded-xl border-2 border-[#182830] bg-[#FFFDF8] p-2 text-[#182830] shadow-[2px_2px_0px_#182830]">
+                                    <span class="block text-[9px] uppercase tracking-wider text-slate-500">Vortex Spin</span>
+                                    <strong class="text-[11px] font-bold text-[#0284C7]" id="overlay-gauge-rpm">1400 RPM</strong>
+                                </div>
+                                <div class="rounded-xl border-2 border-[#182830] bg-[#FFFDF8] p-2 text-[#182830] shadow-[2px_2px_0px_#182830]">
+                                    <span class="block text-[9px] uppercase tracking-wider text-slate-500">Detergent</span>
+                                    <strong class="text-[11px] font-bold text-[#CB1B03]">2 Sachets</strong>
+                                </div>
+                            </div>
+
+                            <!-- 4 Visual Stage Steps (Active Lights) -->
+                            <div class="grid grid-cols-4 gap-2 w-full font-mono text-[10px] text-center">
+                                <div id="led-step-1" class="rounded-xl border-2 border-[#182830] bg-[#BAE6FD] p-2 text-[#182830] font-bold shadow-[2px_2px_0px_#182830] transition-colors">
+                                    <span class="block text-[8px] uppercase text-slate-600">Phase 1</span>
+                                    <span>Sachets</span>
+                                </div>
+                                <div id="led-step-2" class="rounded-xl border-2 border-[#182830] bg-[#FFFDF8] p-2 text-slate-400 font-bold shadow-[2px_2px_0px_#182830] transition-colors">
+                                    <span class="block text-[8px] uppercase text-slate-400">Phase 2</span>
+                                    <span>60°C Steam</span>
+                                </div>
+                                <div id="led-step-3" class="rounded-xl border-2 border-[#182830] bg-[#FFFDF8] p-2 text-slate-400 font-bold shadow-[2px_2px_0px_#182830] transition-colors">
+                                    <span class="block text-[8px] uppercase text-slate-400">Phase 3</span>
+                                    <span>1400 RPM</span>
+                                </div>
+                                <div id="led-step-4" class="rounded-xl border-2 border-[#182830] bg-[#FFFDF8] p-2 text-slate-400 font-bold shadow-[2px_2px_0px_#182830] transition-colors">
+                                    <span class="block text-[8px] uppercase text-slate-400">Phase 4</span>
+                                    <span>Auth OK</span>
+                                </div>
+                            </div>
+
+                            <!-- Heavy Chunky Hazard Striped Progress Bar -->
+                            <div class="w-full space-y-1">
+                                <div class="h-6 w-full overflow-hidden rounded-xl border-3 border-[#182830] bg-[#FFFDF8] p-0.5 shadow-[3px_3px_0px_#182830]">
+                                    <div id="overlay-progress-bar" class="h-full rounded-lg retro-hazard-bar transition-all duration-300 ease-out" style="width: 25%;"></div>
+                                </div>
+                                <div class="flex items-center justify-between font-mono text-[11px] text-slate-600 font-bold px-1">
+                                    <span>CYLINDER #01 ACCELERATING</span>
+                                    <span id="overlay-percent-text" class="text-[#CB1B03]">25% CALIBRATING</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Bottom Machine Trim Bar -->
+                        <div class="border-t-3 border-[#182830] bg-[#F7E6CB] px-5 py-2.5 font-mono text-[11px] text-[#182830] font-bold flex items-center justify-between">
+                            <span>STATION: TERMINAL #01</span>
+                            <span class="text-[#CB1B03] flex items-center gap-1.5">
+                                <span class="h-2 w-2 rounded-full bg-[#CB1B03] animate-ping"></span>
+                                DO NOT INTERRUPT WASH
+                            </span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Sub-column: Live Operating Board & Laundromat Amenities -->
-                <div class="md:col-span-5 flex flex-col justify-between space-y-4 border-t-2 md:border-t-0 md:border-l-2 border-[#182830]/20 pt-4 md:pt-0 md:pl-5 font-mono">
-                    <!-- Operating Hours & Shift Lead -->
-                    <div class="rounded-2xl border-2 border-[#182830] bg-[#14232B] p-3 text-[#FFFDF8] shadow-[3px_3px_0px_#182830]">
-                        <div class="flex items-center justify-between text-[10px] text-[#A2C5D8]">
-                            <span>STORE HOURS</span>
-                            <span class="text-[#10B981] font-bold">● OPEN NOW</span>
-                        </div>
-                        <p class="mt-1 font-recoleta text-lg font-bold text-[#F7E6CB]">7:00 AM – 10:00 PM</p>
-                        <p class="text-[10px] text-[#BAE6FD]">Shift Lead: Carla Mendoza</p>
-                    </div>
-
-                    <!-- 4 Guarantees & Features -->
-                    <div class="space-y-2 text-xs">
-                        <div class="flex items-center gap-2 rounded-xl border border-[#182830] bg-[#FFFDF8] p-2 text-[#182830] shadow-[2px_2px_0px_#182830]">
-                            <span class="text-base">🧼</span>
-                            <div class="text-[11px] leading-tight">
-                                <strong class="block text-[#CB1B03]">Per-Sachet Calibrated</strong>
-                                <span class="text-[10px] text-slate-600">Zero residue Surf & Downy.</span>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-2 rounded-xl border border-[#182830] bg-[#FFFDF8] p-2 text-[#182830] shadow-[2px_2px_0px_#182830]">
-                            <span class="text-base">🔒</span>
-                            <div class="text-[11px] leading-tight">
-                                <strong class="block text-[#25799B]">100% Dedicated Drum</strong>
-                                <span class="text-[10px] text-slate-600">Garments never mingle.</span>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-2 rounded-xl border border-[#182830] bg-[#FFFDF8] p-2 text-[#182830] shadow-[2px_2px_0px_#182830]">
-                            <span class="text-base">⚡</span>
-                            <div class="text-[11px] leading-tight">
-                                <strong class="block text-[#10B981]">45-Min Express</strong>
-                                <span class="text-[10px] text-slate-600">Rapid moisture extraction.</span>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-2 rounded-xl border border-[#182830] bg-[#FFFDF8] p-2 text-[#182830] shadow-[2px_2px_0px_#182830]">
-                            <span class="text-base">📦</span>
-                            <div class="text-[11px] leading-tight">
-                                <strong class="block text-[#8B5CF6]">Kraft Seal Packaging</strong>
-                                <span class="text-[10px] text-slate-600">Freshness locked in kraft.</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Pricing Strip -->
-                    <div class="rounded-xl border border-[#182830] bg-[#E0F2FE] p-2.5 text-[#182830] text-[10px]">
-                        <span class="block font-bold text-[#0369A1] uppercase tracking-wider mb-1">Standard Rates:</span>
-                        <div class="flex justify-between font-bold">
-                            <span>Wash: ₱60</span>
-                            <span>Dry: ₱50</span>
-                            <span>Full: ₱130</span>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <p class="mt-6 text-center font-mono text-[11px] text-slate-500 border-t border-[#182830]/15 pt-4">
+            <p class="mt-8 text-center font-mono text-[11px] text-slate-500 border-t border-[#182830]/15 pt-4">
                 Trowa Laundry System © {{ date('Y') }} · All rights reserved.
             </p>
         </section>
@@ -1428,13 +1609,64 @@
         }
     });
 
-    function fillCreds(user, pass) {
-        const u = document.getElementById('username-input');
-        const p = document.getElementById('login-password');
-        if (u) u.value = user;
-        if (p) p.value = pass;
+    window.switchLoginRole = function(role) {
+        const staffBtn = document.getElementById('tab-btn-staff');
+        const custBtn = document.getElementById('tab-btn-customer');
+        const roleBadge = document.getElementById('role-badge');
+        const roleHeading = document.getElementById('role-heading');
+        const roleDesc = document.getElementById('role-description');
+        const loginForm = document.getElementById('login-form');
+        const inputLabel = document.getElementById('login-input-label');
+        const usernameInput = document.getElementById('username-input');
+        const submitLabel = document.getElementById('login-submit-label');
+        const speechText = document.getElementById('robot-speech-text');
+
+        if (role === 'customer') {
+            if (staffBtn) {
+                staffBtn.className = 'rounded-xl px-4 py-2 font-mono text-xs font-bold transition cursor-pointer text-[#182830] hover:bg-[#FFFDF8]';
+            }
+            if (custBtn) {
+                custBtn.className = 'rounded-xl px-4 py-2 font-mono text-xs font-bold transition cursor-pointer border-2 border-[#182830] bg-[#25799B] text-white shadow-[1px_1px_0px_#182830]';
+            }
+            if (roleBadge) {
+                roleBadge.textContent = 'Customer Portal · Self-Service';
+                roleBadge.className = 'inline-block rounded-md border border-[#182830] bg-[#25799B] px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#FFFDF8] shadow-[1px_1px_0px_#182830]';
+            }
+            if (roleHeading) roleHeading.textContent = 'Customer Portal Sign In';
+            if (roleDesc) roleDesc.textContent = 'Sign in to check live wash cycles, submit laundry requests, or rate clean clothes.';
+            if (loginForm) loginForm.action = "{{ route('customer.login.post') }}";
+            if (inputLabel) inputLabel.textContent = 'Email Address or Username';
+            if (usernameInput) {
+                usernameInput.name = 'login';
+                usernameInput.placeholder = 'e.g. maria@example.com or username';
+            }
+            if (submitLabel) submitLabel.textContent = 'Open Customer Portal ➔';
+            if (speechText) speechText.textContent = "Welcome, valued Customer! Let's get your laundry fresh! 🫧";
+        } else {
+            if (custBtn) {
+                custBtn.className = 'rounded-xl px-4 py-2 font-mono text-xs font-bold transition cursor-pointer text-[#182830] hover:bg-[#FFFDF8]';
+            }
+            if (staffBtn) {
+                staffBtn.className = 'rounded-xl px-4 py-2 font-mono text-xs font-bold transition cursor-pointer border-2 border-[#182830] bg-[#25799B] text-white shadow-[1px_1px_0px_#182830]';
+            }
+            if (roleBadge) {
+                roleBadge.textContent = 'Terminal #01 · Staff Auth';
+                roleBadge.className = 'inline-block rounded-md border border-[#182830] bg-[#CB1B03] px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#FFFDF8] shadow-[1px_1px_0px_#182830]';
+            }
+            if (roleHeading) roleHeading.textContent = 'Staff & Counter Sign In';
+            if (roleDesc) roleDesc.textContent = 'Enter your staff credentials to access the counter terminal and laundry queue.';
+            if (loginForm) loginForm.action = "{{ route('login.post') }}";
+            if (inputLabel) inputLabel.textContent = 'Staff Username or Email';
+            if (usernameInput) {
+                usernameInput.name = 'username';
+                usernameInput.placeholder = 'e.g. your_username or name@email.com';
+            }
+            if (submitLabel) submitLabel.textContent = 'Sign In to Station ➔';
+            if (speechText) speechText.textContent = "Welcome, Staff! Ready for your shift? 🫧";
+        }
+
         if (window.SoundFx) SoundFx.click();
-    }
+    };
 
     // --- Scrollytelling 3D Washing Machine Portal Logic ---
     let portalScrollRaf = null;
@@ -1579,6 +1811,150 @@
             if (window.SoundFx) SoundFx.click();
         }
     });
+
+    // =========================================================================
+    // Tactical Shift Sign-in Loading Animation & Drum Vortex
+    // =========================================================================
+    const loginForm = document.getElementById('login-form');
+    const loginSubmitBtn = document.getElementById('login-submit-btn');
+    const loginOverlay = document.getElementById('login-wash-overlay');
+
+    if (loginForm && loginSubmitBtn && loginOverlay) {
+        let isSigningIn = false;
+
+        loginForm.addEventListener('submit', function (e) {
+            if (!loginForm.checkValidity()) return;
+            if (isSigningIn) {
+                e.preventDefault();
+                return;
+            }
+
+            e.preventDefault();
+            isSigningIn = true;
+
+            // 1. Play Spin Cycle Web Audio Synthesizer
+            if (typeof playSpinCycleAudio === 'function') {
+                playSpinCycleAudio();
+            }
+
+            // 2. Animate Companion Robot Trowa-Bot
+            const svg = document.getElementById('trowa-robot-svg');
+            const spinningFace = document.getElementById('robot-spinning-face');
+            const normalMouth = document.getElementById('robot-mouth');
+            const dizzyMouth = document.getElementById('robot-mouth-dizzy');
+            const speech = document.getElementById('robot-speech');
+            const speechText = document.getElementById('robot-speech-text');
+
+            if (svg) {
+                svg.classList.add('robot-shaking');
+            }
+            if (spinningFace) {
+                spinningFace.classList.add('robot-face-spinning');
+            }
+            if (normalMouth) normalMouth.style.display = 'none';
+            if (dizzyMouth) dizzyMouth.style.display = 'block';
+
+            if (speech && speechText) {
+                speechText.textContent = "⚡ AUTHENTICATING! Accelerating drum to 1400 RPM! 🫧";
+                speech.classList.add('animate-bounce');
+            }
+
+            // Erupt celebratory soap bubbles
+            if (typeof spawnSoapBubbles === 'function') {
+                spawnSoapBubbles();
+            }
+
+            // 3. Transform Sign-in Button with spinning washer drum
+            loginSubmitBtn.classList.add('btn-wash-loading');
+            loginSubmitBtn.innerHTML = `
+                <svg class="h-4 w-4 animate-wash-spin text-white inline-block mr-2 shrink-0 align-middle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <rect x="2" y="2" width="20" height="20" rx="4"/>
+                    <circle cx="12" cy="13" r="5" stroke-dasharray="24" stroke-dashoffset="6"/>
+                    <circle cx="12" cy="13" r="2" fill="currentColor"/>
+                    <circle cx="6" cy="6" r="1" fill="currentColor"/>
+                    <circle cx="9" cy="6" r="1" fill="currentColor"/>
+                </svg>
+                <span>Spinning Up Station #01 (1400 RPM)...</span>
+            `;
+
+            // 4. Reveal the Immersive Laundromat Loading Cabinet Overlay
+            loginOverlay.classList.remove('hidden');
+            loginOverlay.classList.add('flex');
+
+            const cycleTitle = document.getElementById('overlay-cycle-title');
+            const cycleSub = document.getElementById('overlay-cycle-sub');
+            const progressBar = document.getElementById('overlay-progress-bar');
+            const percentText = document.getElementById('overlay-percent-text');
+            const led1 = document.getElementById('led-step-1');
+            const led2 = document.getElementById('led-step-2');
+            const led3 = document.getElementById('led-step-3');
+            const led4 = document.getElementById('led-step-4');
+
+            // Phase 1: Already active (Sachets & 25%)
+
+            // Phase 2 (360ms): Water Fill & 60°C Steam Core
+            setTimeout(() => {
+                if (cycleTitle) cycleTitle.textContent = "Water & Thermal Steam Fill...";
+                if (cycleSub) cycleSub.textContent = "[STAGE 02/04] Pressurizing steam core to 60°C & balancing drum...";
+                if (progressBar) progressBar.style.width = '55%';
+                if (percentText) {
+                    percentText.textContent = '55% STEAM 60°C';
+                    percentText.className = 'text-[#0284C7] font-bold';
+                }
+                if (led2) {
+                    led2.className = 'rounded-xl border-2 border-[#182830] bg-[#BAE6FD] p-2 text-[#182830] font-bold shadow-[2px_2px_0px_#182830]';
+                }
+            }, 360);
+
+            // Phase 3 (720ms): Centrifugal 1400 RPM Extraction & Token Cryptography
+            setTimeout(() => {
+                if (cycleTitle) cycleTitle.textContent = "Centrifugal 1400 RPM Extraction!";
+                if (cycleSub) cycleSub.textContent = "[STAGE 03/04] Centrifugal moisture extraction & authenticating staff token...";
+                if (progressBar) progressBar.style.width = '85%';
+                if (percentText) {
+                    percentText.textContent = '85% 1400 RPM VORTEX';
+                    percentText.className = 'text-[#D97706] font-bold';
+                }
+                if (led3) {
+                    led3.className = 'rounded-xl border-2 border-[#182830] bg-[#FDE68A] p-2 text-[#182830] font-bold shadow-[2px_2px_0px_#182830]';
+                }
+            }, 720);
+
+            // Phase 4 (1100ms): Shift Clearance Granted & Counter Unlocked
+            setTimeout(() => {
+                if (cycleTitle) cycleTitle.textContent = "Station #01 Clearance Granted! ✨";
+                if (cycleSub) cycleSub.textContent = "[STAGE 04/04] Drum balanced. Unlocking counter station terminal...";
+                if (progressBar) progressBar.style.width = '100%';
+                if (percentText) {
+                    percentText.textContent = '100% STATION READY';
+                    percentText.className = 'text-[#059669] font-bold';
+                }
+                if (led4) {
+                    led4.className = 'rounded-xl border-2 border-[#182830] bg-[#A7F3D0] p-2 text-[#065F46] font-bold shadow-[2px_2px_0px_#182830]';
+                }
+                if (window.SoundFx) SoundFx.success();
+            }, 1100);
+
+            // 5. Submit Form After Sequence
+            setTimeout(() => {
+                loginForm.submit();
+            }, 1320);
+        });
+
+        // Reset if navigated back or bfcache
+        window.addEventListener('pageshow', function () {
+            isSigningIn = false;
+            if (loginOverlay) {
+                loginOverlay.classList.add('hidden');
+                loginOverlay.classList.remove('flex');
+            }
+            if (loginSubmitBtn) {
+                loginSubmitBtn.classList.remove('btn-wash-loading');
+                loginSubmitBtn.disabled = false;
+                loginSubmitBtn.innerHTML = '<span id="login-submit-label">Sign In to Station ➔</span>';
+            }
+        });
+    }
 </script>
 @endpush
 @endsection

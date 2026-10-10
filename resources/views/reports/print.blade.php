@@ -220,6 +220,36 @@
         </tbody>
     </table>
 
+    <h2>Customer Satisfaction &amp; Feedback</h2>
+    <div class="kpis" style="margin-bottom: 12px;">
+        <div class="kpi">
+            <span>Average Rating Score</span>
+            <strong>{{ number_format($averageRating, 1) }} / 5.0</strong>
+        </div>
+        <div class="kpi">
+            <span>Verified Customer Reviews</span>
+            <strong>{{ $totalRatingsCount }}</strong>
+        </div>
+    </div>
+    <table>
+        <thead>
+            <tr><th>Ticket #</th><th>Customer</th><th>Rating</th><th>Customer Remarks</th><th>Date</th></tr>
+        </thead>
+        <tbody>
+            @forelse($recentFeedbacks as $fb)
+                <tr>
+                    <td style="font-family: 'Space Grotesk', monospace; font-weight: 700; color: #CB1B03;">#{{ $fb->order_number }}</td>
+                    <td style="font-weight: 600;">{{ $fb->customer_name ?? $fb->customer?->name ?? 'Customer' }}</td>
+                    <td style="font-family: 'Space Grotesk', monospace; font-weight: 700;">{{ $fb->rating }}/5 Stars</td>
+                    <td>{{ $fb->rating_comment ? '"' . $fb->rating_comment . '"' : '(No written comments)' }}</td>
+                    <td style="font-family: 'Space Grotesk', monospace;">{{ $fb->rated_at ? $fb->rated_at->format('Y-m-d') : $fb->updated_at->format('Y-m-d') }}</td>
+                </tr>
+            @empty
+                <tr><td colspan="5">No reviews recorded in this window</td></tr>
+            @endforelse
+        </tbody>
+    </table>
+
     <h2>Expense Ledger</h2>
     <table>
         <thead>
@@ -239,5 +269,14 @@
         </tbody>
     </table>
 </div>
+
+<script>
+    // Automatic print dialog trigger when requested via print query
+    window.addEventListener('DOMContentLoaded', () => {
+        if (new URLSearchParams(window.location.search).get('auto') === '1') {
+            window.print();
+        }
+    });
+</script>
 </body>
 </html>

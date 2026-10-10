@@ -164,9 +164,11 @@
             </thead>
             <tbody class="divide-y divide-[#182830]/10 font-medium">
                 @forelse($topSpenders as $index => $customer)
-                    @php($lastOrder = $customer->orders->first())
-                    @php($daysAgo = $lastOrder?->created_at ? $lastOrder->created_at->diffInDays(now()) : null)
-                    @php($avgTicket = $customer->orders_count > 0 ? (float) $customer->orders_sum_total_price / $customer->orders_count : 0)
+                    @php
+                        $lastOrder = $customer->orders->first();
+                        $daysAgo = $lastOrder?->created_at ? $lastOrder->created_at->diffInDays(now()) : null;
+                        $avgTicket = $customer->orders_count > 0 ? (float) $customer->orders_sum_total_price / $customer->orders_count : 0;
+                    @endphp
                     <tr class="hover:bg-[#F7E6CB]/30 transition">
                         <td class="py-3 px-3">
                             <div class="flex items-center gap-2.5">
@@ -239,9 +241,9 @@
         </div>
 
         <div class="space-y-3">
-            @php($freqMax = max(1, max($frequencyDistribution)))
+            @php $freqMax = max(1, max($frequencyDistribution)); @endphp
             @foreach($frequencyDistribution as $bucket => $count)
-                @php($pct = $totalCustomers > 0 ? round(($count / $totalCustomers) * 100, 1) : 0)
+                @php $pct = $totalCustomers > 0 ? round(($count / $totalCustomers) * 100, 1) : 0; @endphp
                 <div class="flex items-center gap-3 rounded-xl border border-[#182830]/15 bg-[#FFFDF8] p-3 shadow-[1px_1px_0px_#182830]">
                     <span class="w-28 shrink-0 font-mono text-xs font-bold text-[#182830]">{{ $bucket }}</span>
                     <div class="h-3 flex-1 overflow-hidden rounded-full border border-[#182830] bg-[#F7E6CB]">
@@ -264,9 +266,9 @@
         </div>
 
         <div class="space-y-2">
-            @php($dowMax = max(1, $dayOfWeekStats->max()))
+            @php $dowMax = max(1, $dayOfWeekStats->max()); @endphp
             @foreach($dayOfWeekStats as $day => $count)
-                @php($isPeak = $count > 0 && $count === $dowMax)
+                @php $isPeak = $count > 0 && $count === $dowMax; @endphp
                 <div class="flex items-center gap-3 rounded-xl border {{ $isPeak ? 'border-[#CB1B03] bg-red-50/50' : 'border-[#182830]/15 bg-[#FFFDF8]' }} p-2.5 shadow-[1px_1px_0px_#182830]">
                     <span class="w-24 shrink-0 font-mono text-xs font-bold {{ $isPeak ? 'text-[#CB1B03]' : 'text-[#182830]' }}">
                         {{ $day }}
@@ -346,6 +348,82 @@
                 <p class="text-slate-700 mt-1">
                     Your <strong>{{ $vipCount }} VIP Champions</strong> generate disproportionate revenue with an average LTV of ₱{{ number_format($averageLtv, 2) }}. Consider offering complimentary fabric conditioner upgrade or express next-day turnaround to cement brand loyalty.
                 </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: Customer Ratings & Direct Portal Reviews -->
+    <section class="retro-panel p-5 bg-[#FFFDF8] lg:col-span-12">
+        <div class="mb-4 flex flex-wrap items-center justify-between border-b-2 border-[#182830]/15 pb-3">
+            <div class="flex items-center gap-2">
+                <span class="flex h-8 w-8 items-center justify-center rounded-xl border-2 border-[#182830] bg-amber-300 text-amber-950 font-black shadow-[2px_2px_0px_#182830]">
+                    ★
+                </span>
+                <div>
+                    <h2 class="font-recoleta text-xl font-bold text-[#182830]">Customer Satisfaction Ratings & Direct Reviews</h2>
+                    <p class="font-mono text-xs text-[#25799B]">Real-time ratings submitted via the Customer Self-Service Portal</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1.5 rounded-xl border-2 border-[#182830] bg-[#FFFDF8] px-3.5 py-1.5 shadow-[2px_2px_0px_#182830]">
+                    <span class="text-amber-500 font-black text-base">★</span>
+                    <strong class="font-mono text-lg font-black text-[#182830]">{{ $averageRating }}</strong>
+                    <span class="font-mono text-xs text-slate-500">/ 5.0 ({{ $totalRatingsCount }} review{{ $totalRatingsCount === 1 ? '' : 's' }})</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Left: Star Breakdown Bars (4 cols) -->
+            <div class="lg:col-span-4 rounded-2xl border-2 border-[#182830] bg-[#F7E6CB]/40 p-4 space-y-2.5">
+                <span class="block font-mono text-xs font-bold uppercase text-[#182830] mb-2">Rating Distribution</span>
+                @foreach([5, 4, 3, 2, 1] as $star)
+                    @php
+                        $cnt = $ratingBreakdown[$star] ?? 0;
+                        $pct = $totalRatingsCount > 0 ? round(($cnt / $totalRatingsCount) * 100) : 0;
+                    @endphp
+                    <div class="flex items-center gap-2 text-xs font-mono">
+                        <span class="w-10 font-bold text-amber-600">{{ $star }} ★</span>
+                        <div class="flex-1 h-2 rounded-full border border-[#182830] bg-[#FFFDF8] overflow-hidden">
+                            <div class="h-full bg-amber-400 rounded-full" style="width: {{ $pct }}%"></div>
+                        </div>
+                        <span class="w-8 text-right font-bold text-slate-700">{{ $cnt }}</span>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Right: Recent Customer Reviews List (8 cols) -->
+            <div class="lg:col-span-8 space-y-3">
+                <span class="block font-mono text-xs font-bold uppercase text-[#182830]">Recent Feedback Stream</span>
+                @if($recentReviews->isEmpty())
+                    <div class="rounded-xl border border-dashed border-[#182830]/30 bg-[#FFFDF8] p-6 text-center font-mono text-xs text-slate-500">
+                        No customer ratings recorded in this timeframe yet. Customers are prompted to rate when claiming fresh orders.
+                    </div>
+                @else
+                    <div class="divide-y divide-[#182830]/10 border-2 border-[#182830] rounded-2xl bg-[#FFFDF8] overflow-hidden">
+                        @foreach($recentReviews as $rev)
+                            <div class="p-3.5 hover:bg-amber-50/40 transition">
+                                <div class="flex items-center justify-between mb-1">
+                                    <div class="flex items-center gap-2">
+                                        <strong class="font-sans font-bold text-xs text-[#182830]">{{ $rev->customer_name }}</strong>
+                                        <span class="font-mono text-[10px] text-[#CB1B03]">#{{ $rev->order_number }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="text-amber-500 font-bold text-xs">
+                                            {{ str_repeat('★', $rev->rating) }}
+                                        </div>
+                                        <span class="font-mono text-[10px] text-slate-400">
+                                            {{ $rev->rated_at ? $rev->rated_at->format('M d, Y') : $rev->updated_at->format('M d, Y') }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-slate-700 font-medium">
+                                    {{ $rev->rating_comment ?: 'Customer gave a star rating without written comment.' }}
+                                </p>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
     </section>

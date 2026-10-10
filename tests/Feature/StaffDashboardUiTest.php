@@ -74,7 +74,7 @@ class StaffDashboardUiTest extends TestCase
         $response->assertSeeText('Staff & Counter Portal');
         $response->assertSee('Cleaner clothes');
         $response->assertSee('Sign In to Station');
-        $response->assertSee('Quick Fill Demo Access');
+        $response->assertSee('Register Now / Sign Up');
     }
 
     public function test_login_page_renders_with_interactive_mini_robot_and_eyes(): void

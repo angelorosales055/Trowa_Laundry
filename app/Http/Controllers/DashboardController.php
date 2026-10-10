@@ -386,6 +386,54 @@ class DashboardController extends Controller
             'cta_url' => route('customers.insights'),
         ];
 
+        // Customer Feedback & Ratings Analytics
+        $ratedOrdersQuery = Order::query()
+            ->whereNotNull('rating')
+            ->when($from, fn ($query) => $query->whereDate('created_at', '>=', $from))
+            ->when($to, fn ($query) => $query->whereDate('created_at', '<=', $to));
+        
+        $totalRatingsCount = (clone $ratedOrdersQuery)->count();
+        $averageRating = $totalRatingsCount > 0 ? round((float) (clone $ratedOrdersQuery)->avg('rating'), 2) : 5.0;
+        $ratingsGrouped = (clone $ratedOrdersQuery)->get()->groupBy('rating');
+        $ratingDistribution = [
+            5 => $ratingsGrouped->get(5)?->count() ?? 0,
+            4 => $ratingsGrouped->get(4)?->count() ?? 0,
+            3 => $ratingsGrouped->get(3)?->count() ?? 0,
+            2 => $ratingsGrouped->get(2)?->count() ?? 0,
+            1 => $ratingsGrouped->get(1)?->count() ?? 0,
+        ];
+        $recentFeedbacks = (clone $ratedOrdersQuery)
+            ->with('customer:id,name')
+            ->latest('rated_at')
+            ->take(10)
+            ->get();
+
+        $ratingFeedbackRecommendation = null;
+        if ($totalRatingsCount > 0) {
+            if ($averageRating >= 4.5) {
+                $ratingFeedbackRecommendation = [
+                    'sentiment' => 'outstanding',
+                    'title' => 'Exceptional Customer Satisfaction Score',
+                    'description' => "Customers are loving your wash care (Avg {$averageRating}/5). Reward returning patrons and leverage glowing comments for local word-of-mouth.",
+                    'action' => 'Maintain current detergent formulations and feature top reviews at the front desk.',
+                ];
+            } elseif ($averageRating >= 3.5) {
+                $ratingFeedbackRecommendation = [
+                    'sentiment' => 'moderate',
+                    'title' => 'Solid Quality with Room for Polish',
+                    'description' => "Average satisfaction is {$averageRating}/5. Common improvement areas: folding neatness and speed during machine peak hours.",
+                    'action' => 'Inspect folding uniformity and consider checking dryer lint traps more frequently.',
+                ];
+            } else {
+                $ratingFeedbackRecommendation = [
+                    'sentiment' => 'critical',
+                    'title' => 'Customer Experience Attention Required',
+                    'description' => "Average rating has dropped to {$averageRating}/5. Multiple low reviews indicate dissatisfaction.",
+                    'action' => 'Review customer notes, contact dissatisfied patrons with courtesy re-wash credits, and inspect machine dosage.',
+                ];
+            }
+        }
+
         return view('reports.index', [
             'orders' => $orders,
             'revenue' => $revenue,
@@ -418,6 +466,11 @@ class DashboardController extends Controller
             'billingTxnCount' => $billingTxnCount,
             'billingAvgTicket' => $billingAvgTicket,
             'strategicDirectives' => $strategicDirectives,
+            'totalRatingsCount' => $totalRatingsCount,
+            'averageRating' => $averageRating,
+            'ratingDistribution' => $ratingDistribution,
+            'recentFeedbacks' => $recentFeedbacks,
+            'ratingFeedbackRecommendation' => $ratingFeedbackRecommendation,
             'activeTab' => $request->query('tab', 'plan'),
             'from' => $from,
             'to' => $to,
@@ -454,6 +507,18 @@ class DashboardController extends Controller
             'break_even_loads' => $revenuePerLoad > 0 ? (int) ceil(($dailyExpRate * 30) / $revenuePerLoad) : 0,
         ];
 
+        $ratedOrdersQuery = Order::query()
+            ->whereNotNull('rating')
+            ->when($from, fn ($query) => $query->whereDate('created_at', '>=', $from))
+            ->when($to, fn ($query) => $query->whereDate('created_at', '<=', $to));
+        $totalRatingsCount = (clone $ratedOrdersQuery)->count();
+        $averageRating = $totalRatingsCount > 0 ? round((float) (clone $ratedOrdersQuery)->avg('rating'), 2) : 5.0;
+        $recentFeedbacks = (clone $ratedOrdersQuery)
+            ->with('customer:id,name')
+            ->latest('rated_at')
+            ->take(8)
+            ->get();
+
         return view('reports.print', [
             'orders' => $orders,
             'revenue' => $revenue,
@@ -468,6 +533,9 @@ class DashboardController extends Controller
             'costPerKg' => $costPerKg,
             'revenuePerLoad' => $revenuePerLoad,
             'projections' => $projections,
+            'totalRatingsCount' => $totalRatingsCount,
+            'averageRating' => $averageRating,
+            'recentFeedbacks' => $recentFeedbacks,
             'from' => $from,
             'to' => $to,
         ]);

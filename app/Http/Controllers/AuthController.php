@@ -21,8 +21,19 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials)) {
+        $loginInput = trim($credentials['username']);
+        $field = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        if (Auth::attempt([$field => $loginInput, 'password' => $credentials['password']], $request->boolean('remember'))) {
             $request->session()->regenerate();
+
+            if (Auth::user()->role === 'customer') {
+                if (! Auth::user()->email_verified_at) {
+                    session(['pending_verification_user_id' => Auth::id()]);
+                    return redirect()->route('customer.verify');
+                }
+                return redirect()->route('customer.portal');
+            }
 
             return Redirect::intended('/dashboard');
         }

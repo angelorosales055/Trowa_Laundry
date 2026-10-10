@@ -16,9 +16,13 @@
     </div>
 
     <div class="flex items-center gap-2.5">
-        <a href="{{ route('reports.print', array_filter(['from' => $from, 'to' => $to])) }}" target="_blank" class="retro-btn-primary text-xs flex items-center gap-2">
+        <a href="{{ route('reports.print', array_merge(array_filter(['from' => $from, 'to' => $to]), ['auto' => 1])) }}" target="_blank" class="retro-btn-primary text-xs flex items-center gap-2">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Export Report as PDF</span>
+        </a>
+        <a href="{{ route('reports.print', array_filter(['from' => $from, 'to' => $to])) }}" target="_blank" class="retro-btn-secondary text-xs flex items-center gap-1.5">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            <span>Print Report / PDF</span>
+            <span>Print View</span>
         </a>
     </div>
 </div>
@@ -82,6 +86,15 @@
             class="report-tab-btn flex items-center gap-2 rounded-xl px-4 py-2.5 font-recoleta text-sm font-bold transition cursor-pointer {{ ($activeTab ?? 'plan') === 'performance' ? 'border-2 border-[#182830] bg-[#F7E6CB] text-[#182830] shadow-[2px_2px_0px_#182830]' : 'border-2 border-transparent bg-white/60 text-[#25799B] hover:bg-white hover:text-[#182830]' }}">
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21H3V3"/><path d="M7 14l4-4 4 4 6-6"/></svg>
         <span>Services &amp; Top Customers</span>
+    </button>
+
+    <button type="button" 
+            onclick="switchReportTab('ratings')" 
+            id="tab-btn-ratings"
+            class="report-tab-btn flex items-center gap-2 rounded-xl px-4 py-2.5 font-recoleta text-sm font-bold transition cursor-pointer {{ ($activeTab ?? 'plan') === 'ratings' ? 'border-2 border-[#182830] bg-[#F7E6CB] text-[#182830] shadow-[2px_2px_0px_#182830]' : 'border-2 border-transparent bg-white/60 text-[#25799B] hover:bg-white hover:text-[#182830]' }}">
+        <svg class="h-4 w-4 text-amber-500 fill-amber-400" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span>Ratings, Feedback &amp; Recs</span>
+        <span class="rounded-full bg-amber-500 px-2 py-0.2 font-mono text-[10px] font-bold text-white">{{ $totalRatingsCount }}</span>
     </button>
 </div>
 
@@ -487,7 +500,9 @@
         </h2>
         <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             @forelse($expensesByCategory as $cat => $amount)
-                @php($pct = $expensesTotal > 0 ? round(($amount / $expensesTotal) * 100, 1) : 0)
+                @php
+                    $pct = $expensesTotal > 0 ? round(($amount / $expensesTotal) * 100, 1) : 0;
+                @endphp
                 <div class="rounded-xl border border-[#182830]/15 bg-[#FFFDF8] p-3.5 shadow-[1px_1px_0px_#182830]">
                     <div class="mb-1 flex justify-between font-mono text-xs font-bold">
                         <span class="capitalize text-[#182830]">{{ $cat }}</span>
@@ -555,6 +570,213 @@
                 @endforelse
             </div>
         </section>
+    </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- TAB 5: CUSTOMER RATINGS, RECOMMENDATIONS & FEEDBACK NOTE -->
+<!-- ======================================================== -->
+<div id="report-view-ratings" class="report-view-pane {{ ($activeTab ?? 'plan') === 'ratings' ? '' : 'hidden' }} space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b-2 border-[#182830]/15 pb-2.5 gap-2">
+        <div>
+            <h2 class="font-recoleta text-xl font-bold text-[#182830]">Customer Satisfaction, Ratings &amp; Recommendations</h2>
+            <p class="font-mono text-xs text-[#25799B]">Real reviews submitted by verified patrons upon order claim</p>
+        </div>
+        <span class="badge border-[#182830] bg-amber-300 text-amber-950 font-mono text-xs font-black shadow-[1px_1px_0px_#182830]">
+            Average: {{ number_format($averageRating, 1) }} / 5.0 ({{ $totalRatingsCount }} reviews)
+        </span>
+    </div>
+
+    <!-- Top KPI Cards -->
+    <div class="grid gap-4 sm:grid-cols-3">
+        <!-- Average Score Card -->
+        <div class="retro-panel p-5 bg-[#F7E6CB]/40 flex items-center justify-between">
+            <div>
+                <span class="font-mono text-[10px] font-bold uppercase text-[#25799B]">Customer Satisfaction Index</span>
+                <div class="flex items-baseline gap-2 mt-1">
+                    <span class="font-recoleta text-4xl font-black text-[#182830]">{{ number_format($averageRating, 1) }}</span>
+                    <span class="font-mono text-xs text-slate-500">/ 5.0</span>
+                </div>
+                <div class="flex items-center gap-1 mt-1">
+                    @for($st = 1; $st <= 5; $st++)
+                        <svg class="h-4 w-4 {{ $st <= round($averageRating) ? 'fill-amber-400 text-amber-500' : 'fill-transparent text-slate-300' }}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                    @endfor
+                </div>
+            </div>
+            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-[#182830] bg-[#FFFDF8] text-amber-500 shadow-[2px_2px_0px_#182830]">
+                <svg class="h-8 w-8 fill-amber-400 text-amber-500" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- 5-Star Ratio Card -->
+        @php
+            $fiveStarCount = $ratingDistribution[5] ?? 0;
+            $fiveStarPercent = $totalRatingsCount > 0 ? round(($fiveStarCount / $totalRatingsCount) * 100, 1) : 0;
+        @endphp
+        <div class="retro-panel p-5 bg-[#A2C5D8]/20 flex items-center justify-between">
+            <div>
+                <span class="font-mono text-[10px] font-bold uppercase text-[#25799B]">5-Star Excellence Ratio</span>
+                <p class="font-recoleta text-3xl font-black text-[#182830] mt-1">{{ $fiveStarPercent }}%</p>
+                <p class="font-mono text-xs text-slate-600 mt-0.5">{{ $fiveStarCount }} of {{ $totalRatingsCount }} orders gave top marks</p>
+            </div>
+            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-[#182830] bg-[#FFFDF8] text-[#25799B] shadow-[2px_2px_0px_#182830]">
+                <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+        </div>
+
+        <!-- Total Submissions Card -->
+        <div class="retro-panel p-5 bg-emerald-50/70 border-emerald-700/40 flex items-center justify-between">
+            <div>
+                <span class="font-mono text-[10px] font-bold uppercase text-emerald-800">Verified Feedback Responses</span>
+                <p class="font-recoleta text-3xl font-black text-emerald-950 mt-1">{{ $totalRatingsCount }}</p>
+                <p class="font-mono text-xs text-emerald-800 mt-0.5">Prompted automatically upon claim</p>
+            </div>
+            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-[#182830] bg-[#FFFDF8] text-emerald-600 shadow-[2px_2px_0px_#182830]">
+                <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rating Distribution Graph & Executive Recommendation Note -->
+    <div class="grid gap-6 lg:grid-cols-2">
+        <!-- Distribution Histogram Bars -->
+        <div class="retro-panel p-5 space-y-3">
+            <div class="flex items-center justify-between border-b-2 border-[#182830]/15 pb-2">
+                <h3 class="font-recoleta text-base font-bold text-[#182830]">Star Breakdown Histogram</h3>
+                <span class="font-mono text-[11px] text-[#25799B] font-bold">{{ $totalRatingsCount }} Total Reviews</span>
+            </div>
+
+            <div class="space-y-2.5 font-mono text-xs pt-1">
+                @for($star = 5; $star >= 1; $star--)
+                    @php
+                        $cnt = $ratingDistribution[$star] ?? 0;
+                        $pct = $totalRatingsCount > 0 ? round(($cnt / $totalRatingsCount) * 100) : 0;
+                    @endphp
+                    <div class="flex items-center gap-3">
+                        <div class="w-16 flex items-center gap-1 font-bold text-[#182830]">
+                            <span>{{ $star }} Star</span>
+                            <svg class="h-3 w-3 fill-amber-400 text-amber-500 inline" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </div>
+                        <div class="flex-1 h-4 rounded-lg border-2 border-[#182830] bg-[#FFFDF8] p-0.5 shadow-[1px_1px_0px_#182830] overflow-hidden">
+                            <div class="h-full rounded-md {{ $star >= 4 ? 'bg-emerald-500' : ($star === 3 ? 'bg-amber-400' : 'bg-[#CB1B03]') }}" style="width: {{ $pct }}%;"></div>
+                        </div>
+                        <div class="w-20 text-right text-slate-700 font-bold">
+                            <span>{{ $cnt }} ({{ $pct }}%)</span>
+                        </div>
+                    </div>
+                @endfor
+            </div>
+        </div>
+
+        <!-- Strategic Feedback Recommendation Note -->
+        <div class="retro-panel p-5 space-y-3 bg-[#FFFDF8]">
+            <div class="flex items-center justify-between border-b-2 border-[#182830]/15 pb-2">
+                <h3 class="font-recoleta text-base font-bold text-[#182830] flex items-center gap-2">
+                    <svg class="h-4 w-4 text-[#25799B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <span>Operational Recommendation &amp; Quality Notes</span>
+                </h3>
+                <span class="rounded bg-[#A2C5D8] px-2 py-0.5 font-mono text-[10px] font-bold text-[#182830]">
+                    Quality Audit
+                </span>
+            </div>
+
+            @if($ratingFeedbackRecommendation)
+                <div class="rounded-2xl border-2 border-[#182830] {{ $ratingFeedbackRecommendation['sentiment'] === 'outstanding' ? 'bg-emerald-50/70 border-emerald-800' : ($ratingFeedbackRecommendation['sentiment'] === 'moderate' ? 'bg-amber-50/80 border-amber-800' : 'bg-red-50/80 border-red-800') }} p-4 space-y-2">
+                    <div class="flex items-center gap-2">
+                        <span class="badge {{ $ratingFeedbackRecommendation['sentiment'] === 'outstanding' ? 'bg-emerald-600 text-white' : ($ratingFeedbackRecommendation['sentiment'] === 'moderate' ? 'bg-amber-500 text-[#182830]' : 'bg-[#CB1B03] text-white') }} font-mono text-[10px] font-bold uppercase">
+                            {{ $ratingFeedbackRecommendation['sentiment'] }}
+                        </span>
+                        <h4 class="font-recoleta text-sm font-bold text-[#182830]">
+                            {{ $ratingFeedbackRecommendation['title'] }}
+                        </h4>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed font-sans">
+                        {{ $ratingFeedbackRecommendation['description'] }}
+                    </p>
+                    <div class="rounded-xl border border-[#182830]/20 bg-[#FFFDF8] p-3 text-xs font-mono text-slate-800">
+                        <strong class="text-[#182830] block font-bold mb-0.5">Recommended Manager Action:</strong>
+                        {{ $ratingFeedbackRecommendation['action'] }}
+                    </div>
+                </div>
+            @else
+                <div class="rounded-2xl border-2 border-dashed border-[#182830]/30 p-6 text-center">
+                    <p class="font-mono text-xs text-slate-600">No customer ratings recorded in this audit window yet. Ratings will automatically graph here once customers complete order feedback.</p>
+                </div>
+            @endif
+
+            <div class="p-3 rounded-xl border border-[#182830]/15 bg-[#F7E6CB]/30 font-mono text-[11px] text-slate-700">
+                <strong>Quality Tip:</strong> Customer satisfaction feedback is synchronized directly from the customer portal 5-star rating modal with interactive confetti.
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Customer Comments & Feedbacks Log Table -->
+    <div class="retro-panel overflow-hidden">
+        <div class="flex items-center justify-between border-b-2 border-[#182830] bg-[#A2C5D8]/30 px-5 py-3">
+            <div>
+                <h3 class="font-recoleta text-base font-bold text-[#182830]">Recent Customer Reviews &amp; Notes</h3>
+                <p class="font-mono text-[11px] text-slate-600">Customer write-ins submitted via the post-claim rating pane</p>
+            </div>
+            <span class="badge border-[#182830] bg-[#FFFDF8] font-mono text-xs font-bold text-[#182830]">
+                {{ $recentFeedbacks->count() }} Reviews Displayed
+            </span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left font-mono text-xs">
+                <thead class="border-b-2 border-[#182830] bg-[#FFFDF8] uppercase text-slate-600">
+                    <tr>
+                        <th class="p-3.5">Ticket #</th>
+                        <th class="p-3.5">Customer</th>
+                        <th class="p-3.5">Rating</th>
+                        <th class="p-3.5">Customer Comment</th>
+                        <th class="p-3.5">Date Rated</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#182830]/15 bg-[#FFFDF8]">
+                    @forelse($recentFeedbacks as $fb)
+                        <tr class="hover:bg-amber-50/40 transition">
+                            <td class="p-3.5 font-bold text-[#CB1B03]">#{{ $fb->order_number }}</td>
+                            <td class="p-3.5 font-sans font-bold text-[#182830]">
+                                {{ $fb->customer_name ?? $fb->customer?->name ?? 'Guest Customer' }}
+                            </td>
+                            <td class="p-3.5">
+                                <div class="flex items-center gap-1">
+                                    <div class="flex items-center gap-0.5">
+                                        @for($sIdx = 1; $sIdx <= 5; $sIdx++)
+                                            <svg class="h-3.5 w-3.5 {{ $sIdx <= $fb->rating ? 'fill-amber-400 text-amber-500' : 'fill-transparent text-slate-300' }}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                            </svg>
+                                        @endfor
+                                    </div>
+                                    <span class="text-[10px] text-slate-500 font-bold">({{ $fb->rating }}/5)</span>
+                                </div>
+                            </td>
+                            <td class="p-3.5 font-sans text-xs text-slate-800 max-w-md">
+                                @if($fb->rating_comment)
+                                    <span class="italic text-[#182830]">"{{ $fb->rating_comment }}"</span>
+                                @else
+                                    <span class="text-slate-400 font-mono text-[11px]">(No written remarks left)</span>
+                                @endif
+                            </td>
+                            <td class="p-3.5 text-slate-600 font-mono text-[11px]">
+                                {{ $fb->rated_at ? $fb->rated_at->format('M d, Y · h:i A') : $fb->updated_at->format('M d, Y') }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="p-6 text-center text-slate-500 font-mono text-xs">
+                                No customer ratings or feedback recorded yet.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

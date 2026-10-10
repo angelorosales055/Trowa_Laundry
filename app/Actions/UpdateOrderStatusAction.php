@@ -28,6 +28,11 @@ class UpdateOrderStatusAction
                 'changed_by' => $userId,
                 'notes' => $notes,
             ]);
+
+            if (in_array($status, ['ready_for_pickup', 'claimed'], true) && ! $order->ready_notified_at) {
+                app(SendOrderReadyNotificationAction::class)->handle($order);
+                $order->update(['ready_notified_at' => now()]);
+            }
         });
     }
 }

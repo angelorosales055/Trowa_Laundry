@@ -296,6 +296,53 @@
                 return false;
             }
         }
+
+        if (!claimForm.hasAttribute('data-claim-confirmed')) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            const custName = document.getElementById('claim-customer-name')?.textContent || 'Customer';
+            const balText = document.getElementById('claim-balance-due-text')?.textContent || '₱0.00';
+            const tenderVal = parseFloat(tenderInput?.value) || 0;
+
+            const detailsHtml = `
+                <div class="flex justify-between py-0.5 border-b border-[#182830]/10">
+                    <span class="text-slate-600 font-bold">Customer:</span>
+                    <strong>${custName}</strong>
+                </div>
+                <div class="flex justify-between py-0.5 border-b border-[#182830]/10">
+                    <span class="text-slate-600 font-bold">Balance Settled:</span>
+                    <strong>${balText}</strong>
+                </div>
+                <div class="flex justify-between pt-1">
+                    <span class="text-[#182830] font-black uppercase">Cash Tendered:</span>
+                    <strong class="font-recoleta text-base text-emerald-700">₱${tenderVal.toFixed(2)}</strong>
+                </div>
+            `;
+
+            if (window.TrowaConfirm) {
+                window.TrowaConfirm({
+                    title: 'Confirm Payment & Order Release',
+                    message: 'Confirm collecting payment and releasing clean laundry ticket to customer?',
+                    badge: 'Counter Settlement',
+                    type: 'check',
+                    confirmText: 'Yes, Settle & Release ➔',
+                    cancelText: 'Back to Edit',
+                    details: detailsHtml
+                }, function() {
+                    claimForm.setAttribute('data-claim-confirmed', 'true');
+                    const submitBtn = claimForm.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.click();
+                    } else {
+                        claimForm.submit();
+                    }
+                });
+                return false;
+            }
+        }
+
+        claimForm.removeAttribute('data-claim-confirmed');
     });
 })();
 </script>

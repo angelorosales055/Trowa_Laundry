@@ -245,18 +245,28 @@
                 </div>
 
                 <!-- Card Action Footer -->
-                <div class="pt-3 border-t border-[#182830]/15 flex items-center justify-between gap-2">
+                <div class="pt-3 border-t border-[#182830]/15 flex items-center justify-between gap-2 flex-wrap">
                     <a href="{{ route('orders.index', ['search' => $customer->name]) }}" class="font-mono text-xs font-bold text-[#25799B] hover:text-[#CB1B03] hover:underline flex items-center gap-1">
                         <span>Orders ({{ $orderCount }})</span>
                         <span aria-hidden="true">➔</span>
                     </a>
                     
-                    <button type="button" 
-                            data-modal-open="order-modal" 
-                            class="retro-btn-secondary text-[11px] py-1 px-2.5 font-bold"
-                            onclick="if(document.getElementById('wizard-customer-name')) { document.getElementById('wizard-customer-name').value = '{{ addslashes($customer->name) }}'; document.getElementById('wizard-customer-phone').value = '{{ addslashes($customer->phone ?? $customer->contact_number ?? '') }}'; }">
-                        <span>＋ New Order</span>
-                    </button>
+                    <div class="flex items-center gap-1.5">
+                        @if($customer->email)
+                            <button type="button" 
+                                    class="retro-btn-secondary text-[11px] py-1 px-2 font-bold"
+                                    title="Send custom email message to customer"
+                                    onclick="openDirectEmailModal({{ $customer->id }}, '{{ addslashes($customer->name) }}', '{{ addslashes($customer->email) }}')">
+                                ✉️ Email
+                            </button>
+                        @endif
+                        <button type="button" 
+                                data-modal-open="order-modal" 
+                                class="retro-btn-secondary text-[11px] py-1 px-2.5 font-bold"
+                                onclick="if(document.getElementById('wizard-customer-name')) { document.getElementById('wizard-customer-name').value = '{{ addslashes($customer->name) }}'; document.getElementById('wizard-customer-phone').value = '{{ addslashes($customer->phone ?? $customer->contact_number ?? '') }}'; }">
+                            <span>＋ New Order</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         @empty
@@ -338,13 +348,13 @@
                                             <option value="{{ $target->id }}">{{ $target->name }}</option>
                                         @endforeach
                                     </select>
-                                    <button class="retro-btn-secondary text-xs shrink-0" onclick="return confirm('Merge this customer into the selected record? Existing order customer snapshots will be preserved.')">
+                                    <button type="submit" class="retro-btn-secondary text-xs shrink-0" data-confirm="Merge this customer into the selected record? Existing order customer snapshots will be preserved." data-confirm-title="Confirm Customer Merge" data-confirm-type="warning" data-confirm-btn="Yes, Merge">
                                         Merge
                                     </button>
                                 </form>
-                                <form method="POST" action="{{ route('customers.toggle-active', $customer) }}">
+                                <form method="POST" action="{{ route('customers.toggle-active', $customer) }}" data-confirm="Are you sure you want to {{ $customer->is_active ? 'deactivate' : 'reactivate' }} this customer account?" data-confirm-title="Customer Status Change" data-confirm-type="warning" data-confirm-btn="Yes, Update Status">
                                     @csrf @method('PATCH')
-                                    <button class="font-mono text-xs font-bold text-[#CB1B03] hover:underline">
+                                    <button type="submit" class="font-mono text-xs font-bold text-[#CB1B03] hover:underline">
                                         {{ $customer->is_active ? 'Deactivate Customer' : 'Reactivate Customer' }}
                                     </button>
                                 </form>
@@ -403,6 +413,64 @@
     </div>
 </div>
 
+<!-- Direct Message Email Modal -->
+<div id="direct-email-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#182830]/75 backdrop-blur-sm p-4 overflow-y-auto">
+    <div class="w-full max-w-lg rounded-2xl border-4 border-[#182830] bg-[#FFFDF8] p-6 shadow-[8px_8px_0px_#182830] animate-in fade-in zoom-in-95 duration-150">
+        <div class="flex items-center justify-between border-b-2 border-[#182830] pb-3 mb-4">
+            <div class="flex items-center gap-2">
+                <div class="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-[#182830] bg-[#25799B] text-white shadow-[2px_2px_0px_#182830]">
+                    ✉️
+                </div>
+                <div>
+                    <h3 class="font-recoleta text-lg font-bold text-[#182830]">Send Direct Email to Customer</h3>
+                    <p class="font-mono text-[11px] text-[#25799B]">Message will be dispatched to customer's email</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeDirectEmailModal()" class="rounded-lg border-2 border-[#182830] bg-[#F7E6CB] px-2.5 py-1 font-mono text-sm font-black hover:bg-[#CB1B03] hover:text-white transition">
+                ✕
+            </button>
+        </div>
+
+        <form id="direct-email-form" method="POST" action="" class="space-y-4">
+            @csrf
+            <div class="rounded-xl border-2 border-[#182830] bg-[#F7E6CB]/40 p-3 space-y-1">
+                <div class="flex items-center justify-between">
+                    <span class="font-mono text-[10px] font-bold uppercase text-[#25799B]">Recipient Customer:</span>
+                    <span id="email-modal-customer-name" class="font-mono text-xs font-black text-[#182830]"></span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="font-mono text-[10px] font-bold uppercase text-[#25799B]">Target Email Address:</span>
+                    <span id="email-modal-customer-email" class="font-mono text-xs font-bold text-[#CB1B03]"></span>
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-mono text-xs font-bold text-[#182830] mb-1">Email Subject *</label>
+                <input name="subject" id="email-modal-subject" required class="field text-xs font-medium" placeholder="e.g. Update regarding your laundry items">
+            </div>
+
+            <div>
+                <label class="block font-mono text-xs font-bold text-[#182830] mb-1">Message Content *</label>
+                <textarea name="message" id="email-modal-message" rows="5" required class="field text-xs font-medium leading-relaxed" placeholder="Type your message to the customer here..."></textarea>
+            </div>
+
+            <div class="rounded-xl border border-[#182830]/20 bg-slate-50 p-2.5 font-mono text-[11px] text-slate-600 flex items-center gap-2">
+                <span>💡</span>
+                <span>Customer can view this email directly in their inbox with Trowa Laundry's retro design.</span>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="closeDirectEmailModal()" class="retro-btn-secondary flex-1 text-xs">
+                    Cancel
+                </button>
+                <button type="submit" id="email-modal-submit-btn" class="retro-btn-primary flex-1 text-xs flex items-center justify-center gap-2">
+                    <span>Send Email Now ➔</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @push('scripts')
 <script>
     // Live filter pills (All / VIP / Active)
@@ -447,6 +515,35 @@
     });
 
     searchInput?.addEventListener('input', filterCustomers);
+
+    // Direct Email Modal Handler
+    function openDirectEmailModal(customerId, customerName, customerEmail) {
+        const modal = document.getElementById('direct-email-modal');
+        const form = document.getElementById('direct-email-form');
+        const nameEl = document.getElementById('email-modal-customer-name');
+        const emailEl = document.getElementById('email-modal-customer-email');
+        const subjectEl = document.getElementById('email-modal-subject');
+        const messageEl = document.getElementById('email-modal-message');
+
+        if (!modal || !form) return;
+
+        form.action = `/customers/${customerId}/send-email`;
+        if (nameEl) nameEl.textContent = customerName;
+        if (emailEl) emailEl.textContent = customerEmail;
+        if (subjectEl) subjectEl.value = `Laundry Update for ${customerName}`;
+        if (messageEl) messageEl.value = `Hi ${customerName},\n\nWe wanted to reach out regarding your laundry at Trowa Laundry.\n\nThank you!\n- Trowa Laundry Team`;
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeDirectEmailModal() {
+        const modal = document.getElementById('direct-email-modal');
+        if (modal) {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+    }
 </script>
 @endpush
 @endsection

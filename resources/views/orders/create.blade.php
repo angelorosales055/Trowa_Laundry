@@ -189,6 +189,28 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 8 Washing Machine Fleet Limit Warning Banner -->
+                <div id="create-capacity-warning" class="hidden mt-4 rounded-2xl border-2 border-[#CB1B03] bg-red-50 p-4 text-[#182830] shadow-[3px_3px_0px_#CB1B03]">
+                    <div class="flex items-start gap-3">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 border-[#CB1B03] bg-[#CB1B03] text-white font-mono font-black text-xl">
+                            !
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="font-recoleta text-sm font-bold text-[#CB1B03] leading-tight">
+                                ⚠️ Machine Fleet Capacity Warning: Maximum 8 Commercial Washing Machines
+                            </h4>
+                            <p class="text-xs font-medium text-slate-700 leading-snug">
+                                Trowa Laundry is equipped with <strong>8 washing machines</strong> (1 machine = 8.0 kg max; max single batch is <strong>64.0 kg</strong>).
+                                The entered weight (<span id="create-warning-kg-val" class="font-mono font-black text-[#CB1B03]">0</span> kg) requires 
+                                <span id="create-warning-loads-val" class="font-mono font-black text-[#CB1B03]">0</span> machines, which exceeds the number of washing machines available!
+                            </p>
+                            <p class="font-mono text-[11px] font-extrabold text-[#CB1B03]">
+                                ➔ Please reduce the order weight to ≤ 64.0 kg or split this into multiple orders.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- 4. Individual Service Treatments Selection -->
@@ -478,7 +500,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const weight = parseFloat(weightInput?.value) || 0;
         const loads = weight > 0 ? Math.ceil(weight / 8) : 0;
 
-        if (loadsBadge) loadsBadge.textContent = loads;
+        const warningEl = document.getElementById('create-capacity-warning');
+        const warningKg = document.getElementById('create-warning-kg-val');
+        const warningLoads = document.getElementById('create-warning-loads-val');
+        const submitBtn = document.getElementById('btn-create-submit');
+
+        if (weight > 64 || loads > 8) {
+            if (warningEl) warningEl.classList.remove('hidden');
+            if (warningKg) warningKg.textContent = weight.toFixed(1);
+            if (warningLoads) warningLoads.textContent = loads;
+            if (loadsBadge) {
+                loadsBadge.textContent = `${loads} (OVER 8 MACHINES!)`;
+                loadsBadge.className = 'font-mono text-xl font-black text-red-600 animate-pulse block my-1';
+            }
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        } else {
+            if (warningEl) warningEl.classList.add('hidden');
+            if (loadsBadge) {
+                loadsBadge.textContent = loads;
+                loadsBadge.className = 'font-mono text-3xl font-black text-[#182830] leading-none block my-1';
+            }
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
         if (capacityMeter) {
             if (loads === 0) {
                 capacityMeter.textContent = '0% Full';
@@ -757,6 +807,64 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
 
+        const weight = parseFloat(weightInput?.value) || 0;
+        if (weight > 64 || Math.ceil(weight / 8) > 8) {
+            e.preventDefault();
+            alert('Cannot proceed: Total weight exceeds our 8 washing machines capacity (64.0 kg).');
+            return false;
+        }
+
+        // Intercept with Trowa Retro Confirmation Modal
+        if (!form.hasAttribute('data-counter-confirmed')) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            const customerNameVal = customerName?.value.trim() || 'Walk-in Customer';
+            const loadsVal = Math.ceil(weight / 8);
+            const timingVal = payNowRadio?.checked ? 'Tender Now (Paid)' : 'Pay on Claim';
+            const detailsHtml = `
+                <div class="flex justify-between py-0.5 border-b border-[#182830]/10">
+                    <span class="text-slate-600 font-bold">Customer:</span>
+                    <strong>${customerNameVal}</strong>
+                </div>
+                <div class="flex justify-between py-0.5 border-b border-[#182830]/10">
+                    <span class="text-slate-600 font-bold">Weight / Drums:</span>
+                    <strong>${weight.toFixed(1)} kg (${loadsVal} drum${loadsVal === 1 ? '' : 's'})</strong>
+                </div>
+                <div class="flex justify-between py-0.5 border-b border-[#182830]/10">
+                    <span class="text-slate-600 font-bold">Payment Timing:</span>
+                    <span class="text-slate-700">${timingVal}</span>
+                </div>
+                <div class="flex justify-between pt-1">
+                    <span class="text-[#182830] font-black uppercase">Total Charges:</span>
+                    <strong class="font-recoleta text-base text-[#CB1B03]">₱${calculatedGrandTotal.toFixed(2)}</strong>
+                </div>
+            `;
+
+            if (window.TrowaConfirm) {
+                window.TrowaConfirm({
+                    title: 'Confirm Counter Laundry Order',
+                    message: 'Please review and confirm order details before queuing ticket:',
+                    badge: 'Counter Intake',
+                    type: 'primary',
+                    confirmText: 'Yes, Finalize & Queue Ticket ➔',
+                    cancelText: 'Back to Review',
+                    details: detailsHtml
+                }, function() {
+                    form.setAttribute('data-counter-confirmed', 'true');
+                    const btn = document.getElementById('btn-create-submit');
+                    if (btn) {
+                        btn.click();
+                    } else {
+                        form.submit();
+                    }
+                });
+                return false;
+            }
+        }
+
+        form.removeAttribute('data-counter-confirmed');
+
         if (payNowRadio?.checked) {
             const rawTender = parseFloat(tenderInput?.value);
             if (isNaN(rawTender) || rawTender <= 0) {
@@ -771,6 +879,15 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             if (hiddenAmountPaid) hiddenAmountPaid.value = '0';
             if (hiddenTenderedAmount) hiddenTenderedAmount.value = '0';
+        }
+
+        if (window.TrowaLoading) {
+            window.TrowaLoading.show({
+                header: '⚡ TROWA INTAKE TERMINAL ⚡',
+                stage: 'WEIGHING & WASHING',
+                title: 'Registering Laundry Ticket...',
+                message: 'Calibrating wash load, allocating supplies, and prepping machine bay...'
+            });
         }
     });
 
