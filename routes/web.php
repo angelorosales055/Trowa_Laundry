@@ -108,8 +108,23 @@ Route::get('/artisan/migrate', function (\Illuminate\Http\Request $request) {
     }
 
     try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        $migrateOutput = \Illuminate\Support\Facades\Artisan::output();
+        $isFresh = $request->boolean('fresh');
+        if ($isFresh) {
+            \Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--force' => true]);
+            $migrateOutput = \Illuminate\Support\Facades\Artisan::output();
+        } else {
+            try {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                $migrateOutput = \Illuminate\Support\Facades\Artisan::output();
+            } catch (\Throwable $migrationError) {
+                if (str_contains($migrationError->getMessage(), '42S01') || str_contains($migrationError->getMessage(), 'already exists')) {
+                    \Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--force' => true]);
+                    $migrateOutput = "Auto-recovered from desynced tables (ran migrate:fresh):\n".\Illuminate\Support\Facades\Artisan::output();
+                } else {
+                    throw $migrationError;
+                }
+            }
+        }
 
         \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
         $seedOutput = \Illuminate\Support\Facades\Artisan::output();
