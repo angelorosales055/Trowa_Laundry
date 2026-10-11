@@ -107,10 +107,28 @@ Route::get('/artisan/migrate', function (\Illuminate\Http\Request $request) {
         abort(403, 'Unauthorized. Please provide ?key=YOUR_APP_KEY');
     }
 
+    $cleanWipe = function () {
+        try {
+            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+            $driver = \Illuminate\Support\Facades\DB::getDriverName();
+            if ($driver === 'mysql' || $driver === 'mariadb') {
+                $tables = \Illuminate\Support\Facades\DB::select('SHOW FULL TABLES');
+                foreach ($tables as $t) {
+                    $tableName = array_values((array) $t)[0];
+                    \Illuminate\Support\Facades\DB::statement("DROP TABLE IF EXISTS `{$tableName}`");
+                }
+            }
+            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS = 1');
+        } catch (\Throwable $e) {
+            // Continue if wipe encounters an issue
+        }
+    };
+
     try {
         $isFresh = $request->boolean('fresh');
         if ($isFresh) {
-            \Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--force' => true]);
+            $cleanWipe();
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
             $migrateOutput = \Illuminate\Support\Facades\Artisan::output();
         } else {
             try {
@@ -118,8 +136,9 @@ Route::get('/artisan/migrate', function (\Illuminate\Http\Request $request) {
                 $migrateOutput = \Illuminate\Support\Facades\Artisan::output();
             } catch (\Throwable $migrationError) {
                 if (str_contains($migrationError->getMessage(), '42S01') || str_contains($migrationError->getMessage(), 'already exists')) {
-                    \Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--force' => true]);
-                    $migrateOutput = "Auto-recovered from desynced tables (ran migrate:fresh):\n".\Illuminate\Support\Facades\Artisan::output();
+                    $cleanWipe();
+                    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                    $migrateOutput = "Auto-recovered from desynced tables (wiped & migrated cleanly):\n".\Illuminate\Support\Facades\Artisan::output();
                 } else {
                     throw $migrationError;
                 }

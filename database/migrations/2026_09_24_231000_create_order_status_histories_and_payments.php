@@ -8,6 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
+        Schema::dropIfExists('payments');
+        Schema::dropIfExists('order_status_histories');
+
         Schema::create('order_status_histories', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('order_id')->constrained('orders')->cascadeOnDelete();

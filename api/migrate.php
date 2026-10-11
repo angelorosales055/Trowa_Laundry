@@ -41,10 +41,28 @@ if (empty($expectedKey) || !hash_equals($expectedKey, (string) $key)) {
     die("<pre style='font-family:monospace;padding:24px;background:#450a0a;color:#fca5a5;border-radius:8px;'><strong>403 Unauthorized</strong><br>The key in ?key= did not match your Vercel APP_KEY.</pre>");
 }
 
+$cleanWipe = function () {
+    try {
+        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+        $driver = \Illuminate\Support\Facades\DB::getDriverName();
+        if ($driver === 'mysql' || $driver === 'mariadb') {
+            $tables = \Illuminate\Support\Facades\DB::select('SHOW FULL TABLES');
+            foreach ($tables as $t) {
+                $tableName = array_values((array) $t)[0];
+                \Illuminate\Support\Facades\DB::statement("DROP TABLE IF EXISTS `{$tableName}`");
+            }
+        }
+        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS = 1');
+    } catch (\Throwable $e) {
+        // Continue if wipe encounters an issue
+    }
+};
+
 try {
     $isFresh = isset($_GET['fresh']);
     if ($isFresh) {
-        \Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--force' => true]);
+        $cleanWipe();
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         $migrateOutput = \Illuminate\Support\Facades\Artisan::output();
     } else {
         try {
@@ -52,9 +70,10 @@ try {
             $migrateOutput = \Illuminate\Support\Facades\Artisan::output();
         } catch (\Throwable $migrationError) {
             if (str_contains($migrationError->getMessage(), '42S01') || str_contains($migrationError->getMessage(), 'already exists')) {
-                // Table already exists from previous partial migration: run fresh to cleanly recreate
-                \Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--force' => true]);
-                $migrateOutput = "Auto-recovered from desynced tables (ran migrate:fresh):\n".\Illuminate\Support\Facades\Artisan::output();
+                // Table already exists from previous partial migration: cleanly drop all and recreate
+                $cleanWipe();
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                $migrateOutput = "Auto-recovered from desynced tables (wiped & migrated cleanly):\n".\Illuminate\Support\Facades\Artisan::output();
             } else {
                 throw $migrationError;
             }
