@@ -276,7 +276,7 @@ class CustomerController extends Controller
         $query = \App\Models\Order::query()
             ->whereNotNull('rating')
             ->where('rating', '>', 0)
-            ->with(['customer', 'items'])
+            ->with(['customer', 'itemDetails', 'orderServices.service'])
             ->latest('rated_at');
 
         if ($ratingFilter && is_numeric($ratingFilter)) {

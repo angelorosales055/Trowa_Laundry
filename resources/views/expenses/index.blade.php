@@ -16,6 +16,155 @@
     </div>
 </div>
 
+<!-- ========================================================================= -->
+<!-- LIVE WATER, POWER & SUPPLIES USAGE AUTO-CALCULATOR PANEL                  -->
+<!-- ========================================================================= -->
+<div class="mb-6 rounded-3xl border-3 border-[#182830] bg-[#FFFDF8] p-5 sm:p-6 shadow-[6px_6px_0px_#182830]">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b-2 border-[#182830]/15 pb-4 mb-5">
+        <div>
+            <div class="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[#25799B]">
+                <svg class="h-4 w-4 text-[#25799B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                <span>Automated Resource Telemetry</span>
+                <span>·</span>
+                <span>{{ $waterStats['orders_count'] }} Transactions / {{ $waterStats['total_loads'] }} Machine Loads</span>
+            </div>
+            <h2 class="font-recoleta text-2xl font-black text-[#182830] mt-1">
+                Overall Water &amp; Operating Supplies Consumption
+            </h2>
+            <p class="font-mono text-xs text-slate-600 mt-0.5">
+                Calculates real-time water volume, machine cycle kilowatt-hours, and detergent sachet consumption based on recorded customer orders.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+            <!-- 1-Click Auto Log Water Utility Expense Button -->
+            <form method="POST" action="{{ route('expenses.auto-log-utilities') }}">
+                @csrf
+                <input type="hidden" name="type" value="water">
+                <input type="hidden" name="amount" value="{{ max(1, $waterStats['est_water_cost']) }}">
+                <input type="hidden" name="date" value="{{ now()->toDateString() }}">
+                <input type="hidden" name="description" value="Water Utility Consumption ({{ number_format($waterStats['water_liters'], 0) }}L / {{ number_format($waterStats['water_m3'], 2) }} m³ for {{ $waterStats['total_loads'] }} loads)">
+                <button type="submit" 
+                        {{ $waterStats['water_liters'] <= 0 ? 'disabled' : '' }}
+                        class="retro-btn-secondary text-xs px-3.5 py-2 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg class="h-4 w-4 text-[#25799B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                    <span>Log Water (₱{{ number_format($waterStats['est_water_cost'], 2) }})</span>
+                </button>
+            </form>
+
+            <!-- 1-Click Auto Log Combined Water & Power Utility Expense Button -->
+            <form method="POST" action="{{ route('expenses.auto-log-utilities') }}">
+                @csrf
+                <input type="hidden" name="type" value="utilities">
+                <input type="hidden" name="amount" value="{{ max(1, $waterStats['est_utilities_total']) }}">
+                <input type="hidden" name="date" value="{{ now()->toDateString() }}">
+                <input type="hidden" name="description" value="Combined Utilities: Water ({{ number_format($waterStats['water_liters'], 0) }}L) + Electricity ({{ number_format($waterStats['total_kwh'], 1) }} kWh) for {{ $waterStats['total_loads'] }} loads">
+                <button type="submit" 
+                        {{ $waterStats['total_loads'] <= 0 ? 'disabled' : '' }}
+                        class="retro-btn-primary text-xs px-3.5 py-2 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg class="h-4 w-4 text-[#FFFDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    <span>Log All Utilities (₱{{ number_format($waterStats['est_utilities_total'], 2) }})</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4 KPI Telemetry Cards: Water, Power, Supplies, Period Total -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <!-- Card 1: Water Volume -->
+        <div class="rounded-2xl border-2 border-[#182830] bg-[#A2C5D8]/25 p-4 shadow-[3px_3px_0px_#182830] flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between">
+                    <span class="font-mono text-[10px] font-black uppercase text-[#25799B]">Water Consumption</span>
+                    <span class="badge border border-[#182830] bg-[#FFFDF8] text-[9px] font-mono font-bold">50L / Load</span>
+                </div>
+                <div class="mt-2">
+                    <div class="flex items-baseline gap-1.5">
+                        <span class="font-recoleta text-3xl font-black text-[#182830]">{{ number_format($waterStats['water_liters'], 0) }}</span>
+                        <span class="font-mono text-xs font-bold text-slate-600">Liters</span>
+                    </div>
+                    <span class="font-mono text-[11px] text-slate-600 block mt-0.5">
+                        {{ number_format($waterStats['water_m3'], 2) }} m³ (cubic meters)
+                    </span>
+                </div>
+            </div>
+            <div class="mt-3 pt-2.5 border-t border-[#182830]/15 flex items-center justify-between font-mono text-xs">
+                <span class="text-slate-600">Calculated Water Cost:</span>
+                <strong class="font-bold text-[#CB1B03]">₱{{ number_format($waterStats['est_water_cost'], 2) }}</strong>
+            </div>
+        </div>
+
+        <!-- Card 2: Electricity & Power -->
+        <div class="rounded-2xl border-2 border-[#182830] bg-[#F7E6CB]/50 p-4 shadow-[3px_3px_0px_#182830] flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between">
+                    <span class="font-mono text-[10px] font-black uppercase text-amber-800">Machine Power (kWh)</span>
+                    <span class="badge border border-[#182830] bg-[#FFFDF8] text-[9px] font-mono font-bold">1.2 kWh / Load</span>
+                </div>
+                <div class="mt-2">
+                    <div class="flex items-baseline gap-1.5">
+                        <span class="font-recoleta text-3xl font-black text-[#182830]">{{ number_format($waterStats['total_kwh'], 1) }}</span>
+                        <span class="font-mono text-xs font-bold text-slate-600">kWh</span>
+                    </div>
+                    <span class="font-mono text-[11px] text-slate-600 block mt-0.5">
+                        Washers &amp; dryers run time
+                    </span>
+                </div>
+            </div>
+            <div class="mt-3 pt-2.5 border-t border-[#182830]/15 flex items-center justify-between font-mono text-xs">
+                <span class="text-slate-600">Calculated Power Cost:</span>
+                <strong class="font-bold text-[#CB1B03]">₱{{ number_format($waterStats['est_power_cost'], 2) }}</strong>
+            </div>
+        </div>
+
+        <!-- Card 3: Supply Sachets Consumed -->
+        <div class="rounded-2xl border-2 border-[#182830] bg-emerald-50/70 border-emerald-900 p-4 shadow-[3px_3px_0px_#182830] flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between">
+                    <span class="font-mono text-[10px] font-black uppercase text-emerald-800">Supplies Consumed</span>
+                    <span class="badge border border-emerald-800 bg-emerald-100 text-[9px] font-mono font-bold text-emerald-900">Live Stock Usage</span>
+                </div>
+                <div class="mt-2">
+                    <div class="flex items-baseline gap-1.5">
+                        <span class="font-recoleta text-3xl font-black text-emerald-950">{{ number_format($waterStats['supplies_used'], 0) }}</span>
+                        <span class="font-mono text-xs font-bold text-emerald-800">Sachets / Units</span>
+                    </div>
+                    <span class="font-mono text-[11px] text-slate-600 block mt-0.5">
+                        Auto-deducted from shop inventory
+                    </span>
+                </div>
+            </div>
+            <div class="mt-3 pt-2.5 border-t border-[#182830]/15 flex items-center justify-between font-mono text-xs">
+                <span class="text-slate-600">Estimated Soap Cost:</span>
+                <strong class="font-bold text-emerald-900">₱{{ number_format($waterStats['est_supplies_cost'], 2) }}</strong>
+            </div>
+        </div>
+
+        <!-- Card 4: Operating Cost Rate per Load -->
+        <div class="rounded-2xl border-2 border-[#182830] bg-[#182830] p-4 text-[#FFFDF8] shadow-[3px_3px_0px_#CB1B03] flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between">
+                    <span class="font-mono text-[10px] font-black uppercase text-[#A2C5D8]">Resource Cost Rate</span>
+                    <span class="rounded bg-[#CB1B03] px-1.5 py-0.5 text-[9px] font-mono font-black text-white">Live</span>
+                </div>
+                <div class="mt-2">
+                    <div class="flex items-baseline gap-1">
+                        <span class="font-recoleta text-3xl font-black text-[#F7E6CB]">₱{{ $waterStats['total_loads'] > 0 ? number_format(($waterStats['est_utilities_total'] + $waterStats['est_supplies_cost']) / $waterStats['total_loads'], 2) : '0.00' }}</span>
+                        <span class="font-mono text-xs text-[#A2C5D8]">/ load</span>
+                    </div>
+                    <span class="font-mono text-[11px] text-slate-300 block mt-0.5">
+                        Water + Power + Detergent
+                    </span>
+                </div>
+            </div>
+            <div class="mt-3 pt-2.5 border-t border-white/20 flex items-center justify-between font-mono text-xs">
+                <span class="text-[#A2C5D8]">Total Resources:</span>
+                <strong class="font-black text-[#F7E6CB]">₱{{ number_format($waterStats['est_utilities_total'] + $waterStats['est_supplies_cost'], 2) }}</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="mb-6 grid gap-6 lg:grid-cols-[1fr_1.5fr]">
     <!-- Log Expense Form -->
     <div class="retro-panel p-5">
