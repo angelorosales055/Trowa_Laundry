@@ -166,14 +166,14 @@
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label for="staff-username-input" class="block font-bold text-[#182830] uppercase mb-1">Username *</label>
-                    <input type="text" name="username" id="staff-username-input" required class="field text-xs" placeholder="e.g. msantos">
+                    <input type="text" name="username" id="staff-username-input" required class="field text-xs font-mono font-bold" placeholder="e.g. msantos">
                 </div>
                 <div>
-                    <label for="staff-role-input" class="block font-bold text-[#182830] uppercase mb-1">Role *</label>
-                    <select name="role" id="staff-role-input" required class="field text-xs">
-                        <option value="staff">Counter Staff</option>
-                        <option value="admin">Administrator</option>
-                    </select>
+                    <label class="block font-bold text-[#182830] uppercase mb-1">Account Role</label>
+                    <div id="staff-role-badge-wrap" class="field text-xs font-mono font-bold bg-slate-100 flex items-center justify-between border-slate-300">
+                        <span id="staff-role-badge-text">Counter Staff</span>
+                        <span class="text-[10px] text-slate-500 font-normal uppercase" id="staff-role-note">Staff Account</span>
+                    </div>
                 </div>
             </div>
 
@@ -190,7 +190,7 @@
             <div>
                 <label for="staff-password-input" class="block font-bold text-[#182830] uppercase mb-1" id="staff-password-label">Password *</label>
                 <input type="password" name="password" id="staff-password-input" class="field text-xs" placeholder="Min. 8 characters">
-                <span id="staff-password-hint" class="hidden text-[10px] text-slate-500 mt-1 block">Leave blank to keep existing password unchanged.</span>
+                <span id="staff-password-hint" class="hidden text-[10px] text-slate-500 mt-1 block">Leave blank to keep current password unchanged.</span>
             </div>
 
             <div class="pt-3 border-t-2 border-[#182830]/15 flex items-center justify-end gap-2">
@@ -198,7 +198,7 @@
                     Cancel
                 </button>
                 <button type="submit" id="staff-submit-btn" class="retro-btn-primary text-xs px-4 py-2 cursor-pointer">
-                    Save Staff Account
+                    Save Account
                 </button>
             </div>
         </form>
@@ -220,18 +220,32 @@
             form.action = "{{ route('admin.staff.store') }}";
             methodSlot.innerHTML = '';
             form.reset();
+            document.getElementById('staff-role-badge-text').textContent = 'Counter Staff';
+            document.getElementById('staff-role-note').textContent = 'New Staff';
+            document.getElementById('staff-role-badge-wrap').className = 'field text-xs font-mono font-bold bg-[#A2C5D8]/30 text-[#182830] flex items-center justify-between border-slate-300';
             pwdInput.required = true;
             pwdLabel.textContent = 'Password *';
             pwdHint.classList.add('hidden');
         } else if (mode === 'edit' && data) {
-            title.textContent = 'Edit Staff Member';
+            const isAdmin = data.role === 'admin';
+            title.textContent = isAdmin ? 'Edit Administrator Profile' : 'Edit Staff Member';
             form.action = `/admin/staff/${data.id}`;
             methodSlot.innerHTML = '<input type="hidden" name="_method" value="PUT">';
             document.getElementById('staff-name-input').value = data.name || '';
             document.getElementById('staff-username-input').value = data.username || '';
             document.getElementById('staff-email-input').value = data.email || '';
             document.getElementById('staff-phone-input').value = data.phone || '';
-            document.getElementById('staff-role-input').value = data.role || 'staff';
+            
+            if (isAdmin) {
+                document.getElementById('staff-role-badge-text').textContent = 'Administrator';
+                document.getElementById('staff-role-note').textContent = 'Sole System Admin';
+                document.getElementById('staff-role-badge-wrap').className = 'field text-xs font-mono font-black bg-[#CB1B03]/10 text-[#CB1B03] flex items-center justify-between border-[#CB1B03]/40';
+            } else {
+                document.getElementById('staff-role-badge-text').textContent = 'Counter Staff';
+                document.getElementById('staff-role-note').textContent = 'Staff Account';
+                document.getElementById('staff-role-badge-wrap').className = 'field text-xs font-mono font-bold bg-[#A2C5D8]/30 text-[#182830] flex items-center justify-between border-slate-300';
+            }
+
             pwdInput.required = false;
             pwdInput.value = '';
             pwdLabel.textContent = 'Change Password (Optional)';

@@ -83,16 +83,19 @@ class AdminStaffAndRatingsTest extends TestCase
         $deleteResponse->assertSessionHasErrors('error');
         $this->assertDatabaseHas('users', ['id' => $admin->id]);
 
-        // Try changing own role to staff
+        // Admin updates their own username and password
         $updateResponse = $this->put(route('admin.staff.update', $admin), [
-            'name' => $admin->name,
-            'username' => $admin->username ?? 'admin_root',
+            'name' => 'Root Administrator',
+            'username' => 'admin_super',
             'email' => $admin->email,
-            'role' => 'staff',
+            'password' => 'NewAdminPass123!',
         ]);
-        $updateResponse->assertSessionHasErrors('role');
+        $updateResponse->assertRedirect(route('admin.staff.index'));
         $admin->refresh();
+        $this->assertEquals('Root Administrator', $admin->name);
+        $this->assertEquals('admin_super', $admin->username);
         $this->assertEquals('admin', $admin->role);
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check('NewAdminPass123!', $admin->password));
     }
 
     public function test_non_admin_cannot_access_staff_management(): void

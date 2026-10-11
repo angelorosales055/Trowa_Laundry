@@ -45,7 +45,6 @@ class StaffManagementController extends Controller
             'username' => ['required', 'string', 'max:50', 'alpha_dash', 'unique:users,username'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'phone' => ['nullable', 'string', 'max:30'],
-            'role' => ['required', Rule::in(['staff', 'admin'])],
             'password' => ['required', 'string', Password::min(8)],
         ]);
 
@@ -54,7 +53,7 @@ class StaffManagementController extends Controller
             'username' => strtolower($validated['username']),
             'email' => strtolower($validated['email']),
             'phone' => $validated['phone'] ?? null,
-            'role' => $validated['role'],
+            'role' => 'staff', // Only staff can be created; system strictly maintains 1 Administrator
             'password' => Hash::make($validated['password']),
             'email_verified_at' => now(),
         ]);
@@ -75,21 +74,16 @@ class StaffManagementController extends Controller
             'username' => ['required', 'string', 'max:50', 'alpha_dash', Rule::unique('users', 'username')->ignore($staff->id)],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($staff->id)],
             'phone' => ['nullable', 'string', 'max:30'],
-            'role' => ['required', Rule::in(['staff', 'admin'])],
             'password' => ['nullable', 'string', Password::min(8)],
         ]);
-
-        // Prevent admin from removing their own admin role
-        if ($staff->id === $request->user()->id && $validated['role'] !== 'admin') {
-            return back()->withErrors(['role' => 'You cannot revoke your own administrator privileges.']);
-        }
 
         $data = [
             'name' => $validated['name'],
             'username' => strtolower($validated['username']),
             'email' => strtolower($validated['email']),
             'phone' => $validated['phone'] ?? null,
-            'role' => $validated['role'],
+            // Role remains immutable: strictly preserves single Administrator policy
+            'role' => $staff->role,
         ];
 
         if (! empty($validated['password'])) {
@@ -98,8 +92,10 @@ class StaffManagementController extends Controller
 
         $staff->update($data);
 
+        $label = $staff->role === 'admin' ? 'Administrator' : 'Staff';
+
         return redirect()->route('admin.staff.index')
-            ->with('status', "Staff profile for {$staff->name} updated successfully.");
+            ->with('status', "{$label} account '{$staff->name}' updated successfully.");
     }
 
     public function destroy(Request $request, User $staff): RedirectResponse
