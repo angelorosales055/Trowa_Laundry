@@ -9,41 +9,99 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Young+Serif&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        sidecar: '#F7E6CB',
-                        jellybean: '#25799B',
-                        sinbad: '#A2C5D8',
-                        milanred: '#CB1B03',
-                        'retro-ink': '#182830',
-                        'retro-cream': '#FFFDF8',
-                        brand: {
-                            50: '#FAF3E8',
-                            100: '#F7E6CB',
-                            200: '#D8E7F0',
-                            300: '#A2C5D8',
-                            400: '#559BB8',
-                            500: '#25799B',
-                            600: '#1E6482',
-                            700: '#174F67',
-                            800: '#103B4D',
-                            900: '#0B2632',
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
-                        recoleta: ['Recoleta', 'Fraunces', '"Young Serif"', 'Georgia', 'serif'],
-                        mono: ['"Space Grotesk"', 'monospace']
-                    }
-                }
-            }
-        }
-    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        /* Trowa Retro Button High-Priority Styles */
+        .btn-primary, .retro-btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border-radius: 0.75rem;
+            background-color: #CB1B03 !important;
+            border: 2px solid #182830 !important;
+            box-shadow: 3px 3px 0px #182830 !important;
+            padding: 0.625rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #FFFDF8 !important;
+            transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+            cursor: pointer;
+        }
+        .btn-primary:hover, .retro-btn-primary:hover {
+            background-color: #B51702 !important;
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 4px 0px #182830 !important;
+        }
+        .btn-primary:active, .retro-btn-primary:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px #182830 !important;
+        }
+
+        .btn-secondary, .retro-btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border-radius: 0.75rem;
+            border: 2px solid #25799B !important;
+            background-color: #FFFDF8 !important;
+            box-shadow: 2px 2px 0px #25799B !important;
+            padding: 0.625rem 1.125rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #25799B !important;
+            transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+            cursor: pointer;
+        }
+        .btn-secondary:hover, .retro-btn-secondary:hover {
+            background-color: #A2C5D8 !important;
+            color: #182830 !important;
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0px #25799B !important;
+        }
+
+        .retro-btn-blue {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border-radius: 0.75rem;
+            background-color: #25799B !important;
+            border: 2px solid #182830 !important;
+            box-shadow: 3px 3px 0px #182830 !important;
+            padding: 0.625rem 1.125rem;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #FFFDF8 !important;
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+        .retro-btn-blue:hover {
+            background-color: #1D6482 !important;
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 4px 0px #182830 !important;
+        }
+
+        .panel, .retro-panel {
+            background-color: #FFFDF8;
+            border: 2px solid #25799B;
+            box-shadow: 3px 3px 0px #25799B;
+            border-radius: 1.125rem;
+        }
+
+        .field {
+            width: 100%;
+            border-radius: 0.75rem;
+            border: 2px solid #25799B;
+            background-color: #FFFDF8;
+            padding: 0.625rem 0.875rem;
+            font-size: 0.875rem;
+            color: #182830;
+            outline: none;
+            box-shadow: 2px 2px 0px rgba(37, 121, 155, 0.35);
+        }
+    </style>
     @stack('styles')
 </head>
 <body class="min-h-screen bg-[#F7E6CB] text-[#182830] font-sans antialiased selection:bg-[#A2C5D8] selection:text-[#182830]">

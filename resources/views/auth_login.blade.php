@@ -411,40 +411,31 @@
                 
                 <!-- Sign In & Sign Up Navigation Bar -->
                 <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#182830]/15 pb-4">
-                    <!-- Segmented Role Selector -->
-                    <div class="inline-flex rounded-2xl border-2 border-[#182830] bg-[#F7E6CB]/50 p-1 shadow-[2px_2px_0px_#182830]">
-                        <button type="button" 
-                                id="tab-btn-staff" 
-                                onclick="switchLoginRole('staff')" 
-                                class="rounded-xl px-4 py-2 font-mono text-xs font-bold transition cursor-pointer border-2 border-[#182830] bg-[#25799B] text-white shadow-[1px_1px_0px_#182830]">
-                            👔 Staff &amp; Counter
-                        </button>
-                        <button type="button" 
-                                id="tab-btn-customer" 
-                                onclick="switchLoginRole('customer')" 
-                                class="rounded-xl px-4 py-2 font-mono text-xs font-bold transition cursor-pointer text-[#182830] hover:bg-[#FFFDF8]">
-                            🧺 Customer Portal
-                        </button>
+                    <div class="flex items-center gap-2">
+                        <span class="inline-flex h-2.5 w-2.5 rounded-full bg-[#10B981] shadow-[0_0_6px_#10B981] animate-pulse"></span>
+                        <span class="font-mono text-xs font-black uppercase tracking-wider text-[#182830]">
+                            Unified Station Access
+                        </span>
                     </div>
 
                     <!-- Primary Register Now / Sign Up Button -->
                     <a href="{{ route('customer.register') }}" 
                        class="inline-flex items-center gap-1.5 rounded-xl border-2 border-[#182830] bg-[#CB1B03] px-4 py-2 font-mono text-xs font-black text-white shadow-[2px_2px_0px_#182830] hover:bg-[#B51702] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer">
-                        <span>✨ Register Now / Sign Up</span>
+                        <span>✨ New Customer? Register Here</span>
                         <span>➔</span>
                     </a>
                 </div>
 
-                <!-- Contextual Header -->
+                <!-- Unified Header -->
                 <div class="mb-6">
-                    <span id="role-badge" class="inline-block rounded-md border border-[#182830] bg-[#CB1B03] px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#FFFDF8] shadow-[1px_1px_0px_#182830]">
-                        Terminal #01 · Staff Auth
+                    <span id="role-badge" class="inline-block rounded-md border border-[#182830] bg-[#25799B] px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#FFFDF8] shadow-[1px_1px_0px_#182830]">
+                        Terminal #01 · Staff · Admin · Customer
                     </span>
                     <h2 id="role-heading" class="font-recoleta text-2xl sm:text-3xl font-black text-[#182830] mt-1.5 leading-tight">
-                        Staff &amp; Counter Sign In
+                        Sign In to Station
                     </h2>
                     <p id="role-description" class="text-xs text-[#25799B] font-semibold mt-1">
-                        Enter your staff credentials to access the counter terminal and laundry queue.
+                        Enter your username or email and password. All roles are automatically authenticated and routed.
                     </p>
                 </div>
 
@@ -467,7 +458,7 @@
                     @csrf
                     <div>
                         <label for="username-input" id="login-input-label" class="block font-mono text-xs font-bold text-[#182830] mb-1">
-                            Staff Username or Email
+                            Username or Email Address
                         </label>
                         <input id="username-input" 
                                name="username" 
@@ -475,7 +466,7 @@
                                type="text" 
                                autocomplete="username" 
                                class="field text-sm font-medium w-full" 
-                               placeholder="e.g. your_username or name@email.com" 
+                               placeholder="e.g. admin123, staff123, or user@example.com" 
                                required 
                                autofocus>
                     </div>
@@ -1610,62 +1601,7 @@
     });
 
     window.switchLoginRole = function(role) {
-        const staffBtn = document.getElementById('tab-btn-staff');
-        const custBtn = document.getElementById('tab-btn-customer');
-        const roleBadge = document.getElementById('role-badge');
-        const roleHeading = document.getElementById('role-heading');
-        const roleDesc = document.getElementById('role-description');
-        const loginForm = document.getElementById('login-form');
-        const inputLabel = document.getElementById('login-input-label');
-        const usernameInput = document.getElementById('username-input');
-        const submitLabel = document.getElementById('login-submit-label');
-        const speechText = document.getElementById('robot-speech-text');
-
-        if (role === 'customer') {
-            if (staffBtn) {
-                staffBtn.className = 'rounded-xl px-4 py-2 font-mono text-xs font-bold transition cursor-pointer text-[#182830] hover:bg-[#FFFDF8]';
-            }
-            if (custBtn) {
-                custBtn.className = 'rounded-xl px-4 py-2 font-mono text-xs font-bold transition cursor-pointer border-2 border-[#182830] bg-[#25799B] text-white shadow-[1px_1px_0px_#182830]';
-            }
-            if (roleBadge) {
-                roleBadge.textContent = 'Customer Portal · Self-Service';
-                roleBadge.className = 'inline-block rounded-md border border-[#182830] bg-[#25799B] px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#FFFDF8] shadow-[1px_1px_0px_#182830]';
-            }
-            if (roleHeading) roleHeading.textContent = 'Customer Portal Sign In';
-            if (roleDesc) roleDesc.textContent = 'Sign in to check live wash cycles, submit laundry requests, or rate clean clothes.';
-            if (loginForm) loginForm.action = "{{ route('customer.login.post') }}";
-            if (inputLabel) inputLabel.textContent = 'Email Address or Username';
-            if (usernameInput) {
-                usernameInput.name = 'login';
-                usernameInput.placeholder = 'e.g. maria@example.com or username';
-            }
-            if (submitLabel) submitLabel.textContent = 'Open Customer Portal ➔';
-            if (speechText) speechText.textContent = "Welcome, valued Customer! Let's get your laundry fresh! 🫧";
-        } else {
-            if (custBtn) {
-                custBtn.className = 'rounded-xl px-4 py-2 font-mono text-xs font-bold transition cursor-pointer text-[#182830] hover:bg-[#FFFDF8]';
-            }
-            if (staffBtn) {
-                staffBtn.className = 'rounded-xl px-4 py-2 font-mono text-xs font-bold transition cursor-pointer border-2 border-[#182830] bg-[#25799B] text-white shadow-[1px_1px_0px_#182830]';
-            }
-            if (roleBadge) {
-                roleBadge.textContent = 'Terminal #01 · Staff Auth';
-                roleBadge.className = 'inline-block rounded-md border border-[#182830] bg-[#CB1B03] px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#FFFDF8] shadow-[1px_1px_0px_#182830]';
-            }
-            if (roleHeading) roleHeading.textContent = 'Staff & Counter Sign In';
-            if (roleDesc) roleDesc.textContent = 'Enter your staff credentials to access the counter terminal and laundry queue.';
-            if (loginForm) loginForm.action = "{{ route('login.post') }}";
-            if (inputLabel) inputLabel.textContent = 'Staff Username or Email';
-            if (usernameInput) {
-                usernameInput.name = 'username';
-                usernameInput.placeholder = 'e.g. your_username or name@email.com';
-            }
-            if (submitLabel) submitLabel.textContent = 'Sign In to Station ➔';
-            if (speechText) speechText.textContent = "Welcome, Staff! Ready for your shift? 🫧";
-        }
-
-        if (window.SoundFx) SoundFx.click();
+        // Universal sign-in: all roles use the unified form
     };
 
     // --- Scrollytelling 3D Washing Machine Portal Logic ---
