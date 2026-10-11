@@ -316,8 +316,20 @@ class AdminStaffAndRatingsTest extends TestCase
         // Supplier details and contact links
         $suppResponse->assertSee('CleanPro Chemicals Supply');
         $suppResponse->assertSee('Juan Dela Cruz');
-        $suppResponse->assertSee('mailto:juan@cleanprosupply.ph');
+        $suppResponse->assertSee('juan@cleanprosupply.ph');
         $suppResponse->assertSee('PO-20261011-TEST');
         $suppResponse->assertSee('View Invoice');
+
+        // Test sending email directly to supplier
+        \Illuminate\Support\Facades\Mail::fake();
+        $emailResponse = $this->post(route('inventory.suppliers.send-email', $supplier), [
+            'subject' => 'Restock Order Request',
+            'message' => 'Please dispatch 50 sachets of detergent.',
+            'po_reference' => 'PO-20261011-TEST',
+        ]);
+        $emailResponse->assertRedirect();
+        \Illuminate\Support\Facades\Mail::assertSent(\App\Mail\SupplierDirectMessageMail::class, function ($mail) use ($supplier) {
+            return $mail->hasTo($supplier->email) && $mail->customSubject === 'Restock Order Request';
+        });
     }
 }

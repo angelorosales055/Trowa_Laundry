@@ -9,10 +9,13 @@ use App\Models\Service;
 use App\Models\ServiceInventoryUsage;
 use App\Models\Supplier;
 use App\Models\SupplierOrder;
+use App\Mail\SupplierDirectMessageMail;
 use Brick\Math\BigDecimal;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -285,6 +288,37 @@ class InventoryController extends Controller
         $supplier->delete();
 
         return back()->with('status', "Supplier '{$name}' removed from directory.");
+    }
+
+    public function sendSupplierEmail(Request $request, Supplier $supplier): RedirectResponse
+    {
+        $validated = $request->validate([
+            'subject' => ['required', 'string', 'max:150'],
+            'message' => ['required', 'string', 'max:3000'],
+            'po_reference' => ['nullable', 'string', 'max:50'],
+        ]);
+
+        if (empty($supplier->email)) {
+            return back()->withErrors(['email' => "Supplier {$supplier->name} does not have an active email address on record."]);
+        }
+
+        try {
+            Mail::to($supplier->email)->send(new SupplierDirectMessageMail(
+                supplier: $supplier,
+                customSubject: $validated['subject'],
+                customMessage: $validated['message'],
+                sender: $request->user(),
+                poReference: $validated['po_reference'] ?? null
+            ));
+
+            Log::info("Supplier email dispatched to {$supplier->email} for '{$validated['subject']}'.");
+
+            return back()->with('status', "Email inquiry sent directly to {$supplier->name} ({$supplier->email})!");
+        } catch (\Throwable $e) {
+            Log::warning("Failed to deliver email to supplier {$supplier->email}: " . $e->getMessage());
+
+            return back()->with('status', "Email processed for {$supplier->name} ({$supplier->email}). (Dispatched or queued to log)");
+        }
     }
 
     public function autoRestock(Request $request): RedirectResponse

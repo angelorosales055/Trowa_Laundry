@@ -74,6 +74,7 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::post('/inventory/suppliers', [InventoryController::class, 'storeSupplier'])->name('inventory.suppliers.store');
         Route::put('/inventory/suppliers/{supplier}', [InventoryController::class, 'updateSupplier'])->name('inventory.suppliers.update');
         Route::delete('/inventory/suppliers/{supplier}', [InventoryController::class, 'deleteSupplier'])->name('inventory.suppliers.destroy');
+        Route::post('/inventory/suppliers/{supplier}/send-email', [InventoryController::class, 'sendSupplierEmail'])->name('inventory.suppliers.send-email');
         Route::post('/inventory/auto-restock', [InventoryController::class, 'autoRestock'])->name('inventory.auto-restock');
         Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
         Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');

@@ -729,12 +729,13 @@
                                     <!-- Direct Contact Quick Action Buttons -->
                                     <div class="mt-2.5 flex items-center gap-1.5 pt-2 border-t border-slate-100">
                                         @if($supplier->email)
-                                            <a href="mailto:{{ $supplier->email }}?subject=Supply%20Inquiry%20-%20Trowa%20Laundry" 
-                                               class="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#182830] bg-[#FFFDF8] px-2.5 py-1.5 font-mono text-[10px] font-bold text-[#182830] hover:bg-[#F7E6CB] transition shadow-[1px_1px_0px_#182830]"
-                                               title="Email {{ $supplier->name }} ({{ $supplier->email }})">
+                                            <button type="button" 
+                                                    onclick="openSupplierDirectEmailModal({{ $supplier->id }}, '{{ addslashes($supplier->name) }}', '{{ addslashes($supplier->email) }}', '{{ addslashes($supplier->contact_person ?? '') }}')"
+                                                    class="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#182830] bg-[#FFFDF8] px-2.5 py-1.5 font-mono text-[10px] font-bold text-[#182830] hover:bg-[#F7E6CB] transition shadow-[1px_1px_0px_#182830] cursor-pointer"
+                                                    title="Email {{ $supplier->name }} ({{ $supplier->email }})">
                                                 <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                                                 <span>Email Supplier</span>
-                                            </a>
+                                            </button>
                                         @endif
                                     </div>
                                 </div>
@@ -860,11 +861,12 @@
                                 <td class="px-2">
                                     <div class="flex flex-wrap items-center gap-1.5">
                                         @if($po->supplier?->email)
-                                            <a href="mailto:{{ $po->supplier->email }}?subject=Invoice%20Inquiry%20-%20{{ $po->order_number }}" 
-                                               class="p-1 rounded-lg border border-[#182830] bg-white text-[#182830] hover:bg-[#F7E6CB] transition shadow-[1px_1px_0px_#182830]"
-                                               title="Email {{ $po->supplier->name }} ({{ $po->supplier->email }})">
+                                            <button type="button" 
+                                                    onclick="openSupplierDirectEmailModal({{ $po->supplier_id ?? 'null' }}, '{{ addslashes($po->supplier?->name ?? 'Supplier') }}', '{{ addslashes($po->supplier?->email ?? '') }}', '{{ addslashes($po->supplier?->contact_person ?? '') }}', '{{ $po->order_number }}')"
+                                                    class="p-1 rounded-lg border border-[#182830] bg-white text-[#182830] hover:bg-[#F7E6CB] transition shadow-[1px_1px_0px_#182830] cursor-pointer"
+                                                    title="Email {{ $po->supplier?->name }} ({{ $po->supplier?->email }})">
                                                 <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                                            </a>
+                                            </button>
                                         @endif
                                         <button type="button" 
                                                 onclick='openInvoiceVoucherModal(@json($poData))'
@@ -1186,10 +1188,10 @@
 
                 <!-- Direct Contact Action Buttons inside Voucher -->
                 <div class="pt-2 flex items-center gap-2 border-t border-[#182830]/15 mt-2">
-                    <a id="inv-voucher-btn-email" href="#" class="w-full inline-flex items-center justify-center gap-1.5 rounded-xl border-2 border-[#182830] bg-white py-1.5 text-xs font-bold text-[#182830] shadow-[2px_2px_0px_#182830] hover:bg-[#F7E6CB] transition">
+                    <button type="button" id="inv-voucher-btn-email" class="w-full inline-flex items-center justify-center gap-1.5 rounded-xl border-2 border-[#182830] bg-white py-1.5 text-xs font-bold text-[#182830] shadow-[2px_2px_0px_#182830] hover:bg-[#F7E6CB] transition cursor-pointer">
                         <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                         <span>Email Supplier</span>
-                    </a>
+                    </button>
                 </div>
             </div>
 
@@ -1250,6 +1252,69 @@
                 Close Voucher
             </button>
         </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- DIRECT SUPPLIER EMAIL COMPOSITION MODAL    -->
+<!-- ========================================== -->
+<div id="supplier-email-modal" class="fixed inset-0 z-[600] hidden bg-[#182830]/75 backdrop-blur-xs flex items-center justify-center p-4" style="z-index: 600;">
+    <div class="relative w-full max-w-lg rounded-3xl border-3 border-[#182830] bg-[#FFFDF8] p-6 shadow-[8px_8px_0px_#182830]">
+        <div class="flex items-center justify-between border-b-2 border-[#182830] pb-3 mb-4">
+            <div class="flex items-center gap-2">
+                <span class="rounded bg-[#1E6482] px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-white">
+                    Direct Supplier Dispatch
+                </span>
+                <span class="font-mono text-xs text-[#25799B] font-bold">Auto Email</span>
+            </div>
+            <button type="button" onclick="closeSupplierDirectEmailModal()" class="text-xl font-bold text-[#182830] hover:text-[#CB1B03] cursor-pointer">
+                ✕
+            </button>
+        </div>
+
+        <form id="supplier-direct-email-form" method="POST" action="" class="space-y-4">
+            @csrf
+            <input type="hidden" name="po_reference" id="supplier-email-po-ref" value="">
+
+            <div class="rounded-xl border-2 border-[#182830] bg-[#F7E6CB]/40 p-3 space-y-1">
+                <div class="flex items-center justify-between">
+                    <span class="font-mono text-[10px] font-bold uppercase text-[#25799B]">Supplier Name:</span>
+                    <span id="supplier-email-modal-name" class="font-mono text-xs font-black text-[#182830]"></span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="font-mono text-[10px] font-bold uppercase text-[#25799B]">Destination Email:</span>
+                    <span id="supplier-email-modal-address" class="font-mono text-xs font-bold text-[#CB1B03]"></span>
+                </div>
+                <div id="supplier-email-modal-po-wrap" class="hidden flex items-center justify-between pt-1 border-t border-[#182830]/15">
+                    <span class="font-mono text-[10px] font-bold uppercase text-[#25799B]">PO Reference:</span>
+                    <span id="supplier-email-modal-po-label" class="font-mono text-xs font-black text-emerald-800"></span>
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-mono text-xs font-bold text-[#182830] mb-1">Email Subject *</label>
+                <input name="subject" id="supplier-email-subject" required class="field text-xs font-medium" placeholder="e.g. Supply Order &amp; Delivery Inquiry">
+            </div>
+
+            <div>
+                <label class="block font-mono text-xs font-bold text-[#182830] mb-1">Message Content *</label>
+                <textarea name="message" id="supplier-email-message" rows="5" required class="field text-xs font-medium leading-relaxed" placeholder="Type your inquiry or order instructions to the supplier..."></textarea>
+            </div>
+
+            <div class="rounded-xl border border-[#182830]/20 bg-slate-50 p-2.5 font-mono text-[11px] text-slate-600 flex items-center gap-2">
+                <span>💡</span>
+                <span>This email will be dispatched automatically via your system mailer (no external mail client needed).</span>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="closeSupplierDirectEmailModal()" class="retro-btn-secondary flex-1 text-xs">
+                    Cancel
+                </button>
+                <button type="submit" id="supplier-email-submit-btn" class="retro-btn-primary flex-1 text-xs flex items-center justify-center gap-2 cursor-pointer">
+                    <span>Send Email to Supplier ➔</span>
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -1378,7 +1443,15 @@
 
         const emailBtn = document.getElementById('inv-voucher-btn-email');
         if (po.email) {
-            emailBtn.href = 'mailto:' + po.email + '?subject=' + encodeURIComponent('Inquiry regarding PO #' + po.order_number);
+            emailBtn.onclick = function() {
+                openSupplierDirectEmailModal(
+                    po.supplier_id || null,
+                    po.supplier_name || 'Supplier',
+                    po.email,
+                    po.contact_person || '',
+                    po.order_number
+                );
+            };
             emailBtn.classList.remove('hidden');
         } else {
             emailBtn.classList.add('hidden');
@@ -1414,6 +1487,41 @@
 
     function closeInvoiceVoucherModal() {
         document.getElementById('invoice-voucher-modal').classList.add('hidden');
+    }
+
+    function openSupplierDirectEmailModal(supplierId, supplierName, supplierEmail, contactPerson, poRef = '') {
+        const form = document.getElementById('supplier-direct-email-form');
+        if (supplierId) {
+            form.action = '/inventory/suppliers/' + supplierId + '/send-email';
+        } else {
+            form.action = "{{ route('inventory.suppliers.store') }}";
+        }
+
+        document.getElementById('supplier-email-modal-name').textContent = supplierName + (contactPerson ? ' (Attn: ' + contactPerson + ')' : '');
+        document.getElementById('supplier-email-modal-address').textContent = supplierEmail;
+        
+        const poWrap = document.getElementById('supplier-email-modal-po-wrap');
+        const poHidden = document.getElementById('supplier-email-po-ref');
+        const poLabel = document.getElementById('supplier-email-modal-po-label');
+
+        if (poRef) {
+            poHidden.value = poRef;
+            poLabel.textContent = poRef;
+            poWrap.classList.remove('hidden');
+            document.getElementById('supplier-email-subject').value = 'Procurement Delivery Inquiry · ' + poRef;
+            document.getElementById('supplier-email-message').value = 'Greetings ' + (contactPerson || supplierName) + ',\n\nWe are contacting you from Trowa Laundry regarding Purchase Order #' + poRef + '. Please confirm delivery receipt and stock allocation.\n\nThank you,\nTrowa Laundry Management';
+        } else {
+            poHidden.value = '';
+            poWrap.classList.add('hidden');
+            document.getElementById('supplier-email-subject').value = 'Supply Replenishment Order Inquiry · Trowa Laundry';
+            document.getElementById('supplier-email-message').value = 'Greetings ' + (contactPerson || supplierName) + ',\n\nWe would like to coordinate a new commercial chemical/detergent replenishment order for Trowa Laundry.\n\nPlease send us current wholesale pricing and earliest delivery availability.\n\nThank you,\nTrowa Laundry Management';
+        }
+
+        document.getElementById('supplier-email-modal').classList.remove('hidden');
+    }
+
+    function closeSupplierDirectEmailModal() {
+        document.getElementById('supplier-email-modal').classList.add('hidden');
     }
 
     document.addEventListener('DOMContentLoaded', () => {
