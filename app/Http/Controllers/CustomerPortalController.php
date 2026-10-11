@@ -379,7 +379,8 @@ class CustomerPortalController extends Controller
             ->whereNotNull('rating')
             ->where('rating', '>', 0)
             ->latest('rated_at')
-            ->get();
+            ->paginate(6, ['*'], 'feedback_page')
+            ->withQueryString();
 
         $currentTab = $request->query('tab', 'dashboard');
 

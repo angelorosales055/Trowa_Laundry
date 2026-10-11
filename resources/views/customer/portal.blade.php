@@ -684,7 +684,7 @@
 
                 <div class="flex items-center gap-2">
                     <span class="rounded-xl border border-[#182830] bg-[#F7E6CB] px-3 py-1 font-mono text-xs font-bold text-[#182830]">
-                        {{ isset($customerFeedbacks) ? $customerFeedbacks->count() : 0 }} Review{{ (isset($customerFeedbacks) && $customerFeedbacks->count() === 1) ? '' : 's' }} Submitted
+                        {{ isset($customerFeedbacks) ? $customerFeedbacks->total() : 0 }} Review{{ (isset($customerFeedbacks) && $customerFeedbacks->total() === 1) ? '' : 's' }} Submitted
                     </span>
                 </div>
             </div>
@@ -732,6 +732,12 @@
                         </div>
                     @endforeach
                 </div>
+
+                @if($customerFeedbacks->hasPages())
+                    <div class="pt-4 border-t border-[#182830]/10 mt-4">
+                        {{ $customerFeedbacks->links() }}
+                    </div>
+                @endif
             @endif
         </div>
     </div>

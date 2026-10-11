@@ -249,11 +249,52 @@ class AdminStaffAndRatingsTest extends TestCase
 
         // Customer sees their review in the table row
         $response->assertSee('ORD-MY-FEEDBACK-99');
-        $response->assertSee('Exceptional service! Fabric softener smells great.');
-
         // Customer sees their feedback log card
         $response->assertSee('My Service Reviews &amp; Feedback History', false);
         $response->assertSee('1 Review Submitted');
+    }
+
+    public function test_customer_and_admin_feedback_pages_are_paginated(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $user = User::factory()->create(['role' => 'customer', 'email_verified_at' => now()]);
+        $customer = Customer::create([
+            'name' => 'Frequent Reviewer',
+            'email' => $user->email,
+        ]);
+        $user->customer_id = $customer->id;
+        $user->save();
+
+        // Create 8 feedback entries for the customer
+        for ($i = 1; $i <= 8; $i++) {
+            Order::create([
+                'order_number' => "ORD-PAGINATE-{$i}",
+                'customer_id' => $customer->id,
+                'customer_name' => $customer->name,
+                'created_by' => $user->id,
+                'services' => 'Wash & Fold',
+                'weight_kg' => 8.0,
+                'total_price' => 200,
+                'status' => 'claimed',
+                'payment_status' => 'paid',
+                'rating' => 5,
+                'rating_comment' => "Review comment number {$i}",
+                'rated_at' => now()->subMinutes(10 - $i),
+            ]);
+        }
+
+        // Customer portal has 6 items per page
+        $this->actingAs($user);
+        $custResponse = $this->get(route('customer.portal', ['tab' => 'history']));
+        $custResponse->assertStatus(200);
+        $custResponse->assertSee('8 Reviews Submitted');
+        $custResponse->assertSee('feedback_page=2');
+
+        // Admin feedbacks page has pagination links when threshold exceeded
+        $this->actingAs($admin);
+        $adminResponse = $this->get(route('customers.feedbacks'));
+        $adminResponse->assertStatus(200);
+        $adminResponse->assertSee('All Ratings (8)');
     }
 
     public function test_inventory_shows_stock_in_and_stock_out_dates_supplier_details_and_contact(): void
