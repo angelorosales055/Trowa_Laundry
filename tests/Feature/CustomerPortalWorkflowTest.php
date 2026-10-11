@@ -27,6 +27,7 @@ class CustomerPortalWorkflowTest extends TestCase
             'address' => 'Unit 402 Sunshine Residences, Katipunan Ave, QC',
             'password' => 'secret123',
             'password_confirmation' => 'secret123',
+            'terms' => '1',
         ]);
 
         $response->assertRedirect(route('customer.verify'));
@@ -246,6 +247,7 @@ class CustomerPortalWorkflowTest extends TestCase
             'address' => 'Block 5 Lot 2, Commonwealth, Quezon City',
             'password' => 'pass1234',
             'password_confirmation' => 'pass1234',
+            'terms' => '1',
         ]);
 
         $response->assertRedirect(route('customer.verify'));

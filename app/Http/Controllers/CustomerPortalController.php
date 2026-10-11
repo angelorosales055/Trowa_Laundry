@@ -45,9 +45,10 @@ class CustomerPortalController extends Controller
             'contact_number' => ['required', 'string', 'max:30'],
             'address' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'terms' => ['sometimes', 'accepted'],
+            'terms' => ['required', 'accepted'],
         ], [
-            'terms.accepted' => 'You must accept the Terms & Conditions to create an account.',
+            'terms.required' => 'You must check and agree to the Terms & Conditions to proceed.',
+            'terms.accepted' => 'You must check and agree to the Terms & Conditions to proceed.',
         ]);
 
         $fullName = trim($validated['first_name'] . ' ' . $validated['last_name']);
@@ -109,7 +110,6 @@ class CustomerPortalController extends Controller
 
         return redirect()->route('customer.verify')->with([
             'status' => "Account registered! A 6-digit verification code was sent to {$user->email}.",
-            'dev_code' => $verificationCode, // Convenient display for dev environment
         ]);
     }
 

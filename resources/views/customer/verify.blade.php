@@ -18,20 +18,7 @@
         </p>
     </div>
 
-    <!-- Dev Code Quick Helper Banner (if available) -->
-    @if(session('dev_code'))
-        <div class="mb-6 rounded-2xl border-2 border-[#25799B] bg-[#A2C5D8]/30 p-4 text-[#182830] shadow-[3px_3px_0px_#25799B]">
-            <div class="flex items-center justify-between">
-                <div>
-                    <span class="block font-mono text-[10px] font-bold uppercase text-[#25799B]">Local Dev / Testing Code</span>
-                    <strong class="font-mono text-2xl font-black text-[#CB1B03] tracking-widest">{{ session('dev_code') }}</strong>
-                </div>
-                <button type="button" id="btn-autofill-dev" class="rounded-xl border-2 border-[#182830] bg-[#FFFDF8] px-3 py-1.5 font-mono text-xs font-bold text-[#182830] shadow-[2px_2px_0px_#182830] hover:bg-[#F7E6CB] transition cursor-pointer">
-                    Auto-fill Code ➔
-                </button>
-            </div>
-        </div>
-    @endif
+
 
     <!-- Verification Card -->
     <div class="rounded-3xl border-3 border-[#182830] bg-[#FFFDF8] p-6 sm:p-8 shadow-[8px_8px_0px_#182830]">
@@ -111,18 +98,6 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const codeInput = document.getElementById('verification-code-input');
-    const autoFillBtn = document.getElementById('btn-autofill-dev');
-
-    @if(session('dev_code'))
-        autoFillBtn?.addEventListener('click', () => {
-            if (codeInput) {
-                codeInput.value = "{{ session('dev_code') }}";
-                codeInput.focus();
-            }
-        });
-    @endif
-
     document.getElementById('verify-form')?.addEventListener('submit', function() {
         if (window.TrowaLoading) {
             window.TrowaLoading.show(
