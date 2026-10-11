@@ -27,8 +27,12 @@ class InventoryController extends Controller
             ->with(['movements.recordedBy', 'movements.order'])
             ->orderBy('name')
             ->get();
-        $services = Service::query()->orderBy('name')->get();
-        $usages = ServiceInventoryUsage::query()->with(['service', 'inventoryItem'])->orderBy('service_id')->get();
+        $services = Service::query()->where('is_active', true)->orderBy('name')->get();
+        $usages = ServiceInventoryUsage::query()
+            ->whereHas('service', fn ($q) => $q->where('is_active', true))
+            ->with(['service', 'inventoryItem'])
+            ->orderBy('service_id')
+            ->get();
         $suppliers = Supplier::query()->withCount('orders')->orderBy('name')->get();
         $recentSupplierOrders = SupplierOrder::query()
             ->with(['supplier', 'recordedBy', 'expense'])
