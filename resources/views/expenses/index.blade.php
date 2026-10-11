@@ -37,35 +37,10 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
-            <!-- 1-Click Auto Log Water Utility Expense Button -->
-            <form method="POST" action="{{ route('expenses.auto-log-utilities') }}">
-                @csrf
-                <input type="hidden" name="type" value="water">
-                <input type="hidden" name="amount" value="{{ max(1, $waterStats['est_water_cost']) }}">
-                <input type="hidden" name="date" value="{{ now()->toDateString() }}">
-                <input type="hidden" name="description" value="Water Utility Consumption ({{ number_format($waterStats['water_liters'], 0) }}L / {{ number_format($waterStats['water_m3'], 2) }} m³ for {{ $waterStats['total_loads'] }} loads)">
-                <button type="submit" 
-                        {{ $waterStats['water_liters'] <= 0 ? 'disabled' : '' }}
-                        class="retro-btn-secondary text-xs px-3.5 py-2 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
-                    <svg class="h-4 w-4 text-[#25799B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
-                    <span>Log Water (₱{{ number_format($waterStats['est_water_cost'], 2) }})</span>
-                </button>
-            </form>
-
-            <!-- 1-Click Auto Log Combined Water & Power Utility Expense Button -->
-            <form method="POST" action="{{ route('expenses.auto-log-utilities') }}">
-                @csrf
-                <input type="hidden" name="type" value="utilities">
-                <input type="hidden" name="amount" value="{{ max(1, $waterStats['est_utilities_total']) }}">
-                <input type="hidden" name="date" value="{{ now()->toDateString() }}">
-                <input type="hidden" name="description" value="Combined Utilities: Water ({{ number_format($waterStats['water_liters'], 0) }}L) + Electricity ({{ number_format($waterStats['total_kwh'], 1) }} kWh) for {{ $waterStats['total_loads'] }} loads">
-                <button type="submit" 
-                        {{ $waterStats['total_loads'] <= 0 ? 'disabled' : '' }}
-                        class="retro-btn-primary text-xs px-3.5 py-2 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
-                    <svg class="h-4 w-4 text-[#FFFDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                    <span>Log All Utilities (₱{{ number_format($waterStats['est_utilities_total'], 2) }})</span>
-                </button>
-            </form>
+            <span class="inline-flex items-center gap-1.5 rounded-full border-2 border-emerald-800 bg-emerald-100 px-3.5 py-1.5 font-mono text-xs font-bold text-emerald-950 shadow-[2px_2px_0px_#182830]">
+                <svg class="h-4 w-4 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Automated: Water &amp; Electricity Logged Per Transaction</span>
+            </span>
         </div>
     </div>
 
@@ -248,8 +223,20 @@
                                 </span>
                             </td>
                             <td>
-                                <p class="font-sans text-xs font-bold text-[#182830]">{{ $expense->description }}</p>
-                                <small class="font-mono text-[10px] text-slate-500">By {{ $expense->recordedBy->name }}</small>
+                                <div class="flex items-center gap-2">
+                                    <p class="font-sans text-xs font-bold text-[#182830]">{{ $expense->description }}</p>
+                                    @if($expense->order)
+                                        <a href="{{ route('orders.show', $expense->order_id) }}" class="inline-flex items-center gap-1 font-mono text-[10px] font-bold text-[#25799B] bg-[#A2C5D8]/30 px-1.5 py-0.5 rounded border border-[#25799B]/30 hover:underline">
+                                            <span>#{{ $expense->order->order_number }}</span>
+                                        </a>
+                                    @endif
+                                </div>
+                                <div class="flex items-center gap-2 font-mono text-[10px] text-slate-500">
+                                    <span>By {{ $expense->recordedBy->name }}</span>
+                                    @if($expense->reference_number)
+                                        <span>· Ref: {{ $expense->reference_number }}</span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="text-right font-mono text-xs font-black text-[#CB1B03]">
                                 ₱{{ number_format((float) $expense->amount, 2) }}

@@ -89,6 +89,11 @@ class Order extends Model
         return $this->hasMany(OrderEditHistory::class)->latest();
     }
 
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(Expense::class);
+    }
+
     public function nextStatuses(): array
     {
         if ($this->status === 'cancelled' || $this->status === 'claimed') {

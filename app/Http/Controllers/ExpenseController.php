@@ -18,7 +18,7 @@ class ExpenseController extends Controller
         $from = $filters['from'] ?? null;
         $to = $filters['to'] ?? null;
         $expenses = Expense::query()
-            ->with('recordedBy')
+            ->with(['recordedBy', 'order'])
             ->when($from, fn ($query) => $query->whereDate('expense_date', '>=', $from))
             ->when($to, fn ($query) => $query->whereDate('expense_date', '<=', $to))
             ->latest('expense_date')

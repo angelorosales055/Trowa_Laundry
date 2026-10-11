@@ -122,6 +122,26 @@ class CreateLaundryOrderAction
             ]);
             $inventoryConsumption->consume($order, $services->modelKeys(), $loads, $staffId, $data['inventory_items'] ?? []);
 
+            $waterCost = round($loads * 50 * 0.045, 2);
+            $order->expenses()->create([
+                'category' => 'utilities',
+                'description' => "Auto Water Utility: {$loads} load(s) (" . ($loads * 50) . "L) for Order {$order->order_number}",
+                'amount' => $waterCost,
+                'expense_date' => now()->toDateString(),
+                'recorded_by' => $staffId,
+                'reference_number' => "UTIL-H2O-{$order->order_number}",
+            ]);
+
+            $powerCost = round($loads * 1.2 * 11.50, 2);
+            $order->expenses()->create([
+                'category' => 'utilities',
+                'description' => "Auto Electricity Utility: {$loads} load(s) (" . ($loads * 1.2) . " kWh) for Order {$order->order_number}",
+                'amount' => $powerCost,
+                'expense_date' => now()->toDateString(),
+                'recorded_by' => $staffId,
+                'reference_number' => "UTIL-PWR-{$order->order_number}",
+            ]);
+
             if ($amountPaid->isPositive()) {
                 $order->payments()->create([
                     'amount' => (string) $amountPaid,

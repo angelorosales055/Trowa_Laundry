@@ -651,10 +651,11 @@ class PersistentOrdersTest extends TestCase
             'expense_date' => now()->toDateString(),
             'recorded_by' => $admin->id,
         ]);
+        // Revenue (₱45.00) - Expenses (Packaging ₱10.00 + Auto Water ₱2.25 + Auto Power ₱13.80 = ₱26.05) = ₱18.95
         $this->actingAs($admin)->get(route('reports'))
             ->assertOk()
             ->assertSee('Net profit')
-            ->assertSee('₱35.00');
+            ->assertSee('₱18.95');
     }
 
     public function test_service_usage_decrements_inventory_with_order_linked_movement(): void
@@ -697,7 +698,7 @@ class PersistentOrdersTest extends TestCase
             'quantity_change' => '-0.800',
             'recorded_by' => $staff->id,
         ]);
-        $this->assertSame(0, Expense::query()->count());
+        $this->assertSame(2, Expense::query()->count());
         $this->actingAs($admin)->get(route('dashboard'))
             ->assertOk()
             ->assertSee('Detergent');
@@ -957,5 +958,52 @@ class PersistentOrdersTest extends TestCase
             ->assertOk()
             ->assertSee('Today supplies')
             ->assertDontSee('Yesterday supplies');
+    }
+
+    public function test_order_creation_automatically_records_water_and_electricity_expenses(): void
+    {
+        $staff = User::factory()->create(['role' => 'staff']);
+        $admin = User::factory()->create(['role' => 'admin']);
+        $customer = Customer::factory()->create(['name' => 'Utility Test Customer']);
+        $service = Service::create([
+            'name' => 'Full Wash',
+            'icon' => '🧺',
+            'pricing_type' => 'per_load',
+            'price' => 70,
+            'price_per_load' => 70,
+        ]);
+
+        // 16 kg = 2 loads (8 kg per load)
+        $this->actingAs($staff)->post(route('orders.add'), [
+            'customer_id' => $customer->id,
+            'weight_kg' => 16,
+            'service_ids' => [$service->id],
+        ])->assertRedirect();
+
+        $order = Order::query()->latest('id')->firstOrFail();
+        $this->assertSame(2, $order->number_of_loads);
+
+        // Water: 2 loads * 50L * 0.045 = ₱4.50
+        $this->assertDatabaseHas('expenses', [
+            'order_id' => $order->id,
+            'category' => 'utilities',
+            'amount' => 4.50,
+            'reference_number' => "UTIL-H2O-{$order->order_number}",
+        ]);
+
+        // Electricity: 2 loads * 1.2 kWh * 11.50 = ₱27.60
+        $this->assertDatabaseHas('expenses', [
+            'order_id' => $order->id,
+            'category' => 'utilities',
+            'amount' => 27.60,
+            'reference_number' => "UTIL-PWR-{$order->order_number}",
+        ]);
+
+        // Verify expenses view shows the records and linked order number
+        $this->actingAs($admin)->get(route('expenses.index'))
+            ->assertOk()
+            ->assertSee("UTIL-H2O-{$order->order_number}")
+            ->assertSee("UTIL-PWR-{$order->order_number}")
+            ->assertSee("#{$order->order_number}");
     }
 }

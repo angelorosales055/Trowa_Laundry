@@ -70,6 +70,31 @@ class UpdateLaundryOrderAction
             $order->itemDetails()->createMany($data['item_details'] ?? []);
             $inventoryConsumption->consume($order, $services->modelKeys(), $loads, $userId);
 
+            $order->expenses()->whereIn('reference_number', [
+                "UTIL-H2O-{$order->order_number}",
+                "UTIL-PWR-{$order->order_number}",
+            ])->delete();
+
+            $waterCost = round($loads * 50 * 0.045, 2);
+            $order->expenses()->create([
+                'category' => 'utilities',
+                'description' => "Auto Water Utility: {$loads} load(s) (" . ($loads * 50) . "L) for Order {$order->order_number}",
+                'amount' => $waterCost,
+                'expense_date' => now()->toDateString(),
+                'recorded_by' => $userId,
+                'reference_number' => "UTIL-H2O-{$order->order_number}",
+            ]);
+
+            $powerCost = round($loads * 1.2 * 11.50, 2);
+            $order->expenses()->create([
+                'category' => 'utilities',
+                'description' => "Auto Electricity Utility: {$loads} load(s) (" . ($loads * 1.2) . " kWh) for Order {$order->order_number}",
+                'amount' => $powerCost,
+                'expense_date' => now()->toDateString(),
+                'recorded_by' => $userId,
+                'reference_number' => "UTIL-PWR-{$order->order_number}",
+            ]);
+
             $order->editHistories()->create([
                 'changed_by' => $userId,
                 'before' => $before,

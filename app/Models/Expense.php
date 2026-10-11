@@ -10,7 +10,7 @@ class Expense extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['category', 'description', 'amount', 'expense_date', 'recorded_by', 'reference_number'];
+    protected $fillable = ['order_id', 'category', 'description', 'amount', 'expense_date', 'recorded_by', 'reference_number'];
 
     protected function casts(): array
     {
@@ -20,5 +20,10 @@ class Expense extends Model
     public function recordedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recorded_by');
+    }
+
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class);
     }
 }
