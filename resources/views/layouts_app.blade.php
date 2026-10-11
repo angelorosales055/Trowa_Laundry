@@ -4,11 +4,45 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#25799B">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <title>{{ $title ?? 'Trowa Laundry — Staff Station' }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Young+Serif&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sidecar: '#F7E6CB',
+                        jellybean: '#25799B',
+                        sinbad: '#A2C5D8',
+                        milanred: '#CB1B03',
+                        'retro-ink': '#182830',
+                        'retro-cream': '#FFFDF8',
+                        brand: {
+                            50: '#FAF3E8',
+                            100: '#F7E6CB',
+                            200: '#D8E7F0',
+                            300: '#A2C5D8',
+                            400: '#559BB8',
+                            500: '#25799B',
+                            600: '#1E6482',
+                            700: '#174F67',
+                            800: '#103B4D',
+                            900: '#0B2632',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+                        recoleta: ['Recoleta', 'Fraunces', '"Young Serif"', 'Georgia', 'serif'],
+                        mono: ['"Space Grotesk"', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>

@@ -18,6 +18,11 @@ $_SERVER['SCRIPT_NAME'] = '/index.php';
 $_SERVER['SCRIPT_FILENAME'] = __DIR__.'/../public/index.php';
 $_SERVER['PHP_SELF'] = '/index.php';
 
+// Ensure HTTPS is recognized in Vercel serverless environment
+$_SERVER['HTTPS'] = 'on';
+$_SERVER['SERVER_PORT'] = 443;
+$_SERVER['HTTP_X_FORWARDED_PROTO'] = 'https';
+
 $dirs = [
     '/tmp/storage/app/public',
     '/tmp/storage/app/private',
