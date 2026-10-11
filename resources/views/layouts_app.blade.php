@@ -305,7 +305,9 @@
                     </div>
                     <div class="min-w-0 flex-1">
                         <p class="truncate text-xs font-bold leading-tight">{{ auth()->user()->name }}</p>
-                        <p class="font-mono text-[10px] font-semibold uppercase text-[#25799B]">{{ auth()->user()->role === 'staff' ? 'Counter Staff' : 'Store Admin' }}</p>
+                        <p class="font-mono text-[10px] font-semibold uppercase text-[#25799B]">
+                            {{ auth()->user()->role === 'admin' ? 'System Admin' : (auth()->user()->role === 'customer' ? 'Patron Customer' : 'Counter Staff') }}
+                        </p>
                     </div>
                     <form method="POST" action="{{ route('logout') }}" id="staff-logout-form">
                         @csrf
@@ -740,20 +742,49 @@
             });
         }, true);
 
+        @php
+            $currentRole = auth()->user()?->role ?? 'staff';
+            $logoutRoleTitle = match($currentRole) {
+                'admin' => 'Administrator',
+                'customer' => 'Customer Patron',
+                default => 'Staff Member'
+            };
+            $logoutMessage = match($currentRole) {
+                'admin' => 'Are you sure you want to end your current Administrator session and sign out from Trowa Laundry management?',
+                'customer' => 'Are you sure you want to sign out from your Trowa Laundry patron portal?',
+                default => 'Are you sure you want to end your current Staff session and sign out from Trowa Laundry station?'
+            };
+            $logoutHint = match($currentRole) {
+                'admin' => 'Ensure any configuration or system adjustments have been applied.',
+                'customer' => 'You can log back in anytime to track your active and past laundry batches.',
+                default => 'Make sure any pending customer intake or cash drawer transactions are saved.'
+            };
+            $logoutBtnText = match($currentRole) {
+                'admin' => 'Yes, Sign Out Admin',
+                'customer' => 'Yes, Sign Out',
+                default => 'Yes, Sign Out Station'
+            };
+            $logoutBadge = match($currentRole) {
+                'admin' => 'Admin Security',
+                'customer' => 'Patron Security',
+                default => 'Station Security'
+            };
+        @endphp
+
         window.confirmStaffLogout = function() {
             if (window.TrowaConfirm) {
                 window.TrowaConfirm({
                     title: 'Confirm Sign Out',
-                    message: 'Are you sure you want to end your current staff session and sign out from Trowa Laundry station?',
-                    hint: 'Make sure any pending customer intake or cash drawer transactions are saved.',
-                    badge: 'Station Security',
+                    message: @json($logoutMessage),
+                    hint: @json($logoutHint),
+                    badge: @json($logoutBadge),
                     type: 'warning',
-                    confirmText: 'Yes, Sign Out Station',
+                    confirmText: @json($logoutBtnText),
                     cancelText: 'Stay Signed In'
                 }, function() {
                     document.getElementById('staff-logout-form')?.submit();
                 });
-            } else if (confirm('Are you sure you want to sign out from Trowa Laundry station?')) {
+            } else if (confirm(@json($logoutMessage))) {
                 document.getElementById('staff-logout-form')?.submit();
             }
         };
