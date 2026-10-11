@@ -384,7 +384,7 @@
                         $balance = max(0, (float)$order->total_price - (float)$order->amount_paid);
                     @endphp
 
-                    <div class="order-interactive-card group relative flex flex-col justify-between rounded-xl border-2 border-[#182830] bg-[#FFFDF8] p-4 shadow-[3px_3px_0px_#182830] transition hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#25799B]"
+                    <div class="order-interactive-card group flex flex-col justify-between rounded-xl border-2 border-[#182830] bg-[#FFFDF8] p-4 shadow-[3px_3px_0px_#182830] transition hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#25799B]"
                          data-status="{{ strtolower($order->status) }}"
                          data-search="{{ strtolower(($order->order_number ?? 'TL-'.$order->id) . ' ' . ($order->customer?->name ?? $order->customer_name) . ' ' . ($order->customer?->contact_number ?? $order->customer?->phone ?? '')) }}">
 

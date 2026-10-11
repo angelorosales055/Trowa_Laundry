@@ -620,18 +620,28 @@
                                     </td>
                                     <td class="p-3.5">
                                         @if($past->rating)
-                                            <div class="flex items-center gap-1 text-amber-500 font-bold">
-                                                <div class="flex items-center gap-0.5">
-                                                    @for($starIdx = 0; $starIdx < $past->rating; $starIdx++)
-                                                        <svg class="h-3.5 w-3.5 fill-amber-400 text-amber-500 inline" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                                                        </svg>
-                                                    @endfor
+                                            <div class="space-y-1">
+                                                <div class="flex items-center gap-1 text-amber-500 font-bold">
+                                                    <div class="flex items-center gap-0.5">
+                                                        @for($starIdx = 0; $starIdx < $past->rating; $starIdx++)
+                                                            <svg class="h-3.5 w-3.5 fill-amber-400 text-amber-500 inline" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                                            </svg>
+                                                        @endfor
+                                                    </div>
+                                                    <span class="text-[10px] text-slate-500 font-mono">({{ $past->rating }}/5)</span>
                                                 </div>
-                                                <span class="text-[10px] text-slate-500 font-normal font-mono">({{ $past->rating }}/5)</span>
+                                                @if($past->rating_comment)
+                                                    <p class="font-sans text-[11px] text-slate-700 italic max-w-xs leading-snug">
+                                                        &ldquo;{{ $past->rating_comment }}&rdquo;
+                                                    </p>
+                                                @endif
+                                                @if($past->rated_at)
+                                                    <span class="block font-mono text-[9px] text-slate-400">Reviewed {{ $past->rated_at->format('M d, Y') }}</span>
+                                                @endif
                                             </div>
                                         @else
-                                            <button type="button" onclick="openRatingModal({{ $past->id }}, '{{ $past->order_number }}')" class="rounded-lg border border-[#182830] bg-[#FFFDF8] px-2 py-1 text-[10px] font-bold text-[#25799B] hover:bg-[#F7E6CB] transition cursor-pointer flex items-center gap-1">
+                                            <button type="button" onclick="openRatingModal({{ $past->id }}, '{{ $past->order_number }}')" class="rounded-lg border border-[#182830] bg-[#FFFDF8] px-2.5 py-1 text-[10px] font-bold text-[#25799B] hover:bg-[#F7E6CB] transition cursor-pointer flex items-center gap-1 shadow-[1px_1px_0px_#182830]">
                                                 <span>Rate Service</span>
                                                 <svg class="h-3 w-3 fill-amber-400 text-amber-500 inline" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
@@ -652,6 +662,78 @@
                 @endif
             </div>
         @endif
+
+        <!-- Dedicated Customer Feedback & Rating History Log -->
+        <div class="mt-8 rounded-3xl border-3 border-[#182830] bg-[#FFFDF8] p-5 sm:p-6 shadow-[6px_6px_0px_#182830]">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-[#182830]/15 pb-4 mb-4">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-2xl border-2 border-[#182830] bg-[#F7E6CB] text-amber-600 shadow-[2px_2px_0px_#182830]">
+                        <svg class="h-5 w-5 fill-amber-400 text-amber-600" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                    </span>
+                    <div>
+                        <h3 class="font-recoleta text-lg sm:text-xl font-black text-[#182830]">
+                            My Service Reviews &amp; Feedback History
+                        </h3>
+                        <p class="font-mono text-xs text-[#25799B]">
+                            Your submitted ratings, comments, and satisfaction remarks
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <span class="rounded-xl border border-[#182830] bg-[#F7E6CB] px-3 py-1 font-mono text-xs font-bold text-[#182830]">
+                        {{ isset($customerFeedbacks) ? $customerFeedbacks->count() : 0 }} Review{{ (isset($customerFeedbacks) && $customerFeedbacks->count() === 1) ? '' : 's' }} Submitted
+                    </span>
+                </div>
+            </div>
+
+            @if(empty($customerFeedbacks) || $customerFeedbacks->isEmpty())
+                <div class="rounded-2xl border-2 border-dashed border-[#182830]/25 bg-amber-50/40 p-6 text-center">
+                    <p class="font-mono text-xs text-slate-600">
+                        You haven't submitted any feedback yet. When your laundry orders are ready or claimed, rate the quality above to let us know how we did!
+                    </p>
+                </div>
+            @else
+                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach($customerFeedbacks as $fb)
+                        <div class="flex flex-col justify-between rounded-2xl border-2 border-[#182830] bg-[#FFFDF8] p-4 shadow-[3px_3px_0px_#182830] transition hover:translate-y-[-1px]">
+                            <div>
+                                <div class="flex items-center justify-between border-b border-[#182830]/10 pb-2 mb-2.5">
+                                    <span class="font-mono text-xs font-black text-[#CB1B03]">#{{ $fb->order_number }}</span>
+                                    <span class="font-mono text-[10px] text-slate-500">
+                                        {{ $fb->rated_at ? $fb->rated_at->format('M d, Y') : $fb->updated_at->format('M d, Y') }}
+                                    </span>
+                                </div>
+
+                                <div class="flex items-center gap-1 text-amber-500 mb-2">
+                                    @for($s = 0; $s < 5; $s++)
+                                        <svg class="h-4 w-4 {{ $s < $fb->rating ? 'fill-amber-400 text-amber-500' : 'fill-slate-100 text-slate-300' }}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                        </svg>
+                                    @endfor
+                                    <span class="ml-1 font-mono text-xs font-bold text-[#182830]">{{ $fb->rating }}.0</span>
+                                </div>
+
+                                <div class="bg-[#F7E6CB]/30 rounded-xl p-3 border border-[#182830]/15 mb-3">
+                                    <p class="font-sans text-xs text-slate-800 italic leading-relaxed">
+                                        &ldquo;{{ $fb->rating_comment ?: 'Great laundry service and clean garments!' }}&rdquo;
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 border-t border-[#182830]/10 flex items-center justify-between font-mono text-[11px] text-slate-600">
+                                <span>{{ $fb->weight_kg }} kg · {{ $fb->services }}</span>
+                                <span class="badge border border-[#182830]/30 bg-emerald-50 text-emerald-800 text-[9px] font-bold uppercase">
+                                    Verified Rating
+                                </span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
     </div>
 
 </div>
@@ -659,7 +741,7 @@
 <!-- ========================================================================= -->
 <!-- MODAL 1: Customer Self-Service New Laundry Intake Wizard                  -->
 <!-- ========================================================================= -->
-<div id="customer-intake-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#182830]/80 p-3 sm:p-5 backdrop-blur-xs overflow-y-auto">
+<div id="customer-intake-modal" class="fixed inset-0 z-[500] hidden items-center justify-center bg-[#182830]/80 p-3 sm:p-5 backdrop-blur-xs overflow-y-auto" style="z-index: 500;">
     <div class="relative my-auto w-full max-w-3xl rounded-3xl border-3 border-[#182830] bg-[#FFFDF8] shadow-[8px_8px_0px_#182830] overflow-hidden flex flex-col max-h-[92vh]">
         
         <!-- Header Strip -->
@@ -766,11 +848,38 @@
                     </div>
                 </div>
 
-                <!-- Select Treatments -->
+                <!-- 1-Click Quick Packages Strip (Identical to Counter Staff Wizard) -->
+                <div class="rounded-2xl border-2 border-[#182830] bg-[#A2C5D8]/20 p-3.5 shadow-[2px_2px_0px_#182830]">
+                    <span class="block font-mono text-xs font-bold uppercase text-[#182830] mb-2">1-Click Laundry Packages:</span>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                        <button type="button" class="cust-btn-bundle rounded-xl border-2 border-[#182830] bg-[#FFFDF8] px-2 py-1.5 font-mono text-xs font-bold text-[#182830] shadow-[1px_1px_0px_#182830] hover:bg-[#CB1B03] hover:text-white transition cursor-pointer text-center" data-bundle="wash-dry-fold">
+                            Wash, Dry &amp; Fold
+                        </button>
+                        <button type="button" class="cust-btn-bundle rounded-xl border-2 border-[#182830] bg-[#FFFDF8] px-2 py-1.5 font-mono text-xs font-bold text-[#182830] shadow-[1px_1px_0px_#182830] hover:bg-[#25799B] hover:text-white transition cursor-pointer text-center" data-bundle="wash-dry">
+                            Wash &amp; Dry Only
+                        </button>
+                        <button type="button" class="cust-btn-bundle rounded-xl border-2 border-[#182830] bg-[#FFFDF8] px-2 py-1.5 font-mono text-xs font-bold text-[#182830] shadow-[1px_1px_0px_#182830] hover:bg-[#25799B] hover:text-white transition cursor-pointer text-center" data-bundle="wash-dry-iron">
+                            Wash, Dry &amp; Iron
+                        </button>
+                        <button type="button" class="cust-btn-bundle rounded-xl border-2 border-[#182830] bg-[#FFFDF8] px-2 py-1.5 font-mono text-xs font-bold text-[#182830] shadow-[1px_1px_0px_#182830] hover:bg-[#25799B] hover:text-white transition cursor-pointer text-center" data-bundle="wash-only">
+                            Plain Wash Only
+                        </button>
+                        <button type="button" class="cust-btn-bundle rounded-xl border-2 border-[#182830] bg-[#F7E6CB] px-2 py-1.5 font-mono text-xs font-bold text-[#182830] shadow-[1px_1px_0px_#182830] hover:bg-[#CB1B03] hover:text-white transition cursor-pointer text-center col-span-2 sm:col-span-1" data-bundle="deluxe">
+                            Full Deluxe Care
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Select Treatments & Live Subtotal -->
                 <div>
-                    <label class="block font-mono text-xs font-bold uppercase text-[#182830] mb-2">
-                        Select Services Needed <span class="text-[#CB1B03]">*</span>
-                    </label>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block font-mono text-xs font-bold uppercase text-[#182830]">
+                            Select Services Needed <span class="text-[#CB1B03]">*</span>
+                        </label>
+                        <span class="font-mono text-xs font-bold text-[#25799B]">
+                            Estimated Subtotal: <strong id="cust-live-subtotal" class="text-sm font-black text-[#CB1B03]">₱0.00</strong>
+                        </span>
+                    </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                         @foreach($services as $service)
                             @php $rate = (float)($service->price_per_load ?? $service->price); @endphp
@@ -783,7 +892,7 @@
                                            data-name="{{ $service->name }}">
                                     <div>
                                         <strong class="font-sans text-[#182830] block leading-tight">{{ $service->name }}</strong>
-                                        <span class="font-mono text-[10px] text-slate-500 uppercase">{{ $service->pricing_type === 'per_kg' ? 'Per KG rate' : 'Per Load rate' }}</span>
+                                        <span class="font-mono text-[10px] text-slate-500 uppercase">{{ $service->pricing_type === 'per_kg' ? 'Per KG rate' : ($service->pricing_type === 'flat_rate' ? 'Flat rate' : 'Per Load rate') }}</span>
                                     </div>
                                 </div>
                                 <span class="font-mono font-bold text-[#25799B]">₱{{ number_format($rate, 2) }}</span>
@@ -878,7 +987,7 @@
                 <!-- Customer Own Soap Option -->
                 <div class="rounded-2xl border-2 border-[#182830] bg-[#FFFDF8] p-4 shadow-[2px_2px_0px_#182830]">
                     <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="radio" name="soap_preference" value="own" id="cust-soap-own-radio" class="mt-0.5 h-4 w-4 text-[#CB1B03]">
+                        <input type="checkbox" name="bring_own_soap" value="1" id="cust-soap-own-check" class="mt-0.5 h-4 w-4 rounded border-2 border-[#182830] text-[#CB1B03] focus:ring-0">
                         <div class="flex-1">
                             <strong class="font-recoleta text-sm font-bold text-[#182830] flex items-center gap-1.5">
                                 <svg class="h-4 w-4 text-[#25799B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2h4M12 2v4M7 8h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"/></svg>
@@ -886,43 +995,80 @@
                             </strong>
                             <span class="block font-mono text-[11px] text-slate-600 mt-0.5">Bring your preferred personal brands to counter (e.g. Ariel pods, Surf powder, Downy bottle).</span>
                             <div id="cust-own-soap-input-wrap" class="mt-2.5 hidden">
-                                <input type="text" name="own_soap_custom" id="cust-own-soap-input" class="field text-xs font-medium" placeholder="Specify your soap brand (e.g., Tide Pods, Surf Blossom, Downy Mystic)">
+                                <input type="text" name="own_soap_custom" id="cust-own-soap-input" class="field text-xs font-medium" placeholder="Specify your soap brand &amp; scent (e.g., Tide Pods, Surf Blossom, Downy Mystic)">
                             </div>
                         </div>
                     </label>
                 </div>
 
-                <!-- Live Shop Stockroom Sachets Section -->
+                <!-- Live Shop Stockroom Sachets Section (Multiple Selection Supported) -->
                 <div class="space-y-3">
                     <div class="flex items-center justify-between">
-                        <label class="block font-mono text-xs font-bold uppercase text-[#182830]">
-                            Available In Shop Inventory Stock
-                        </label>
-                        <span class="font-mono text-[11px] text-[#25799B]">Real-time stock on hand</span>
+                        <div>
+                            <label class="block font-mono text-xs font-bold uppercase text-[#182830]">
+                                Available In Shop Inventory Stock
+                            </label>
+                            <span class="font-mono text-[11px] text-[#25799B]">Multiple selections allowed · Pick as many items as needed</span>
+                        </div>
+                        <span id="cust-supplies-count-badge" class="font-mono text-xs font-bold text-[#CB1B03] bg-[#F7E6CB] px-2.5 py-1 rounded-lg border border-[#182830]/20">
+                            0 items selected
+                        </span>
                     </div>
 
                     @if(isset($inventoryItems) && $inventoryItems->isNotEmpty())
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="cust-inventory-list">
-                            @foreach($inventoryItems as $itemIdx => $invItem)
+                            @foreach($inventoryItems as $invItem)
                                 @php
                                     $onHand = (float) $invItem->quantity_on_hand;
-                                    $isFirst = $itemIdx === 0;
+                                    $isDepleted = $onHand <= 0;
                                 @endphp
-                                <label class="flex items-center justify-between rounded-xl border-2 border-[#182830] bg-[#FFFDF8] p-3 text-xs font-bold text-[#182830] shadow-[2px_2px_0px_#182830] cursor-pointer hover:bg-amber-50/50 has-checked:bg-[#A2C5D8]/40 has-checked:border-[#25799B] transition">
-                                    <div class="flex items-center gap-3">
-                                        <input type="radio" name="soap_preference" value="{{ $invItem->id }}" data-item-name="{{ $invItem->name }}" {{ $isFirst ? 'checked' : '' }} class="h-4 w-4 text-[#CB1B03] cust-stock-soap-radio">
+                                <div class="flex flex-col justify-between rounded-xl border-2 border-[#182830] bg-[#FFFDF8] p-3 text-xs shadow-[2px_2px_0px_#182830] transition {{ $isDepleted ? 'opacity-60 bg-slate-50' : 'hover:border-[#25799B]' }}">
+                                    <div class="flex items-start justify-between gap-2 mb-2">
                                         <div>
                                             <span class="block font-recoleta text-sm font-bold text-[#182830]">{{ $invItem->name }}</span>
-                                            <span class="font-mono text-[10px] text-slate-500 font-normal flex items-center gap-1 mt-0.5">
-                                                <svg class="h-3 w-3 text-slate-500 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-                                                <span>Tracked per {{ $invItem->unit }}</span>
+                                            <span class="font-mono text-[10px] text-slate-500 font-normal">Tracked per {{ $invItem->unit }}</span>
+                                        </div>
+                                        @if($isDepleted)
+                                            <span class="badge border border-red-700 bg-red-100 text-red-800 text-[9px] font-mono font-bold">
+                                                Out of Stock
                                             </span>
+                                        @else
+                                            <span class="badge border border-emerald-600 bg-emerald-100 text-emerald-800 text-[9px] font-mono font-bold">
+                                                {{ (int) $onHand }} in stock
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <div class="pt-2 border-t border-[#182830]/15 flex items-center justify-between gap-2">
+                                        <label class="flex items-center gap-2 cursor-pointer font-mono font-bold text-xs text-[#182830]">
+                                            <input type="checkbox" 
+                                                   class="cust-inv-checkbox h-4 w-4 rounded border-2 border-[#182830] text-[#CB1B03] focus:ring-0 cursor-pointer"
+                                                   data-id="{{ $invItem->id }}"
+                                                   data-name="{{ $invItem->name }}"
+                                                   data-unit="{{ $invItem->unit }}"
+                                                   data-max="{{ $onHand }}"
+                                                   {{ $isDepleted ? 'disabled' : '' }}>
+                                            <span>{{ $isDepleted ? 'Unavailable' : 'Add to load' }}</span>
+                                        </label>
+
+                                        <div class="cust-inv-stepper-wrap flex items-center gap-1.5 opacity-40 pointer-events-none transition" data-stepper-id="{{ $invItem->id }}">
+                                            <button type="button" class="btn-cust-inv-dec flex h-7 w-7 items-center justify-center rounded-lg border border-[#182830] bg-[#F7E6CB] font-mono text-xs font-black text-[#182830] hover:bg-[#CB1B03] hover:text-white transition cursor-pointer" data-id="{{ $invItem->id }}">-</button>
+                                            <input type="number" 
+                                                   name="inventory_items[{{ $invItem->id }}]" 
+                                                   id="cust-inv-qty-{{ $invItem->id }}"
+                                                   value="0" 
+                                                   min="0" 
+                                                   max="{{ $onHand }}" 
+                                                   data-id="{{ $invItem->id }}"
+                                                   data-name="{{ $invItem->name }}"
+                                                   data-unit="{{ $invItem->unit }}"
+                                                   class="cust-inv-qty-input w-12 text-center rounded-lg border border-[#182830] bg-[#FFFDF8] py-1 font-mono text-xs font-black text-[#182830]"
+                                                   {{ $isDepleted ? 'disabled' : '' }}>
+                                            <button type="button" class="btn-cust-inv-inc flex h-7 w-7 items-center justify-center rounded-lg border border-[#182830] bg-[#25799B] font-mono text-xs font-black text-white hover:bg-[#1E6482] transition cursor-pointer" data-id="{{ $invItem->id }}">+</button>
+                                            <span class="font-mono text-[10px] text-slate-500 font-bold">{{ $invItem->unit }}</span>
                                         </div>
                                     </div>
-                                    <span class="badge border border-emerald-600 bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold">
-                                        {{ (int) $onHand }} in stock
-                                    </span>
-                                </label>
+                                </div>
                             @endforeach
                         </div>
                     @else
@@ -1028,7 +1174,7 @@
 <!-- ========================================================================= -->
 <!-- MODAL 2: Customer Rating & Feedback Pop-up Pane with Confetti & Bubbles   -->
 <!-- ========================================================================= -->
-<div id="customer-rating-modal" class="fixed inset-0 z-50 {{ $unratedOrder ? 'flex' : 'hidden' }} items-center justify-center bg-[#182830]/85 p-4 backdrop-blur-xs overflow-hidden">
+<div id="customer-rating-modal" class="fixed inset-0 z-[500] {{ $unratedOrder ? 'flex' : 'hidden' }} items-center justify-center bg-[#182830]/85 p-4 backdrop-blur-xs overflow-hidden" style="z-index: 500;">
     <!-- Interactive Canvas for Party Confetti Particles -->
     <canvas id="confetti-canvas" class="absolute inset-0 pointer-events-none z-10 w-full h-full"></canvas>
 
@@ -1225,11 +1371,59 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Auto-select first service treatment by default
+    // 1-Click Package Bundles & Live Subtotal in Step 1
+    function updateCustLiveSubtotal() {
+        const weight = parseFloat(weightInput?.value) || 0;
+        const loads = Math.ceil(weight / 8);
+        let subtotal = 0;
+        document.querySelectorAll('.cust-service-cb:checked').forEach(cb => {
+            const price = parseFloat(cb.dataset.price) || 0;
+            const type = cb.dataset.type;
+            subtotal += (type === 'per_kg') ? (price * weight) : (price * loads);
+        });
+        const subtotalEl = document.getElementById('cust-live-subtotal');
+        if (subtotalEl) {
+            subtotalEl.textContent = `₱${subtotal.toFixed(2)}`;
+        }
+    }
+
     const serviceCbs = document.querySelectorAll('.cust-service-cb');
     if (serviceCbs.length > 0 && !document.querySelector('.cust-service-cb:checked')) {
         serviceCbs[0].checked = true;
     }
+    updateCustLiveSubtotal();
+
+    serviceCbs.forEach(cb => {
+        cb.addEventListener('change', updateCustLiveSubtotal);
+    });
+
+    document.querySelectorAll('.cust-btn-bundle').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const bundle = btn.dataset.bundle;
+            serviceCbs.forEach(cb => {
+                const name = (cb.dataset.name || '').toLowerCase();
+                if (bundle === 'wash-dry-fold') {
+                    cb.checked = name.includes('wash') || name.includes('dry') || name.includes('fold');
+                } else if (bundle === 'wash-dry') {
+                    cb.checked = (name.includes('wash') || name.includes('dry')) && !name.includes('iron') && !name.includes('fold');
+                } else if (bundle === 'wash-dry-iron') {
+                    cb.checked = name.includes('wash') || name.includes('dry') || name.includes('iron');
+                } else if (bundle === 'wash-only') {
+                    cb.checked = name.includes('wash') && !name.includes('dry') && !name.includes('iron') && !name.includes('fold');
+                } else if (bundle === 'deluxe') {
+                    cb.checked = true;
+                }
+            });
+            updateCustLiveSubtotal();
+        });
+    });
+
+    weightInput?.addEventListener('input', updateCustLiveSubtotal);
+    btnWMinus?.addEventListener('click', updateCustLiveSubtotal);
+    btnWPlus?.addEventListener('click', updateCustLiveSubtotal);
+    document.querySelectorAll('.btn-cust-preset').forEach(btn => {
+        btn.addEventListener('click', updateCustLiveSubtotal);
+    });
 
     // Garment Tap-to-Check Checklist (Identical to Staff Portal)
     const custGarmentCounts = {};
@@ -1350,20 +1544,100 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Soap Toggle (Own Supplies vs Shop Stock)
-    const ownSoapRadio = document.getElementById('cust-soap-own-radio');
-    const ownSoapWrap = document.getElementById('cust-own-soap-input-wrap');
-    const ownSoapInput = document.getElementById('cust-own-soap-input');
-    const allSoapRadios = document.querySelectorAll('input[name="soap_preference"]');
+    // Soap & Supplies Multi-Selection (Live Inventory + Own Supplies)
+    const custSoapOwnCheck = document.getElementById('cust-soap-own-check');
+    const custOwnSoapWrap = document.getElementById('cust-own-soap-input-wrap');
+    const custOwnSoapInput = document.getElementById('cust-own-soap-input');
+    const custSuppliesBadge = document.getElementById('cust-supplies-count-badge');
 
-    allSoapRadios.forEach(radio => {
-        radio.addEventListener('change', () => {
-            if (ownSoapRadio && ownSoapRadio.checked) {
-                ownSoapWrap?.classList.remove('hidden');
-                ownSoapInput?.focus();
+    function updateCustSuppliesBadge() {
+        let count = 0;
+        document.querySelectorAll('.cust-inv-checkbox:checked').forEach(cb => {
+            const id = cb.dataset.id;
+            const input = document.getElementById('cust-inv-qty-' + id);
+            if (input && (parseFloat(input.value) || 0) > 0) count++;
+        });
+        if (custSuppliesBadge) {
+            custSuppliesBadge.textContent = `${count} item${count === 1 ? '' : 's'} selected`;
+        }
+    }
+
+    custSoapOwnCheck?.addEventListener('change', () => {
+        if (custSoapOwnCheck.checked) {
+            custOwnSoapWrap?.classList.remove('hidden');
+            custOwnSoapInput?.focus();
+        } else {
+            custOwnSoapWrap?.classList.add('hidden');
+        }
+        updateCustSuppliesBadge();
+    });
+
+    document.querySelectorAll('.cust-inv-checkbox').forEach(cb => {
+        cb.addEventListener('change', () => {
+            const id = cb.dataset.id;
+            const input = document.getElementById('cust-inv-qty-' + id);
+            const stepper = document.querySelector(`.cust-inv-stepper-wrap[data-stepper-id="${id}"]`);
+            if (cb.checked) {
+                if (input && (parseFloat(input.value) || 0) === 0) {
+                    input.value = 1;
+                }
+                if (stepper) {
+                    stepper.classList.remove('opacity-40', 'pointer-events-none');
+                    stepper.classList.add('opacity-100');
+                }
             } else {
-                ownSoapWrap?.classList.add('hidden');
+                if (input) input.value = 0;
+                if (stepper) {
+                    stepper.classList.add('opacity-40', 'pointer-events-none');
+                    stepper.classList.remove('opacity-100');
+                }
             }
+            updateCustSuppliesBadge();
+        });
+    });
+
+    document.querySelectorAll('.btn-cust-inv-inc').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            const input = document.getElementById('cust-inv-qty-' + id);
+            const cb = document.querySelector(`.cust-inv-checkbox[data-id="${id}"]`);
+            const stepper = document.querySelector(`.cust-inv-stepper-wrap[data-stepper-id="${id}"]`);
+            if (input) {
+                const max = parseFloat(input.max) || 999;
+                const cur = parseFloat(input.value) || 0;
+                if (cur < max) {
+                    input.value = cur + 1;
+                    if (cb && !cb.checked) cb.checked = true;
+                    if (stepper) {
+                        stepper.classList.remove('opacity-40', 'pointer-events-none');
+                        stepper.classList.add('opacity-100');
+                    }
+                }
+            }
+            updateCustSuppliesBadge();
+        });
+    });
+
+    document.querySelectorAll('.btn-cust-inv-dec').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            const input = document.getElementById('cust-inv-qty-' + id);
+            const cb = document.querySelector(`.cust-inv-checkbox[data-id="${id}"]`);
+            const stepper = document.querySelector(`.cust-inv-stepper-wrap[data-stepper-id="${id}"]`);
+            if (input) {
+                const cur = parseFloat(input.value) || 0;
+                if (cur > 1) {
+                    input.value = cur - 1;
+                } else {
+                    input.value = 0;
+                    if (cb) cb.checked = false;
+                    if (stepper) {
+                        stepper.classList.add('opacity-40', 'pointer-events-none');
+                        stepper.classList.remove('opacity-100');
+                    }
+                }
+            }
+            updateCustSuppliesBadge();
         });
     });
 
@@ -1414,18 +1688,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 summaryCapacityStatus.innerHTML = `<svg class="h-3 w-3 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Fleet OK (${loads}/8 Drums)</span>`;
                 summaryCapacityStatus.className = 'inline-flex items-center gap-1 rounded bg-emerald-100 text-emerald-900 border border-emerald-400 px-2 py-0.5 text-[10px] font-black uppercase';
             } else {
-                summaryCapacityStatus.innerHTML = `<svg class="h-3 w-3 text-red-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>EXCEEDS 8 DRUMS!</span>`;
+                summaryCapacityStatus.innerHTML = `<svg class="h-3 w-3 text-red-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="16"/></svg><span>EXCEEDS 8 DRUMS!</span>`;
                 summaryCapacityStatus.className = 'inline-flex items-center gap-1 rounded bg-red-100 text-red-900 border border-red-400 px-2 py-0.5 text-[10px] font-black uppercase animate-pulse';
             }
         }
 
-        const selectedSoap = document.querySelector('input[name="soap_preference"]:checked');
         if (summarySoap) {
-            if (selectedSoap && selectedSoap.value === 'own') {
-                const customVal = ownSoapInput?.value.trim();
-                summarySoap.textContent = customVal ? `Own Supplies (${customVal})` : 'Customer Brought Own Supplies';
-            } else if (selectedSoap && selectedSoap.dataset.itemName) {
-                summarySoap.textContent = `Shop Stock: ${selectedSoap.dataset.itemName}`;
+            const soapParts = [];
+            document.querySelectorAll('.cust-inv-checkbox:checked').forEach(cb => {
+                const id = cb.dataset.id;
+                const name = cb.dataset.name || 'Supply item';
+                const unit = cb.dataset.unit || 'unit';
+                const input = document.getElementById('cust-inv-qty-' + id);
+                const qty = input ? (parseFloat(input.value) || 0) : 0;
+                if (qty > 0) {
+                    soapParts.push(`${name} (${qty} ${unit}${qty > 1 && unit === 'sachet' ? 's' : ''})`);
+                }
+            });
+
+            if (custSoapOwnCheck && custSoapOwnCheck.checked) {
+                const customVal = custOwnSoapInput?.value.trim();
+                soapParts.push(customVal ? `Own: ${customVal}` : 'Customer Brought Own Soap');
+            }
+
+            if (soapParts.length > 0) {
+                summarySoap.textContent = soapParts.join(', ');
             } else {
                 summarySoap.textContent = 'Standard Detergent Formulation';
             }

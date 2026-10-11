@@ -267,4 +267,60 @@ class CustomerController extends Controller
             return back()->withErrors(['email' => "Failed to deliver email: " . $e->getMessage()]);
         }
     }
+
+    public function feedbacks(Request $request): View
+    {
+        $ratingFilter = $request->query('rating');
+        $search = $request->string('search')->trim()->toString();
+
+        $query = \App\Models\Order::query()
+            ->whereNotNull('rating')
+            ->where('rating', '>', 0)
+            ->with(['customer', 'items'])
+            ->latest('rated_at');
+
+        if ($ratingFilter && is_numeric($ratingFilter)) {
+            $val = (int) $ratingFilter;
+            if ($val >= 1 && $val <= 5) {
+                $query->where('rating', $val);
+            }
+        } elseif ($ratingFilter === 'low') {
+            $query->whereIn('rating', [1, 2]);
+        }
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search): void {
+                $q->where('order_number', 'like', "%{$search}%")
+                    ->orWhere('rating_comment', 'like', "%{$search}%")
+                    ->orWhereHas('customer', function ($cq) use ($search): void {
+                        $cq->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $feedbacks = $query->paginate(12)->withQueryString();
+
+        $allRated = \App\Models\Order::whereNotNull('rating')->where('rating', '>', 0);
+        $totalRatingsCount = (clone $allRated)->count();
+        $averageRating = $totalRatingsCount > 0 ? round((float) (clone $allRated)->avg('rating'), 1) : 5.0;
+        $fiveStarCount = (clone $allRated)->where('rating', 5)->count();
+        $fourStarCount = (clone $allRated)->where('rating', 4)->count();
+        $threeStarCount = (clone $allRated)->where('rating', 3)->count();
+        $lowRatingCount = (clone $allRated)->whereIn('rating', [1, 2])->count();
+        $withCommentsCount = (clone $allRated)->whereNotNull('rating_comment')->where('rating_comment', '!=', '')->count();
+
+        return view('customers.feedbacks', [
+            'feedbacks' => $feedbacks,
+            'totalRatingsCount' => $totalRatingsCount,
+            'averageRating' => $averageRating,
+            'fiveStarCount' => $fiveStarCount,
+            'fourStarCount' => $fourStarCount,
+            'threeStarCount' => $threeStarCount,
+            'lowRatingCount' => $lowRatingCount,
+            'withCommentsCount' => $withCommentsCount,
+            'currentFilter' => $ratingFilter,
+            'search' => $search,
+        ]);
+    }
 }

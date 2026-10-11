@@ -122,6 +122,12 @@
             </tbody>
         </table>
     </div>
+
+    @if($services->hasPages())
+        <div class="border-t-2 border-[#182830] bg-[#FFFDF8]">
+            {{ $services->links() }}
+        </div>
+    @endif
 </div>
 
 <!-- Add Service Modal -->

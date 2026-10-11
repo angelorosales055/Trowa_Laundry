@@ -93,75 +93,7 @@
     </div>
 </div>
 
-<!-- Global Trowa Retro Laundromat Confirmation Modal -->
-<div id="retro-confirm-modal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-[#182830]/80 backdrop-blur-xs p-4 transition-all duration-200" role="dialog" aria-modal="true">
-    <div class="relative w-full max-w-md rounded-3xl border-4 border-[#182830] bg-[#FFFDF8] shadow-[8px_8px_0px_#182830] overflow-hidden text-[#182830] animate-in fade-in zoom-in-95 duration-150">
-        
-        <!-- Header -->
-        <div class="border-b-3 border-[#182830] bg-[#1E6482] px-5 py-3 text-[#FFFDF8] flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-                <span class="flex h-7 w-7 items-center justify-center rounded-lg border-2 border-[#182830] bg-[#FFFDF8] text-[#CB1B03] shadow-[1px_1px_0px_#182830]">
-                    <!-- Ticket / Stamp Vector Icon -->
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                    </svg>
-                </span>
-                <div>
-                    <h3 class="font-recoleta text-base font-black text-[#F7E6CB] leading-tight" id="retro-confirm-title">
-                        Confirm Action
-                    </h3>
-                    <p class="font-mono text-[9px] uppercase tracking-wider text-[#A2C5D8]" id="retro-confirm-badge">
-                        Trowa Laundromat
-                    </p>
-                </div>
-            </div>
-            <button type="button" id="retro-confirm-btn-close" class="flex h-7 w-7 items-center justify-center rounded-lg border border-[#182830] bg-[#FFFDF8] text-sm font-black text-[#182830] shadow-[1px_1px_0px_#182830] hover:bg-[#CB1B03] hover:text-white transition cursor-pointer" aria-label="Close">
-                ×
-            </button>
-        </div>
 
-        <!-- Body -->
-        <div class="p-5 sm:p-6 space-y-4 font-sans bg-[#FFFDF8]">
-            <div class="flex items-start gap-3.5">
-                <div id="retro-confirm-icon-wrap" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-[#182830] bg-[#CB1B03] text-white shadow-[2px_2px_0px_#182830]">
-                    <svg id="retro-confirm-icon-danger" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
-                    <svg id="retro-confirm-icon-primary" class="h-6 w-6 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                    <svg id="retro-confirm-icon-check" class="h-6 w-6 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                </div>
-                <div class="flex-1 space-y-1">
-                    <p id="retro-confirm-message" class="text-sm font-bold text-[#182830] leading-snug">
-                        Are you sure you want to proceed with this action?
-                    </p>
-                    <p id="retro-confirm-hint" class="text-xs text-slate-600 font-medium leading-relaxed">
-                        Please review the details below before confirming.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Optional Details Summary Box -->
-            <div id="retro-confirm-details" class="hidden rounded-2xl border-2 border-[#182830] bg-[#F7E6CB]/40 p-3.5 font-mono text-xs text-[#182830] space-y-1.5 shadow-[2px_2px_0px_#182830]">
-            </div>
-
-            <!-- Footer Action Buttons -->
-            <div class="flex items-center justify-end gap-2.5 pt-3 border-t-2 border-[#182830]/15">
-                <button type="button" id="retro-confirm-btn-cancel" class="rounded-xl border-2 border-[#182830] bg-[#FFFDF8] px-4 py-2 font-mono text-xs font-bold text-slate-700 shadow-[2px_2px_0px_#182830] hover:bg-slate-100 transition cursor-pointer">
-                    Cancel
-                </button>
-                <button type="button" id="retro-confirm-btn-proceed" class="rounded-xl border-2 border-[#182830] bg-[#CB1B03] px-5 py-2 font-recoleta text-sm font-bold text-white shadow-[3px_3px_0px_#182830] hover:bg-[#B51702] transition cursor-pointer flex items-center gap-1.5">
-                    <span id="retro-confirm-btn-proceed-label">Yes, Proceed</span>
-                    <span id="retro-confirm-btn-proceed-arrow">➔</span>
-                </button>
-            </div>
-        </div>
-
-    </div>
-</div>
 
 @auth
     <!-- Mobile Sticky Top Bar -->
@@ -284,6 +216,7 @@
                             ['dashboard', 'Executive Dashboard', 'dashboard', 'Financial metrics, volume & fleet glance'],
                             ['admin.staff.index', 'Staff & Team', 'customers', 'Staff CRUD, operator logins & permissions'],
                             ['customers.insights', 'Customer Insights', 'insights', 'LTV, repeat rates & VIP intelligence'],
+                            ['customers.feedbacks', 'Customer Feedbacks', 'quality', 'Verified ratings, feedback notes & stars'],
                             ['inventory.index', 'Supply Inventory & Helper', 'inventory', 'Stockroom, burn rate & smart helper'],
                             ['reports', 'Business Reports & Plans', 'reports', 'Financial audits, billing ledger & strategy'],
                             ['expenses.index', 'Shop Expenses', 'expenses', 'Operating costs & vendor audits'],
@@ -327,6 +260,8 @@
                                     <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                                 @elseif($iconKey === 'insights')
                                     <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21H3V3"/><path d="M7 14l4-4 4 4 6-6"/><circle cx="11" cy="10" r="1.5"/><circle cx="15" cy="14" r="1.5"/><circle cx="21" cy="8" r="1.5"/></svg>
+                                @elseif($iconKey === 'quality')
+                                    <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                                 @elseif($iconKey === 'reports')
                                     <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                                 @elseif($iconKey === 'billing')
@@ -901,6 +836,76 @@
         });
     });
 </script>
+<!-- Global Trowa Retro Laundromat Confirmation Modal (Placed at Root of Body for Absolute Top Stacking) -->
+<div id="retro-confirm-modal" class="fixed inset-0 z-[9999] hidden items-center justify-center bg-[#182830]/80 backdrop-blur-xs p-4 transition-all duration-200" style="z-index: 9999;" role="dialog" aria-modal="true">
+    <div class="relative w-full max-w-md rounded-3xl border-4 border-[#182830] bg-[#FFFDF8] shadow-[8px_8px_0px_#182830] overflow-hidden text-[#182830] animate-in fade-in zoom-in-95 duration-150">
+        
+        <!-- Header -->
+        <div class="border-b-3 border-[#182830] bg-[#1E6482] px-5 py-3 text-[#FFFDF8] flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <span class="flex h-7 w-7 items-center justify-center rounded-lg border-2 border-[#182830] bg-[#FFFDF8] text-[#CB1B03] shadow-[1px_1px_0px_#182830]">
+                    <!-- Ticket / Stamp Vector Icon -->
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                </span>
+                <div>
+                    <h3 class="font-recoleta text-base font-black text-[#F7E6CB] leading-tight" id="retro-confirm-title">
+                        Confirm Action
+                    </h3>
+                    <p class="font-mono text-[9px] uppercase tracking-wider text-[#A2C5D8]" id="retro-confirm-badge">
+                        Trowa Laundromat
+                    </p>
+                </div>
+            </div>
+            <button type="button" id="retro-confirm-btn-close" class="flex h-7 w-7 items-center justify-center rounded-lg border border-[#182830] bg-[#FFFDF8] text-sm font-black text-[#182830] shadow-[1px_1px_0px_#182830] hover:bg-[#CB1B03] hover:text-white transition cursor-pointer" aria-label="Close">
+                ×
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-5 sm:p-6 space-y-4 font-sans bg-[#FFFDF8]">
+            <div class="flex items-start gap-3.5">
+                <div id="retro-confirm-icon-wrap" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-[#182830] bg-[#CB1B03] text-white shadow-[2px_2px_0px_#182830]">
+                    <svg id="retro-confirm-icon-danger" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <svg id="retro-confirm-icon-primary" class="h-6 w-6 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <svg id="retro-confirm-icon-check" class="h-6 w-6 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                </div>
+                <div class="flex-1 space-y-1">
+                    <p id="retro-confirm-message" class="text-sm font-bold text-[#182830] leading-snug">
+                        Are you sure you want to proceed with this action?
+                    </p>
+                    <p id="retro-confirm-hint" class="text-xs text-slate-600 font-medium leading-relaxed">
+                        Please review the details below before confirming.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Optional Details Summary Box -->
+            <div id="retro-confirm-details" class="hidden rounded-2xl border-2 border-[#182830] bg-[#F7E6CB]/40 p-3.5 font-mono text-xs text-[#182830] space-y-1.5 shadow-[2px_2px_0px_#182830]">
+            </div>
+
+            <!-- Footer Action Buttons -->
+            <div class="flex items-center justify-end gap-2.5 pt-3 border-t-2 border-[#182830]/15">
+                <button type="button" id="retro-confirm-btn-cancel" class="rounded-xl border-2 border-[#182830] bg-[#FFFDF8] px-4 py-2 font-mono text-xs font-bold text-slate-700 shadow-[2px_2px_0px_#182830] hover:bg-slate-100 transition cursor-pointer">
+                    Cancel
+                </button>
+                <button type="button" id="retro-confirm-btn-proceed" class="rounded-xl border-2 border-[#182830] bg-[#CB1B03] px-5 py-2 font-recoleta text-sm font-bold text-white shadow-[3px_3px_0px_#182830] hover:bg-[#B51702] transition cursor-pointer flex items-center gap-1.5">
+                    <span id="retro-confirm-btn-proceed-label">Yes, Proceed</span>
+                    <span id="retro-confirm-btn-proceed-arrow">➔</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 @stack('scripts')
 </body>
 </html>

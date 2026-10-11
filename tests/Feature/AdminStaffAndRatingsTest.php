@@ -197,4 +197,127 @@ class AdminStaffAndRatingsTest extends TestCase
         $printResponse->assertSee('Smells fresh and warm! Clothes were folded crisply.');
         $printResponse->assertSee('window.print()');
     }
+
+    public function test_staff_cannot_access_feedbacks_only_admin_can(): void
+    {
+        $staff = User::factory()->create(['role' => 'staff']);
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        // Staff is forbidden from accessing the feedback module
+        $this->actingAs($staff);
+        $staffResponse = $this->get(route('customers.feedbacks'));
+        $staffResponse->assertStatus(403);
+
+        // Admin has full access to feedback review
+        $this->actingAs($admin);
+        $adminResponse = $this->get(route('customers.feedbacks'));
+        $adminResponse->assertStatus(200);
+        $adminResponse->assertSee('Customer Feedbacks &amp; Ratings', false);
+    }
+
+    public function test_customer_can_see_their_own_feedback_in_portal_history(): void
+    {
+        $user = User::factory()->create(['role' => 'customer', 'email_verified_at' => now()]);
+        $customer = Customer::create([
+            'name' => 'Feedback Reviewer',
+            'email' => $user->email,
+        ]);
+        $user->customer_id = $customer->id;
+        $user->save();
+
+        $order = Order::create([
+            'order_number' => 'ORD-MY-FEEDBACK-99',
+            'customer_id' => $customer->id,
+            'customer_name' => $customer->name,
+            'created_by' => $user->id,
+            'services' => 'Wash, Dry & Fold',
+            'weight_kg' => 8.0,
+            'total_price' => 280,
+            'status' => 'claimed',
+            'payment_status' => 'paid',
+            'rating' => 5,
+            'rating_comment' => 'Exceptional service! Fabric softener smells great.',
+            'rated_at' => now(),
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get(route('customer.portal', ['tab' => 'history']));
+        $response->assertStatus(200);
+
+        // Customer sees their review in the table row
+        $response->assertSee('ORD-MY-FEEDBACK-99');
+        $response->assertSee('Exceptional service! Fabric softener smells great.');
+
+        // Customer sees their feedback log card
+        $response->assertSee('My Service Reviews &amp; Feedback History', false);
+        $response->assertSee('1 Review Submitted');
+    }
+
+    public function test_inventory_shows_stock_in_and_stock_out_dates_supplier_details_and_contact(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin);
+
+        $item = \App\Models\InventoryItem::create([
+            'name' => 'Surf Detergent Sachet',
+            'unit' => 'sachet',
+            'quantity_on_hand' => 100,
+            'low_stock_threshold' => 20,
+            'is_active' => true,
+        ]);
+
+        $supplier = \App\Models\Supplier::create([
+            'name' => 'CleanPro Chemicals Supply',
+            'contact_person' => 'Juan Dela Cruz',
+            'phone' => '0917-888-9999',
+            'email' => 'juan@cleanprosupply.ph',
+            'address' => 'Warehouse 12, Metro Depot',
+            'payment_terms' => 'COD',
+            'is_active' => true,
+        ]);
+
+        $supplierOrder = \App\Models\SupplierOrder::create([
+            'order_number' => 'PO-20261011-TEST',
+            'supplier_id' => $supplier->id,
+            'status' => 'received',
+            'total_cost' => 1500,
+            'recorded_by' => $admin->id,
+            'received_at' => now(),
+            'items_payload' => [
+                [
+                    'item_id' => $item->id,
+                    'item_name' => $item->name,
+                    'unit' => $item->unit,
+                    'quantity_added' => 50,
+                    'new_balance' => 150,
+                ]
+            ],
+            'notes' => 'Commercial restock order',
+        ]);
+
+        $item->movements()->create([
+            'recorded_by' => $admin->id,
+            'movement_type' => 'stock_in',
+            'quantity_change' => 50,
+            'notes' => 'Supplier Delivery PO-20261011-TEST',
+        ]);
+
+        $response = $this->get(route('inventory.index', ['tab' => 'stock']));
+        $response->assertStatus(200);
+
+        // Date of Stock In / Out is visible
+        $response->assertSee('Date &amp; Time of Stock In / Out', false);
+        $response->assertSee('Stock In (Arrival)');
+
+        // Switch to suppliers tab
+        $suppResponse = $this->get(route('inventory.index', ['tab' => 'suppliers']));
+        $suppResponse->assertStatus(200);
+
+        // Supplier details and contact links
+        $suppResponse->assertSee('CleanPro Chemicals Supply');
+        $suppResponse->assertSee('Juan Dela Cruz');
+        $suppResponse->assertSee('mailto:juan@cleanprosupply.ph');
+        $suppResponse->assertSee('PO-20261011-TEST');
+        $suppResponse->assertSee('View Invoice');
+    }
 }

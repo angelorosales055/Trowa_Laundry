@@ -11,7 +11,9 @@ class ServiceController extends Controller
 {
     public function index(): View
     {
-        return view('services.index', ['services' => Service::query()->orderBy('id')->get()]);
+        return view('services.index', [
+            'services' => Service::query()->orderBy('id')->paginate(10)->withQueryString()
+        ]);
     }
 
     public function store(Request $request): RedirectResponse

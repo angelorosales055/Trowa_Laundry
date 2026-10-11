@@ -369,6 +369,18 @@ class CustomerPortalController extends Controller
             ],
         ];
 
+        $customerFeedbacks = Order::query()
+            ->where(function ($q) use ($customer, $user): void {
+                if ($customer) {
+                    $q->where('customer_id', $customer->id);
+                }
+                $q->orWhere('created_by', $user->id);
+            })
+            ->whereNotNull('rating')
+            ->where('rating', '>', 0)
+            ->latest('rated_at')
+            ->get();
+
         $currentTab = $request->query('tab', 'dashboard');
 
         return view('customer.portal', [
@@ -381,6 +393,7 @@ class CustomerPortalController extends Controller
             'inventoryItems' => $inventoryItems,
             'customerAnalytics' => $customerAnalytics,
             'mascotJokes' => $mascotJokes,
+            'customerFeedbacks' => $customerFeedbacks,
             'currentTab' => $currentTab,
         ]);
     }
@@ -410,19 +423,51 @@ class CustomerPortalController extends Controller
         }
 
         // 2. Resolve soap preference: Shop stock vs customer personal supplies
+        $invInputs = $request->input('inventory_items', []);
+        $selectedItemsList = [];
+        $cleanedInvItems = [];
+        if (is_array($invInputs)) {
+            foreach ($invInputs as $id => $qty) {
+                $qty = (float) $qty;
+                if ($qty > 0) {
+                    $cleanedInvItems[$id] = $qty;
+                    $item = InventoryItem::find($id);
+                    if ($item) {
+                        $unitLabel = $item->unit;
+                        if ($qty > 1 && $item->unit === 'sachet') {
+                            $unitLabel = 'sachets';
+                        }
+                        $selectedItemsList[] = "{$item->name} ({$qty} {$unitLabel})";
+                    }
+                }
+            }
+        }
+
         $soapPreference = $request->input('soap_preference');
         $bringOwnSoap = $request->boolean('bring_own_soap') || $soapPreference === 'own';
+        $soapParts = [];
         if ($bringOwnSoap) {
             $customNote = trim((string) $request->input('own_soap_custom', ''));
-            $soapPreference = $customNote !== ''
-                ? "Customer Personal Supplies: {$customNote}"
+            $soapParts[] = $customNote !== ''
+                ? "Customer Own Supplies: {$customNote}"
                 : "Customer Brought Own Soap & Fabric Softener";
-        } elseif (is_numeric($soapPreference)) {
-            $invItem = InventoryItem::find((int) $soapPreference);
-            $soapPreference = $invItem ? "Shop Stock: {$invItem->name}" : "Shop Standard Detergent Formulation";
-        } elseif (empty($soapPreference)) {
-            $soapPreference = "Standard Laundromat Wash Formulation";
         }
+        if (!empty($selectedItemsList)) {
+            $soapParts[] = "Shop Inventory: " . implode(', ', $selectedItemsList);
+        } elseif (is_numeric($soapPreference)) {
+            $singleItem = InventoryItem::find((int) $soapPreference);
+            if ($singleItem) {
+                $soapParts[] = "Shop Stock: {$singleItem->name}";
+                $cleanedInvItems[$singleItem->id] = 1;
+            }
+        } elseif (!empty($soapPreference) && $soapPreference !== 'own') {
+            $soapParts[] = $soapPreference;
+        }
+
+        if (empty($soapParts)) {
+            $soapParts[] = "Standard Laundromat Wash Formulation";
+        }
+        $soapPreference = implode(' | ', $soapParts);
 
         $request->merge(['soap_preference' => $soapPreference]);
 
@@ -451,7 +496,7 @@ class CustomerPortalController extends Controller
             'soap_preference' => $validated['soap_preference'],
             'customer_notes' => $validated['customer_notes'] ?? null,
             'item_details' => $validated['item_details'] ?? [],
-            'inventory_items' => $request->input('inventory_items', []),
+            'inventory_items' => $cleanedInvItems,
             'amount_paid' => 0,
             'tendered_amount' => 0,
         ];
@@ -483,6 +528,6 @@ class CustomerPortalController extends Controller
             'rated_at' => now(),
         ]);
 
-        return redirect()->route('customer.portal')->with('status', '⭐ Thank you for rating our service! Your feedback helps us keep Trowa Laundry spotless.');
+        return redirect()->route('customer.portal')->with('status', 'Thank you for rating our service! Your feedback helps us keep Trowa Laundry spotless.');
     }
 }

@@ -5,7 +5,7 @@
 @endphp
 
 <!-- Step-by-Step Multi-Step Laundry Intake Wizard Modal -->
-<div id="order-modal" data-modal class="fixed inset-0 z-50 hidden items-center justify-center bg-[#182830]/80 p-2 sm:p-4 backdrop-blur-xs overflow-y-auto">
+<div id="order-modal" data-modal class="fixed inset-0 z-[500] hidden items-center justify-center bg-[#182830]/80 p-2 sm:p-4 backdrop-blur-xs overflow-y-auto" style="z-index: 500;">
     <div class="relative my-auto w-full max-w-4xl max-h-[94vh] flex flex-col rounded-3xl border-3 border-[#182830] bg-[#FFFDF8] shadow-[8px_8px_0px_#182830] overflow-hidden">
         
         <!-- Modal Top Title Strip -->

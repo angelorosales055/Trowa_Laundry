@@ -62,6 +62,7 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::post('/orders/add', [OrderController::class, 'store'])->name('orders.add');
     });
     Route::middleware('role:admin')->group(function () {
+        Route::get('/feedbacks', [CustomerController::class, 'feedbacks'])->name('customers.feedbacks');
         Route::get('/admin/customer-insights', [CustomerController::class, 'insights'])->name('customers.insights');
         Route::get('/reports', [DashboardController::class, 'reports'])->name('reports');
         Route::get('/reports/print', [DashboardController::class, 'printReports'])->name('reports.print');
@@ -70,6 +71,10 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::post('/inventory/{inventoryItem}/movements', [InventoryController::class, 'movement'])->name('inventory.movement');
         Route::post('/inventory/service-usage', [InventoryController::class, 'configureUsage'])->name('inventory.usage.store');
         Route::delete('/inventory/service-usage/{usage}', [InventoryController::class, 'deleteUsage'])->name('inventory.usage.destroy');
+        Route::post('/inventory/suppliers', [InventoryController::class, 'storeSupplier'])->name('inventory.suppliers.store');
+        Route::put('/inventory/suppliers/{supplier}', [InventoryController::class, 'updateSupplier'])->name('inventory.suppliers.update');
+        Route::delete('/inventory/suppliers/{supplier}', [InventoryController::class, 'deleteSupplier'])->name('inventory.suppliers.destroy');
+        Route::post('/inventory/auto-restock', [InventoryController::class, 'autoRestock'])->name('inventory.auto-restock');
         Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
         Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
         Route::get('/orders/{order}/edit', [OrderController::class, 'edit'])->name('orders.edit');
