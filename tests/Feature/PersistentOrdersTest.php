@@ -1006,4 +1006,41 @@ class PersistentOrdersTest extends TestCase
             ->assertSee("UTIL-PWR-{$order->order_number}")
             ->assertSee("#{$order->order_number}");
     }
+
+    public function test_service_catalog_only_shows_active_laundry_services_by_default(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        Service::create([
+            'name' => 'Wash & Fold Premium',
+            'pricing_type' => 'per_load',
+            'price_per_load' => 60,
+            'price' => 60,
+            'is_active' => true,
+        ]);
+        Service::create([
+            'name' => 'Shoe Cleaning Test',
+            'pricing_type' => 'per_load',
+            'price_per_load' => 150,
+            'price' => 150,
+            'is_active' => false,
+        ]);
+        Service::create([
+            'name' => 'Stain Removal Test',
+            'pricing_type' => 'per_load',
+            'price_per_load' => 50,
+            'price' => 50,
+            'is_active' => false,
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('services.index'));
+        $response->assertOk();
+
+        // Authentic laundry services are visible
+        $response->assertSee('Wash &amp; Fold Premium', false);
+
+        // Deactivated products and non-services are excluded from default active catalog
+        $response->assertDontSee('Shoe Cleaning Test');
+        $response->assertDontSee('Stain Removal Test');
+    }
 }

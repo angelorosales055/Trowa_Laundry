@@ -57,6 +57,16 @@
             <h2 class="font-recoleta text-lg font-bold text-[#182830]">Service Price Management</h2>
             <p class="font-mono text-xs text-[#25799B]">Rates apply dynamically to new intakes based on machine load allocations.</p>
         </div>
+        <div class="flex items-center gap-2 font-mono text-xs">
+            <a href="{{ route('services.index') }}" class="px-3 py-1.5 rounded-lg border-2 border-[#182830] font-bold transition {{ ! $showAll ? 'bg-[#182830] text-[#FFFDF8] shadow-[2px_2px_0px_#CB1B03]' : 'bg-[#FFFDF8] text-[#182830] hover:bg-[#F7E6CB]' }}">
+                Active Services ({{ $activeCount }})
+            </a>
+            @if($inactiveCount > 0)
+                <a href="{{ route('services.index', ['all' => 1]) }}" class="px-3 py-1.5 rounded-lg border-2 border-[#182830] font-bold transition {{ $showAll ? 'bg-[#182830] text-[#FFFDF8] shadow-[2px_2px_0px_#CB1B03]' : 'bg-[#FFFDF8] text-slate-600 hover:bg-[#F7E6CB]' }}">
+                    All Incl. Inactive ({{ $activeCount + $inactiveCount }})
+                </a>
+            @endif
+        </div>
     </div>
 
     <div class="overflow-x-auto">

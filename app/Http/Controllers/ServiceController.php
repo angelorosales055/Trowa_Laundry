@@ -9,10 +9,19 @@ use Illuminate\View\View;
 
 class ServiceController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $showAll = $request->boolean('all');
+
+        $query = Service::query()
+            ->when(! $showAll, fn ($q) => $q->where('is_active', true))
+            ->orderBy('id');
+
         return view('services.index', [
-            'services' => Service::query()->orderBy('id')->paginate(10)->withQueryString()
+            'services' => $query->paginate(15)->withQueryString(),
+            'showAll' => $showAll,
+            'activeCount' => Service::query()->where('is_active', true)->count(),
+            'inactiveCount' => Service::query()->where('is_active', false)->count(),
         ]);
     }
 
@@ -55,6 +64,12 @@ class ServiceController extends Controller
 
     public function destroy(Service $service): RedirectResponse
     {
+        if ($service->orderServices()->exists()) {
+            $service->update(['is_active' => false]);
+
+            return back()->with('status', "Service '{$service->name}' is linked to previous order history and was deactivated from the active catalog.");
+        }
+
         $service->delete();
 
         return back()->with('status', 'Service removed.');
