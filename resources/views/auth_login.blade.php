@@ -458,7 +458,7 @@
                     @csrf
                     <div>
                         <label for="username-input" id="login-input-label" class="block font-mono text-xs font-bold text-[#182830] mb-1">
-                            Username or Email Address
+                            Username or email
                         </label>
                         <input id="username-input" 
                                name="username" 
@@ -466,7 +466,7 @@
                                type="text" 
                                autocomplete="username" 
                                class="field text-sm font-medium w-full" 
-                               placeholder="e.g. admin123, staff123, or user@example.com" 
+                               placeholder="Username or email" 
                                required 
                                autofocus>
                     </div>
@@ -482,7 +482,7 @@
                                    value="" 
                                    autocomplete="current-password" 
                                    class="field pr-16 text-sm font-medium w-full" 
-                                   placeholder="Enter your password" 
+                                   placeholder="Password" 
                                    required>
                             <button type="button" 
                                     id="toggle-password" 
