@@ -134,4 +134,8 @@ Route::get('/artisan/migrate', function (\Illuminate\Http\Request $request) {
             500
         );
     }
-});
+})->withoutMiddleware([
+    \Illuminate\Session\Middleware\StartSession::class,
+    \Illuminate\Session\Middleware\AuthenticateSession::class,
+    \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+]);
