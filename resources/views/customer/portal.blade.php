@@ -1204,7 +1204,7 @@
             Your laundry ticket #<strong id="modal-rating-order-num" class="text-[#CB1B03]">{{ $unratedOrder->order_number ?? '' }}</strong> is clean and folded! Tap the stars to celebrate and share your feedback.
         </p>
 
-        <form method="POST" action="{{ $unratedOrder ? route('customer.orders.rate', $unratedOrder) : '#' }}" id="rating-form" data-confirm="Submit your review and rating for this laundry order?" data-confirm-title="Confirm Review Submission" data-confirm-type="check" data-confirm-btn="Yes, Submit Rating" class="mt-5 space-y-4">
+        <form method="POST" action="{{ $unratedOrder ? route('customer.orders.rate', $unratedOrder) : '#' }}" id="rating-form" class="mt-5 space-y-4">
             @csrf
 
             <!-- Interactive 5-Star Selection with SVG Stars -->

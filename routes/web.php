@@ -78,6 +78,7 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::post('/inventory/auto-restock', [InventoryController::class, 'autoRestock'])->name('inventory.auto-restock');
         Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
         Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+        Route::post('/expenses/auto-log-utilities', [ExpenseController::class, 'autoLogUtilities'])->name('expenses.auto-log-utilities');
         Route::get('/orders/{order}/edit', [OrderController::class, 'edit'])->name('orders.edit');
         Route::put('/orders/{order}', [OrderController::class, 'update'])->name('orders.update-details');
 

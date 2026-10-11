@@ -512,10 +512,14 @@ class CustomerPortalController extends Controller
     public function submitRating(Order $order, Request $request): RedirectResponse
     {
         $user = $request->user();
-        abort_unless(
-            $order->customer_id === $user->customer_id || $order->created_by === $user->id,
-            403
-        );
+        $customer = $user->customer ?? Customer::where('user_id', $user->id)->first() ?? Customer::where('email', $user->email)->first();
+        $customerIds = array_filter([$user->customer_id, $customer?->id]);
+
+        $canRate = ($order->created_by === $user->id)
+            || (in_array($order->customer_id, $customerIds, true))
+            || ($customer && $order->customer_name === $customer->name);
+
+        abort_unless($canRate, 403, 'Unauthorized to submit rating for this order.');
 
         $validated = $request->validate([
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
