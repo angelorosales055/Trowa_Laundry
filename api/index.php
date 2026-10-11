@@ -13,6 +13,11 @@ putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
 $_ENV['VIEW_COMPILED_PATH'] = '/tmp/storage/framework/views';
 $_SERVER['VIEW_COMPILED_PATH'] = '/tmp/storage/framework/views';
 
+// Fix script path for Symfony Request so base URL is root
+$_SERVER['SCRIPT_NAME'] = '/index.php';
+$_SERVER['SCRIPT_FILENAME'] = __DIR__.'/../public/index.php';
+$_SERVER['PHP_SELF'] = '/index.php';
+
 $dirs = [
     '/tmp/storage/app/public',
     '/tmp/storage/app/private',
