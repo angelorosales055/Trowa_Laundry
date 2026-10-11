@@ -34,10 +34,10 @@ class PersistentOrdersTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
-    public function test_merged_manager_account_uses_the_admin_interface(): void
+    public function test_admin_account_uses_the_admin_interface(): void
     {
         $user = User::factory()->create([
-            'username' => 'manager123',
+            'username' => 'admin123',
             'password' => 'pass123',
             'role' => 'admin',
         ]);

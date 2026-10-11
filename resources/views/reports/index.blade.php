@@ -698,7 +698,7 @@
                         {{ $ratingFeedbackRecommendation['description'] }}
                     </p>
                     <div class="rounded-xl border border-[#182830]/20 bg-[#FFFDF8] p-3 text-xs font-mono text-slate-800">
-                        <strong class="text-[#182830] block font-bold mb-0.5">Recommended Manager Action:</strong>
+                        <strong class="text-[#182830] block font-bold mb-0.5">Recommended Admin Action:</strong>
                         {{ $ratingFeedbackRecommendation['action'] }}
                     </div>
                 </div>

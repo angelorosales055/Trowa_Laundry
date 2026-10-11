@@ -77,7 +77,6 @@ Quick setup (run these locally):
 3. Demo credentials (quick-fill buttons on the login page):
 
 - staff123 / pass123  → Staff
-- manager123 / pass123 → Admin
 - admin123 / pass123 → Admin
 
 Notes:
