@@ -97,3 +97,41 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::delete('/settings/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
     });
 });
+
+// Cloud Deployment Helper: Run migrations and seeders remotely with secret APP_KEY
+Route::get('/artisan/migrate', function (\Illuminate\Http\Request $request) {
+    $key = (string) $request->query('key');
+    $expectedKey = (string) config('app.key');
+
+    if (blank($expectedKey) || ! hash_equals($expectedKey, $key)) {
+        abort(403, 'Unauthorized. Please provide ?key=YOUR_APP_KEY');
+    }
+
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $migrateOutput = \Illuminate\Support\Facades\Artisan::output();
+
+        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+        $seedOutput = \Illuminate\Support\Facades\Artisan::output();
+
+        return response(
+            "<pre style='font-family:monospace;padding:24px;background:#0f172a;color:#38bdf8;border-radius:8px;line-height:1.6;'>"
+            ."<h2 style='color:#4ade80;margin-top:0;'>Migration and Database Seeding Succeeded</h2>\n"
+            ."<strong style='color:#f8fafc;'>--- MIGRATIONS ---</strong>\n".e($migrateOutput)."\n\n"
+            ."<strong style='color:#f8fafc;'>--- SEEDING ---</strong>\n".e($seedOutput)."\n\n"
+            ."<span style='color:#4ade80;'>All tables created and initial accounts (admin123, staff123) are ready!</span>\n"
+            ."<a href='".route('login')."' style='color:#fbbf24;display:inline-block;margin-top:16px;'>Go to Sign In &rarr;</a>"
+            ."</pre>"
+        );
+    } catch (\Throwable $e) {
+        return response(
+            "<pre style='font-family:monospace;padding:24px;background:#450a0a;color:#fca5a5;border-radius:8px;line-height:1.6;'>"
+            ."<h2 style='color:#ef4444;margin-top:0;'>Migration Error</h2>\n"
+            ."<strong>Message:</strong> ".e($e->getMessage())."\n\n"
+            ."<strong>File:</strong> ".e($e->getFile()).':'.e($e->getLine())."\n\n"
+            ."<strong>Stack Trace:</strong>\n".e($e->getTraceAsString())
+            ."</pre>",
+            500
+        );
+    }
+});
