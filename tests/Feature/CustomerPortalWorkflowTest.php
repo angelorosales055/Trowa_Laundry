@@ -373,4 +373,26 @@ class CustomerPortalWorkflowTest extends TestCase
         $this->assertEquals(['Tops / Shirts', 'Towels'], $savedItems->pluck('item_name')->all());
         $this->assertEquals([5, 3], $savedItems->pluck('quantity')->all());
     }
+
+    public function test_customer_registration_page_renders_terms_and_conditions_and_validates(): void
+    {
+        $response = $this->get(route('customer.register'));
+        $response->assertOk();
+        $response->assertSee('register-terms');
+        $response->assertSee('terms-modal');
+        $response->assertSee('Terms of Service &amp; Laundry Policies', false);
+
+        // Submitting with terms unchecked (e.g. '0') should fail validation
+        $invalidResponse = $this->post(route('customer.register.post'), [
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'email' => 'john.doe.terms@example.com',
+            'contact_number' => '09179998888',
+            'address' => '123 Main St',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'terms' => '0',
+        ]);
+        $invalidResponse->assertSessionHasErrors('terms');
+    }
 }

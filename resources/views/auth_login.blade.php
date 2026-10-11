@@ -134,15 +134,21 @@
                 </span>
             </div>
 
-            <!-- Right: Real-time Shift & Machine Bay Status Ticker -->
-            <div class="flex items-center gap-4 text-[11px] text-[#A2C5D8]">
+            <!-- Right: Navigation, Shift & Machine Bay Status Ticker -->
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-[11px] text-[#A2C5D8]">
+                <a href="#about-us-section" class="inline-flex items-center gap-1 rounded-md border border-[#182830] bg-[#FFFDF8] px-2.5 py-0.5 text-[#182830] font-bold shadow-[1px_1px_0px_#182830] hover:bg-[#F7E6CB] transition">
+                    About Us
+                </a>
+                <button type="button" onclick="openTermsModal()" class="inline-flex items-center gap-1 rounded-md border border-[#182830] bg-[#FFFDF8] px-2.5 py-0.5 text-[#182830] font-bold shadow-[1px_1px_0px_#182830] hover:bg-[#F7E6CB] transition cursor-pointer">
+                    Terms &amp; Policies
+                </button>
                 <span class="hidden md:inline-flex items-center gap-1.5 font-bold text-[#FFFDF8]">
                     <span class="inline-block h-2 w-2 rounded-full bg-[#10B981]"></span>
                     SHIFT: MORNING (07:00 – 15:00)
                 </span>
                 <span class="hidden sm:inline-flex items-center gap-1.5 rounded-md border border-[#182830] bg-[#14232B] px-2 py-0.5 text-[#F7E6CB]">
                     <span>FLEET:</span>
-                    <span class="font-bold text-[#BAE6FD]">10 UNITS ACTIVE</span>
+                    <span class="font-bold text-[#BAE6FD]">10 UNITS</span>
                 </span>
                 <span class="inline-flex items-center gap-1.5 rounded-md border border-[#182830] bg-[#FFFDF8] px-2.5 py-0.5 text-[#182830] font-bold shadow-[2px_2px_0px_#182830]">
                     <span class="h-2 w-2 rounded-full bg-[#10B981] animate-ping"></span>
@@ -492,10 +498,14 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-between text-xs font-mono pt-1">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono pt-1 gap-2">
                         <label class="flex items-center gap-2 text-slate-700 cursor-pointer select-none">
                             <input type="checkbox" name="remember" class="rounded border-[#182830] text-[#CB1B03] focus:ring-0">
                             <span class="font-bold">Remember this station</span>
+                        </label>
+                        <label class="flex items-center gap-2 text-slate-700 cursor-pointer select-none">
+                            <input type="checkbox" name="terms" id="login-terms-check" class="rounded border-[#182830] text-[#CB1B03] focus:ring-0" required>
+                            <span>I agree to <button type="button" onclick="openTermsModal()" class="font-bold text-[#25799B] underline hover:text-[#CB1B03] cursor-pointer">Terms &amp; Conditions</button></span>
                         </label>
                     </div>
 
@@ -706,11 +716,164 @@
 
             </div>
 
-            <p class="mt-8 text-center font-mono text-[11px] text-slate-500 border-t border-[#182830]/15 pt-4">
-                Trowa Laundry System © {{ date('Y') }} · All rights reserved.
-            </p>
+            <div class="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-center font-mono text-[11px] text-slate-500 border-t border-[#182830]/15 pt-4">
+                <span>Trowa Laundry System © {{ date('Y') }} · All rights reserved.</span>
+                <span>·</span>
+                <a href="#about-us-section" class="text-[#25799B] hover:text-[#CB1B03] font-bold">About Us</a>
+                <span>·</span>
+                <button type="button" onclick="openTermsModal()" class="text-[#25799B] hover:text-[#CB1B03] font-bold cursor-pointer">Terms &amp; Policies</button>
+            </div>
         </section>
     </div>
+
+    <!-- ========================================================================= -->
+    <!-- About Us Section: Our Story, Mechanical Heritage & Community Care         -->
+    <!-- ========================================================================= -->
+    <section id="about-us-section" class="mt-12 w-full max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="rounded-3xl border-4 border-[#182830] bg-[#FFFDF8] p-6 sm:p-10 shadow-[10px_10px_0px_#182830] relative overflow-hidden">
+            <!-- Retro Texture Dot Pattern -->
+            <div class="pointer-events-none absolute inset-0 opacity-5" style="background-image: radial-gradient(#182830 1.5px, transparent 1.5px); background-size: 20px 20px;"></div>
+
+            <!-- Top Header Banner -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-3 border-[#182830] pb-6 mb-8 relative z-10">
+                <div>
+                    <div class="inline-flex items-center gap-2 rounded-full border-2 border-[#182830] bg-[#F7E6CB] px-3.5 py-1 font-mono text-[11px] font-bold uppercase tracking-wider text-[#182830] shadow-[2px_2px_0px_#182830] mb-2">
+                        <span class="h-2 w-2 rounded-full bg-[#10B981] animate-pulse"></span>
+                        <span>Commercial Craftsmanship · Est. 2024</span>
+                    </div>
+                    <h2 class="font-recoleta text-3xl sm:text-4xl font-extrabold text-[#182830] leading-tight">
+                        About Trowa Laundry
+                    </h2>
+                    <p class="mt-1 font-sans text-sm text-[#25799B] font-medium max-w-2xl">
+                        Cleaner clothes, happier shifts. Where vintage commercial durability meets mindful neighborhood hospitality.
+                    </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <a href="{{ route('customer.register') }}" class="rounded-xl border-2 border-[#182830] bg-[#CB1B03] px-4 py-2 font-mono text-xs font-black text-white shadow-[2px_2px_0px_#182830] hover:bg-[#B51702] transition cursor-pointer">
+                        ✨ Join Membership
+                    </a>
+                    <button type="button" onclick="openTermsModal()" class="rounded-xl border-2 border-[#182830] bg-[#FFFDF8] px-4 py-2 font-mono text-xs font-bold text-[#182830] shadow-[2px_2px_0px_#182830] hover:bg-slate-100 transition cursor-pointer">
+                        § View Policies
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Narrative Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10 mb-8">
+                <!-- Left 7 cols: Our Story & Philosophy -->
+                <div class="lg:col-span-7 space-y-4">
+                    <h3 class="font-recoleta text-xl font-bold text-[#182830]">
+                        The Story Behind the Spin
+                    </h3>
+                    <p class="font-sans text-sm text-slate-700 leading-relaxed">
+                        Trowa Laundry began with a straightforward promise: to treat every piece of clothing with the same care and dignity as its owner. We observed that modern laundromats often prioritize volume over fabric longevity—mixing different customers' clothes, reducing rinse cycles, and rushing the folding process. We set out to change that standard.
+                    </p>
+                    <p class="font-sans text-sm text-slate-700 leading-relaxed">
+                        Drawing inspiration from robust, time-tested 1974 industrial washing machinery, our facility balances heavy-duty stainless steel mechanics with environmentally conscious washing chemistry. Whether you bring a single work uniform or a full household load, every fiber receives our signature gentle agitation, triple freshwater rinses, and allergen-free finishing.
+                    </p>
+                    <div class="rounded-2xl border-2 border-[#182830] bg-[#25799B]/10 p-4 font-mono text-xs text-[#182830]">
+                        <strong class="block text-sm font-bold text-[#25799B] mb-1 font-recoleta">Our Neighborhood Guarantee</strong>
+                        "Zero lost socks, zero harsh chemical residues, and zero mixed batches. We treat your wardrobe with the same care we give our own."
+                    </div>
+                </div>
+
+                <!-- Right 5 cols: Highlights Card -->
+                <div class="lg:col-span-5 rounded-2xl border-3 border-[#182830] bg-[#1E6482] p-5 text-[#FFFDF8] shadow-[5px_5px_0px_#182830] flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between border-b border-[#FFFDF8]/20 pb-3 mb-4">
+                            <span class="font-mono text-xs uppercase font-bold text-[#F7E6CB]">Station Quick Dossier</span>
+                            <span class="rounded bg-[#14232B] px-2 py-0.5 text-[10px] font-mono font-bold text-[#BAE6FD]">BAY #01</span>
+                        </div>
+                        <ul class="space-y-3 font-mono text-xs">
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-[#10B981] font-bold text-sm">✓</span>
+                                <div>
+                                    <strong class="text-[#FFFDF8] block">100% Dedicated Drums:</strong>
+                                    <span class="text-[#BAE6FD] text-[11px]">Strict zero-mix policy. One customer basket per machine cycle guaranteed.</span>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-[#10B981] font-bold text-sm">✓</span>
+                                <div>
+                                    <strong class="text-[#FFFDF8] block">60°C Sanitized Steam:</strong>
+                                    <span class="text-[#BAE6FD] text-[11px]">Thermal steam core eradicates deep dirt, allergens, and bacteria.</span>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-[#10B981] font-bold text-sm">✓</span>
+                                <div>
+                                    <strong class="text-[#FFFDF8] block">Live Tracking &amp; SMS:</strong>
+                                    <span class="text-[#BAE6FD] text-[11px]">Real-time order statuses and instant pickup ready notifications.</span>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-[#10B981] font-bold text-sm">✓</span>
+                                <div>
+                                    <strong class="text-[#FFFDF8] block">Eco-Calibrated Chemistry:</strong>
+                                    <span class="text-[#BAE6FD] text-[11px]">Hypoallergenic, pre-measured dosage tailored per fabric type.</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-[#FFFDF8]/20 text-[10px] font-mono text-[#A2C5D8] flex items-center justify-between">
+                        <span>CERTIFIED SANITATION BAY</span>
+                        <span class="text-[#10B981] font-bold">100% INSPECTED</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4 Service Standards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10 mb-8 font-mono">
+                <div class="rounded-2xl border-2 border-[#182830] bg-[#FFFDF8] p-4 shadow-[4px_4px_0px_#182830]">
+                    <span class="text-2xl block mb-1">🧼</span>
+                    <strong class="text-xs sm:text-sm font-black text-[#CB1B03] block">Wash · Dry · Fold</strong>
+                    <p class="text-[11px] text-slate-600 mt-1">Full drop-off wash service with precision military fold and sealed kraft packaging.</p>
+                </div>
+                <div class="rounded-2xl border-2 border-[#182830] bg-[#FFFDF8] p-4 shadow-[4px_4px_0px_#182830]">
+                    <span class="text-2xl block mb-1">⚡</span>
+                    <strong class="text-xs sm:text-sm font-black text-[#25799B] block">45-Min Express</strong>
+                    <p class="text-[11px] text-slate-600 mt-1">Direct-drive 1400 RPM extraction for rapid turnarounds when schedules are tight.</p>
+                </div>
+                <div class="rounded-2xl border-2 border-[#182830] bg-[#FFFDF8] p-4 shadow-[4px_4px_0px_#182830]">
+                    <span class="text-2xl block mb-1">🧺</span>
+                    <strong class="text-xs sm:text-sm font-black text-[#10B981] block">Self-Service Intakes</strong>
+                    <p class="text-[11px] text-slate-600 mt-1">Customer portal online intake booking, soap choices, and complete order history.</p>
+                </div>
+                <div class="rounded-2xl border-2 border-[#182830] bg-[#FFFDF8] p-4 shadow-[4px_4px_0px_#182830]">
+                    <span class="text-2xl block mb-1">🛡️</span>
+                    <strong class="text-xs sm:text-sm font-black text-[#8B5CF6] block">Garment Protection</strong>
+                    <p class="text-[11px] text-slate-600 mt-1">Intake weight verification, pocket checks, and color-bleed prevention protocols.</p>
+                </div>
+            </div>
+
+            <!-- Operating Hours & Contact Banner -->
+            <div class="rounded-2xl border-2 border-[#182830] bg-[#F7E6CB] p-4 sm:p-5 relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 font-mono text-xs">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 border-[#182830] bg-[#FFFDF8] text-[#182830] shadow-[2px_2px_0px_#182830] text-lg font-black">
+                        🕒
+                    </div>
+                    <div>
+                        <strong class="text-sm font-bold text-[#182830] block">Operating Hours &amp; Customer Care</strong>
+                        <span class="text-slate-700 text-[11px]">Open Daily: Monday through Sunday · 7:00 AM to 8:00 PM</span>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-4 text-[11px] text-[#182830]">
+                    <div>
+                        <span class="text-slate-500 block text-[9px] uppercase font-bold">Counter Hotline</span>
+                        <strong>+63 917 876 9200</strong>
+                    </div>
+                    <div>
+                        <span class="text-slate-500 block text-[9px] uppercase font-bold">Email Inquiries</span>
+                        <strong>support@trowalaundry.com</strong>
+                    </div>
+                    <div>
+                        <span class="text-slate-500 block text-[9px] uppercase font-bold">Location</span>
+                        <strong>Trowa Bay Station #01</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Scroll Down Prompt to Unlock the Drum (Wide Illuminated Vintage Sign) -->
     <div class="mt-8 text-center px-4">
@@ -1893,5 +2056,8 @@
     }
 </script>
 @endpush
+
+@include('partials.terms_conditions_modal')
+
 @endsection
 

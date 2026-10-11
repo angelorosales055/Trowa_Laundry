@@ -125,6 +125,29 @@
                 </div>
             </div>
 
+            <!-- Terms and Conditions Agreement Checkbox -->
+            <div class="rounded-2xl border-2 border-[#182830] bg-[#FFFDF8] p-3.5 shadow-[2px_2px_0px_#182830]">
+                <label class="flex items-start gap-2.5 cursor-pointer select-none">
+                    <input type="checkbox" 
+                           name="terms" 
+                           id="register-terms" 
+                           value="1" 
+                           {{ old('terms') ? 'checked' : '' }}
+                           required 
+                           class="mt-0.5 rounded border-2 border-[#182830] text-[#CB1B03] focus:ring-0">
+                    <span class="font-mono text-xs text-[#182830] leading-snug">
+                        I agree to the 
+                        <button type="button" onclick="openTermsModal()" class="font-bold text-[#25799B] underline hover:text-[#CB1B03] cursor-pointer">
+                            Terms &amp; Conditions
+                        </button> 
+                        and Laundry Service Care Policies.
+                    </span>
+                </label>
+                @error('terms')
+                    <span class="block text-[11px] text-[#CB1B03] font-bold mt-1 font-mono">{{ $message }}</span>
+                @enderror
+            </div>
+
             <!-- Submit Button -->
             <div class="pt-2">
                 <button type="submit" id="btn-submit-register" class="w-full rounded-2xl border-3 border-[#182830] bg-[#CB1B03] py-3.5 px-5 font-recoleta text-base font-black text-white shadow-[4px_4px_0px_#182830] hover:bg-[#B51702] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer flex items-center justify-center gap-2">
@@ -148,6 +171,8 @@
 
     </div>
 </div>
+
+@include('partials.terms_conditions_modal')
 
 @push('scripts')
 <script>

@@ -82,10 +82,14 @@
                        class="field text-sm">
             </div>
 
-            <div class="flex items-center justify-between text-xs font-mono">
-                <label class="flex items-center gap-2 text-slate-700 cursor-pointer">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono gap-2 pt-1">
+                <label class="flex items-center gap-2 text-slate-700 cursor-pointer select-none">
                     <input type="checkbox" name="remember" class="rounded border-[#182830] text-[#CB1B03] focus:ring-0">
                     <span>Remember me</span>
+                </label>
+                <label class="flex items-center gap-2 text-slate-700 cursor-pointer select-none">
+                    <input type="checkbox" name="terms" id="cust-login-terms-check" required class="rounded border-[#182830] text-[#CB1B03] focus:ring-0">
+                    <span>I agree to <button type="button" onclick="openTermsModal()" class="font-bold text-[#25799B] underline hover:text-[#CB1B03] cursor-pointer">Terms</button></span>
                 </label>
             </div>
 
@@ -111,6 +115,8 @@
 
     </div>
 </div>
+
+@include('partials.terms_conditions_modal')
 
 @push('scripts')
 <script>

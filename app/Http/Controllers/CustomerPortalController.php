@@ -45,6 +45,9 @@ class CustomerPortalController extends Controller
             'contact_number' => ['required', 'string', 'max:30'],
             'address' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'terms' => ['sometimes', 'accepted'],
+        ], [
+            'terms.accepted' => 'You must accept the Terms & Conditions to create an account.',
         ]);
 
         $fullName = trim($validated['first_name'] . ' ' . $validated['last_name']);

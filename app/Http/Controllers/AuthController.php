@@ -19,6 +19,9 @@ class AuthController extends Controller
         $credentials = $request->validate([
             'username' => ['required', 'string', 'max:255'],
             'password' => ['required'],
+            'terms' => ['sometimes', 'accepted'],
+        ], [
+            'terms.accepted' => 'You must accept the Terms & Conditions to sign in.',
         ]);
 
         $loginInput = trim($credentials['username']);

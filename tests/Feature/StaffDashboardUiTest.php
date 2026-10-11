@@ -118,4 +118,17 @@ class StaffDashboardUiTest extends TestCase
         $response->assertSee('return-to-station-btn');
         $response->assertSee('updateDrumPortal');
     }
+
+    public function test_login_page_renders_with_about_us_and_terms_and_conditions_modal(): void
+    {
+        $response = $this->get(route('login'));
+
+        $response->assertOk();
+        $response->assertSee('about-us-section');
+        $response->assertSee('About Trowa Laundry');
+        $response->assertSee('The Story Behind the Spin');
+        $response->assertSee('terms-modal');
+        $response->assertSee('login-terms-check');
+        $response->assertSee('openTermsModal');
+    }
 }
